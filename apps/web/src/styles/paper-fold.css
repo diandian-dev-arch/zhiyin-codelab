@@ -1,0 +1,310 @@
+/* 纸张折叠美学 - 共享样式 */
+
+:root {
+  /* 基础色彩 */
+  --bg-primary: #fdfbf7;
+  --bg-card: #fffcf5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --text-tertiary: #6a6a6a;
+
+  /* 强调色 */
+  --accent-gold: #daa520;
+  --accent-blue: #4682b4;
+  --accent-green: #4caf50;
+  --accent-red: #e53935;
+  --accent-orange: #ff9800;
+
+  /* 折角颜色 */
+  --fold-blue: #b8d9f0;
+  --fold-green: #c8e6c9;
+  --fold-orange: #ffe0b2;
+  --fold-pink: #f8bbd0;
+  --fold-gray: #d4c5a0;
+}
+
+/* 纸质纹理背景 */
+.paper-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+    radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+    radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+    linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+  background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 纸张卡片基础样式 */
+.paper-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+  border: 1px solid rgba(0,0,0,0.12);
+  position: relative;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.06),
+    0 8px 24px rgba(0,0,0,0.08);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+  transform-style: preserve-3d;
+}
+
+.paper-card:hover {
+  transform: translateY(-8px) rotate(0.5deg);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.1),
+    0 16px 48px rgba(0,0,0,0.12);
+}
+
+/* 折角效果 - 蓝色 */
+.fold-corner-blue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 64px 64px 0;
+  border-color: transparent var(--fold-blue) transparent transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(-2px 2px 4px rgba(70, 130, 180, 0.25));
+  z-index: 2;
+}
+
+.fold-corner-blue::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, transparent 50%, rgba(70, 130, 180, 0.12) 50%);
+  transition: all 0.4s;
+  z-index: 1;
+}
+
+.paper-card:hover.fold-corner-blue::before {
+  border-width: 0 80px 80px 0;
+}
+
+.paper-card:hover.fold-corner-blue::after {
+  width: 80px;
+  height: 80px;
+}
+
+/* 折角效果 - 绿色 */
+.fold-corner-green::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 64px 64px 0;
+  border-color: transparent var(--fold-green) transparent transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(-2px 2px 4px rgba(76, 175, 80, 0.25));
+  z-index: 2;
+}
+
+.fold-corner-green::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, transparent 50%, rgba(76, 175, 80, 0.12) 50%);
+  transition: all 0.4s;
+  z-index: 1;
+}
+
+/* 折角效果 - 橙色 */
+.fold-corner-orange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 64px 64px 0;
+  border-color: transparent var(--fold-orange) transparent transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(-2px 2px 4px rgba(255, 152, 0, 0.25));
+  z-index: 2;
+}
+
+.fold-corner-orange::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, transparent 50%, rgba(255, 152, 0, 0.12) 50%);
+  transition: all 0.4s;
+  z-index: 1;
+}
+
+/* 折角效果 - 粉色 */
+.fold-corner-pink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 64px 64px 0;
+  border-color: transparent var(--fold-pink) transparent transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(-2px 2px 4px rgba(233, 30, 99, 0.25));
+  z-index: 2;
+}
+
+.fold-corner-pink::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, transparent 50%, rgba(233, 30, 99, 0.12) 50%);
+  transition: all 0.4s;
+  z-index: 1;
+}
+
+/* 响应式内容容器 */
+.paper-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
+
+/* 纸张按钮 */
+.paper-button {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.paper-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.paper-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.paper-button:hover {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.paper-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+/* 页面标题样式 */
+.paper-page-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.paper-page-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+/* 状态徽章 */
+.paper-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.paper-badge.success {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--accent-green);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.paper-badge.warning {
+  background: rgba(255, 152, 0, 0.1);
+  color: var(--accent-orange);
+  border-color: rgba(255, 152, 0, 0.3);
+}
+
+.paper-badge.error {
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--accent-red);
+  border-color: rgba(229, 57, 53, 0.3);
+}
+
+.paper-badge.info {
+  background: rgba(70, 130, 180, 0.1);
+  color: var(--accent-blue);
+  border-color: rgba(70, 130, 180, 0.3);
+}

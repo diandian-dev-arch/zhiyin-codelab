@@ -1,0 +1,11 @@
+FROM node:22.14.0-bookworm-slim
+WORKDIR /opt/template
+COPY templates/vue-board-v1/package*.json ./
+RUN npm ci --ignore-scripts --no-audit --no-fund
+COPY templates/vue-board-v1/index.html templates/vue-board-v1/vite.config.js ./
+COPY templates/vue-board-v1 /opt/template-reference
+COPY deploy/executor/build.sh /opt/build.sh
+COPY deploy/executor/export-output.mjs /opt/export-output.mjs
+COPY deploy/executor/measure-build.mjs /opt/measure-build.mjs
+USER 1000:1000
+ENTRYPOINT ["sh", "/opt/build.sh"]

@@ -1,0 +1,164 @@
+/* 雾港手稿 · manuscript skin (2026-10-04, refined 2026-10-18)
+   Paper, ink and one rust accent; workspace hierarchy uses restrained sans type
+   and solid controls. Report-specific reading styles remain component-owned.
+   Utilities (ms-*) are reusable by any view; component scoped styles refine them. */
+
+/* ── Paper ─────────────────────────────────────────────────── */
+body {
+  background: var(--canvas);
+  letter-spacing: 0;
+  line-break: strict;
+  text-spacing-trim: space-first;
+  -webkit-font-smoothing: antialiased;
+}
+/* Glass Lab owns the shared grain layer. */
+@media print { body::before { display: none; } }
+
+/* ── Type ──────────────────────────────────────────────────── */
+h1, h2, h3, h4 { font-family: var(--font-body); font-weight: 650; text-wrap: balance; }
+h1 { line-height: 1.35; letter-spacing: 0; }
+h2, h3 { letter-spacing: 0; }
+.eyebrow, .nav-caption, .workspace-label span { font-family: var(--font-body); letter-spacing: 0; font-size: .75rem; color: var(--muted); }
+.muted { color: var(--muted); }
+:focus-visible { outline: 2px dashed var(--accent); outline-offset: 4px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+/* ── Controls ─────────────────────────────────────────────── */
+button, .button { border: 1px solid var(--control-line); background: var(--paper); color: var(--ink); letter-spacing: 0; }
+button:hover:not(:disabled), .button:hover { background: color-mix(in srgb, var(--gl-solid) 6%, transparent); }
+button.primary, .button.primary { background: var(--gl-solid); color: var(--gl-text); border-color: var(--ink); }
+button.primary:hover:not(:disabled), .button.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--gl-on-c1); }
+input, select, textarea { background: var(--paper); border-color: var(--control-line); }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+.icon-button { border-color: transparent; }
+
+/* ── Shell: sidebar as a ledger margin ─────────────────────── */
+.sidebar { background: var(--sidebar); border-right: 1px solid var(--line); }
+.brand { font-family: var(--font-display); font-weight: 600; letter-spacing: .16em; font-size: 1.15rem; }
+.brand svg { color: var(--accent); }
+.brand b { font-family: var(--font-outlier); font-weight: 400; font-size: .625rem; letter-spacing: .24em; color: var(--muted); text-transform: uppercase; border-left: 1px solid var(--line); padding-left: .6rem; margin-left: .5rem; }
+.workspace-label { border-bottom: 1px solid var(--line); }
+.workspace-label strong { font-family: var(--font-body); font-size: .875rem; font-weight: 500; line-height: 1.7; letter-spacing: 0; }
+.nav-item {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius-input);
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-bottom: 0;
+}
+.nav-item::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: .5rem;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  translate: 0 -50%;
+  scale: 0;
+  transition: scale .35s var(--ease-emphasis);
+}
+.nav-item:hover::after { scale: 1; }
+.nav-item[aria-current="page"] { background: transparent; color: var(--ink); font-weight: 650; box-shadow: none; }
+.nav-item[aria-current="page"]::after { scale: 1.4; }
+.nav-item[aria-current="page"] svg { color: var(--accent); }
+.sidebar .nav-item:not([aria-current="page"]):hover { background: transparent; color: var(--ink); }
+.sidebar-note p { font-family: var(--font-body); font-weight: 600; letter-spacing: 0; color: var(--ink); }
+.account { border-top: 1px solid var(--line); }
+.avatar { border-radius: 50%; background: var(--gl-solid); color: var(--gl-text); font-family: var(--font-display); }
+/* Palette v2: the sidebar becomes an ink spine. Tokens are re-scoped so every rule above
+   inverts without being rewritten; gold hairlines mark its chapters. */
+.sidebar {
+  background: var(--spine);
+  color: var(--on-ink);
+  border-right: 0;
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--gold-on-ink) 22%, transparent);
+}
+.sidebar .workspace-label { border-bottom-color: var(--line); }
+.sidebar .workspace-label span, .sidebar .nav-caption { color: var(--gold-on-ink); }
+.sidebar .nav-item[aria-current="page"] { background: var(--gl-solid); }
+.sidebar .nav-item[aria-current="page"]::before { content: none; }
+.sidebar .sidebar-note svg { color: var(--gold-on-ink); }
+.sidebar .avatar { background: transparent; color: var(--gold-on-ink); border: 1px solid color-mix(in srgb, var(--gold-on-ink) 70%, transparent); }
+.sidebar .icon-button { color: var(--on-ink-muted); border-color: transparent; }
+.sidebar .icon-button:hover:not(:disabled) { color: var(--on-ink); background: var(--gl-solid); }
+.topbar { background: color-mix(in srgb, var(--canvas) 92%, transparent); border-bottom: 1px solid var(--line); }
+.topbar-path, .topbar-context { font-family: var(--font-body); letter-spacing: 0; font-size: .8125rem; }
+.topbar-path strong { color: var(--ink); }
+.topbar-context .tag { font-family: var(--font-body); background: transparent; border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent); color: var(--ink); }
+
+/* ── Surfaces: ruled sheets instead of cards ───────────────── */
+.panel, .task-collection, .task-pulse {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.page-heading h1 { font-size: var(--text-display); }
+.tag, .count-label, .status { border-radius: .25rem; font-family: var(--font-body); letter-spacing: 0; }
+.notice { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--paper)); border-radius: var(--radius-input); }
+.error { border-radius: var(--radius-input); border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--paper)); }
+:where(.workspace, dialog) details { border-radius: var(--radius-input); background: transparent; border-color: var(--line); }
+:where(.workspace, dialog) details[open] { border-color: var(--ink-line); }
+:where(.workspace, dialog) details > summary { font-family: var(--font-body); letter-spacing: 0; font-size: .875rem; }
+:where(.workspace, dialog) details > summary:focus-visible { border-radius: 0; }
+dialog { border: 1px solid var(--control-line); border-radius: var(--radius); background: var(--paper); }
+dialog::backdrop { background: var(--gl-solid); }
+.segmented { border-radius: var(--radius-input); background: var(--surface); border: 1px solid var(--line); }
+.segmented button { border: 0; border-radius: .25rem; background: transparent; }
+.segmented button[aria-pressed="true"] { background: var(--gl-solid); color: var(--gl-text); box-shadow: none; }
+.task-icon { border-radius: 50%; background: transparent; border: 1px solid var(--line); }
+.task-arrow { border-radius: var(--radius-input); }
+.task-description h2 { font-size: 1.25rem; }
+
+/* ── Utilities ─────────────────────────────────────────────── */
+/* Chapter label: "01 — 标题 / ENGLISH" */
+.ms-cap { display: inline-flex; align-items: baseline; gap: .5em; font-family: var(--font-outlier); font-size: .6875rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); line-height: 1.6; }
+.ms-cap b { color: var(--accent); font-weight: 400; }
+/* Underline that withdraws on hover; arrow moves on. */
+.ms-ul { position: relative; display: inline-flex; align-items: center; gap: .6em; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ink); letter-spacing: .12em; text-decoration: none; }
+.ms-ul::after { content: ''; position: absolute; inset: auto 0 .55rem; height: 1px; background: currentColor; transform-origin: right; transition: transform .5s var(--ease-emphasis); }
+.ms-ul:hover::after { transform: scaleX(0); }
+.ms-ul:hover:not(:disabled) { background: transparent; color: var(--accent); }
+.ms-ul svg { transition: translate .5s var(--ease-emphasis); }
+.ms-ul:hover svg { translate: 4px 0; }
+/* Logbook strip: three mono notes spread across a hairline, like the header of a ship's log. */
+.ms-log { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem var(--space-md); margin: 0; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--line); font: .6875rem/1.6 var(--font-outlier); letter-spacing: .22em; color: var(--muted); animation: studio-fade 1.2s var(--ease-out) both; }
+/* Diamond bullet for spec notes. */
+.ms-diamond { position: relative; padding-left: 1.5em; }
+.ms-diamond::before { content: '◇'; position: absolute; left: 0; top: 0; color: var(--accent); font-size: .8em; line-height: 2.1; }
+/* Rust flag pinned to a top rule. */
+.ms-flag { display: inline-block; background: var(--accent); color: var(--gl-on-c1); font-size: .75rem; letter-spacing: .2em; padding: .15rem .65rem .15rem .75rem; }
+/* Live dot, sea-blue by default. */
+.ms-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--sea); color: var(--sea); animation: studio-pulse 2.8s var(--ease-out) infinite; }
+.ms-dot.is-rust { background: var(--accent); color: var(--accent); }
+.ms-dot.is-off { background: var(--fog); animation: none; }
+/* Hand-drawn stroke. Set --len to roughly the path length. */
+.ms-draw { stroke-dasharray: var(--len, 1200); stroke-dashoffset: 0; animation: studio-ink 3.2s var(--ease-draw) both; }
+/* Outlined serif wordmark for dark blocks. */
+.ms-wordmark { font-family: var(--font-display); font-weight: 600; line-height: .82; letter-spacing: .02em; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--gold) 55%, transparent); white-space: nowrap; user-select: none; }
+/* Scroll reveal (v-reveal adds .rv only when motion is allowed). */
+.rv { transition: none; }
+.rv:not(.in) { opacity: 1; translate: none; }
+.rv.d1 { transition-delay: .12s; }
+.rv.d2 { transition-delay: .24s; }
+.rv.d3 { transition-delay: .36s; }
+
+/* ── Mobile nav ────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .mobile-workspace-nav a { letter-spacing: 0; }
+  .ms-log { letter-spacing: .14em; }
+  .ms-log > :nth-child(2) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv, .rv:not(.in) { opacity: 1; translate: none; transition: none; }
+  .ms-draw { animation: none; stroke-dashoffset: 0; }
+  .ms-dot { animation: none; }
+  .ms-log { animation: none; }
+}

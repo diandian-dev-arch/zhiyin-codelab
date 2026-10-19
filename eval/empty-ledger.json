@@ -1,0 +1,12 @@
+{
+  "version": "evaluation-ledger-v1",
+  "experimentId": "preparation-no-observations",
+  "plannedAt": "2026-09-28T02:15:00Z",
+  "registrySha256": "3fc40e359f0887cd466cd6549c9e12e899dd83d16255ba386eb2f92f00a87604",
+  "protocol": {
+    "path": "eval/protocol-v1.md",
+    "sha256": "cf5a1a043c13a462003dff95fcf32f38c623caa56bd37604d9752401fb302388"
+  },
+  "plannedTrials": [],
+  "trials": []
+}

@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
+WORKDIR /opt
+RUN npm install --ignore-scripts --no-audit --no-fund playwright@1.58.2
+COPY deploy/executor/check.mjs /opt/checks/check.mjs
+COPY deploy/executor/check-v2.mjs deploy/executor/v2-new-case.mjs deploy/executor/v2-filter-case.mjs deploy/executor/v2-core-case.mjs /opt/
+COPY deploy/executor/probe-v2.mjs deploy/executor/v2-filter-probe.mjs deploy/executor/v2-probe-capture.mjs /opt/
+COPY deploy/executor/export-output.mjs /opt/export-output.mjs
+# Chromium profile/crashpad data must stay inside the runner's disposable tmpfs.
+ENV XDG_CONFIG_HOME=/tmp/codelab-chromium-config \
+    XDG_CACHE_HOME=/tmp/codelab-chromium-cache
+USER 1000:1000
+# Preserve the legacy default. The v2 runner overrides this CMD explicitly.
+CMD ["node", "/opt/checks/check.mjs"]

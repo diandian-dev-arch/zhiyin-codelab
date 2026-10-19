@@ -1,0 +1,16 @@
+FROM docker:29.3.0-cli AS dockercli
+FROM node:24.15.0-bookworm-slim
+COPY --from=dockercli /usr/local/bin/docker /usr/local/bin/docker
+RUN npm install -g pnpm@11.21.0
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/runner/package.json apps/runner/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/contracts/package.json packages/contracts/package.json
+RUN pnpm install --frozen-lockfile --ignore-scripts
+COPY apps/runner apps/runner
+COPY packages/contracts packages/contracts
+COPY deploy/executor deploy/executor
+ENV RUNNER_HOST=0.0.0.0 RUNNER_PORT=3200 RUNNER_DATA_DIR=/var/lib/codelab-runner
+CMD ["node", "deploy/executor/supervisor.mjs"]

@@ -1,0 +1,54 @@
+{
+  "sampleId": "correct-independent",
+  "implementationFamilyId": "vue-board-options-reducer-family-002",
+  "purpose": "development",
+  "source": "constructed_execution",
+  "frozenEvaluationEligible": false,
+  "authorization": "team-constructed-development-sample",
+  "containsStudentSubmission": false,
+  "implementation": "Vue Options API parent, child row events, immutable reducer, explicit persistence per dispatch; no deep watch or shared template add/filter implementation.",
+  "originalZipSha256": "224ab32d71950b425ae8c444e5cf92b734f415ce0506b46517eec25445007771",
+  "sourceManifestSha256": "3c6e5990a6b59320a3c6725ac054ae706d725d9bddc8cecaef7e351ac7f8fc11",
+  "expectedCases": [
+    {
+      "caseId": "NEW-01",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "VALID-01",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "VALID-02",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "STATE-01",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "FILTER-01",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "FILTER-02",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "FILTER-03",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    },
+    {
+      "caseId": "SAVE-01",
+      "verdict": "passed",
+      "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+    }
+  ]
+}

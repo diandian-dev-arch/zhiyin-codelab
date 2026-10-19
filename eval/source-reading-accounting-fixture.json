@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "execution": "offline-fixture",
+  "buildSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "modelConfigSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "quick",
+  "planned": [
+    { "trialId": "fixture-limited", "sampleSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" },
+    { "trialId": "fixture-not-started", "sampleSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" }
+  ],
+  "observations": [
+    {
+      "trialId": "fixture-limited",
+      "taskId": "synthetic-task-1",
+      "sampleSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "status": "succeeded",
+      "report": { "reportQuality": "limited", "reportLimitReasons": ["COUNTEREVIDENCE_PLAN_INVALID"], "legacyWarningPresent": false },
+      "knownCostCny": null,
+      "costComplete": false
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "samples": [
+    {
+      "sampleId": "validation-empty-defect",
+      "implementationFamilyId": "vue-board-options-reducer-family-002",
+      "purpose": "development",
+      "source": "constructed_execution",
+      "frozenEvaluationEligible": false,
+      "authorization": "team-constructed-development-sample",
+      "containsStudentSubmission": false,
+      "implementation": "Allows only the named invalid input; all other behavior preserves the independent implementation. VALID-01",
+      "originalZipSha256": "d4b4379666d7e0bc0d7eab145f7111787585b28d2eb5a34b27da4f30d586b41a",
+      "sourceManifestSha256": "eff85a260a98ed783f7152bd379434b103a3343940ac7784f94abced662baed2",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "failed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        }
+      ]
+    },
+    {
+      "sampleId": "validation-space-defect",
+      "implementationFamilyId": "vue-board-options-reducer-family-002",
+      "purpose": "development",
+      "source": "constructed_execution",
+      "frozenEvaluationEligible": false,
+      "authorization": "team-constructed-development-sample",
+      "containsStudentSubmission": false,
+      "implementation": "Allows only the named invalid input; all other behavior preserves the independent implementation. VALID-02",
+      "originalZipSha256": "bf1375407b3484e40b309f20272485c478f1de4816989c8803fb16d506f1fd7d",
+      "sourceManifestSha256": "c17911e6554750c9bc62473484a3d36996074f8549bea19f80a1a9532f7bfbb9",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "failed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        }
+      ]
+    },
+    {
+      "sampleId": "state-reverse-defect",
+      "implementationFamilyId": "vue-board-options-reducer-family-002",
+      "purpose": "development",
+      "source": "constructed_execution",
+      "frozenEvaluationEligible": false,
+      "authorization": "team-constructed-development-sample",
+      "containsStudentSubmission": false,
+      "implementation": "Marking done works; reverse changes are visibly forced back to checked and the reducer keeps done=true. Both UI and stored state express the intended defect.",
+      "originalZipSha256": "42953c931519206bc01a31c9ffa6d1f60ef0d322b51cf821e5e3b18a67578dd0",
+      "sourceManifestSha256": "433cf7f463d86802236c14a492e2b0bc0199131894a7f5a010347f333050f96a",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "failed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "passed",
+          "basis": "Derived from the explicit implementation mutation before execution; not a measured result."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,807 @@
+{
+  "registryVersion": "development-samples-v1",
+  "generator": "scripts/fixtures.ts",
+  "templateVersion": "vue-board-v1",
+  "implementationFamilyId": "vue-board-v1-development-family-001",
+  "partitionPolicy": "同一模板及全部缺陷、修复变体只用于开发与演示，不得拆分进入冻结评测集。",
+  "sourceManifestScope": "只含通过准入的 src/** 与 public/** 原始文件字节；模板配置与依赖锁另行绑定。",
+  "samples": [
+    {
+      "sampleId": "correct",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": null,
+        "parentSourceManifestSha256": null,
+        "changedPaths": [],
+        "changes": [
+          "保留仓库参考模板的原始文件字节；名称不是已验证真值。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/correct.zip",
+      "originalZipSha256": "6c3bb3d5bc5cb4d34ee5fcc038711a9789f22092f15f37b640b979dfcbaadf6c",
+      "zipByteSize": 11477,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2431,
+            "sha256": "71828410254da9819dab67298345eeed9d325bb66aaa6be66ab2313fba225fee"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "有效且唯一的标题预期使数量恰好增加一，标题只对应一项。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "目标任务预期可以双向切换完成状态，身份保持一致。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，全部视图预期显示准确任务集合。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，未完成视图预期只显示未完成任务。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，已完成视图预期只显示完成任务。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "任务变更预期由深度 watch 写入 localStorage，刷新后恢复标题、数量与状态。"
+        }
+      ]
+    },
+    {
+      "sampleId": "filter-defect",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "correct",
+        "parentSourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "将 visible 的筛选谓词替换为 true，三个筛选选项都显示全部任务。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/filter-defect.zip",
+      "originalZipSha256": "018618426f3e47910948e31eb18288c4416d9b64cffe97aeb16e69ff242f3f24",
+      "zipByteSize": 11455,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2375,
+            "sha256": "4da20e197e2a9837b605a65bbd3575ab3d94b27405c25b6d25c6fbab5490f69d"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "7e7c0d2624f44777c9030284adee073692ca1013b0da475961d2076b082a8245"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "有效且唯一的标题预期使数量恰好增加一，标题只对应一项。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "目标任务预期可以双向切换完成状态，身份保持一致。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，全部视图预期显示准确任务集合。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "未完成视图仍显示完成和未完成两类任务。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "已完成视图仍显示完成和未完成两类任务。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "任务变更预期由深度 watch 写入 localStorage，刷新后恢复标题、数量与状态。"
+        }
+      ]
+    },
+    {
+      "sampleId": "build-error",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "correct",
+        "parentSourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "保留原有未闭合 Vue SFC 样本，预期可信构建过程拒绝编译。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/build-error.zip",
+      "originalZipSha256": "d731e544a2ea2b76ac5b09df38b5e5c33c8ac4a109934f78064ee1e5e8fd19ae",
+      "zipByteSize": 10255,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 18,
+            "sha256": "11b66286224a5948b2caa6d9d3d54a245220facd0887a5061b53c9d6ca0e56a3"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "eb635dbec1ce4d4289755fae2f3c1813b513d2843d9e6f25f08693821e1510f2"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "build_error",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "BUILD_ERROR",
+          "basis": "预期构建失败，功能未执行；不是功能不通过。"
+        }
+      ]
+    },
+    {
+      "sampleId": "create-missing",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "correct",
+        "parentSourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "移除 add 中唯一的入列操作；保留校验、标题清空与错误清除。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/create-missing.zip",
+      "originalZipSha256": "ba59d86134817683d92cefc8b1acef355a2e89a7e6e7d887b0d84e349ef0b1a3",
+      "zipByteSize": 11475,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2409,
+            "sha256": "aee15bfa44c55042fb216444966f88362e038a587c8b1014724ef1bfc6a470cf"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "d1b4bf609a4d091416141820366c4910625124dd10c2e341ec9d3a0e925ce4f5"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "有效标题提交后数量没有增加，也没有对应的新任务。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备无法创建目标任务，预期在 setup 阶段受阻。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备无法创建目标任务，预期在 setup 阶段受阻。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备无法创建目标任务，预期在 setup 阶段受阻。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备无法创建目标任务，预期在 setup 阶段受阻。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备无法创建目标任务，预期在 setup 阶段受阻。"
+        }
+      ]
+    },
+    {
+      "sampleId": "create-duplicate",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "correct",
+        "parentSourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "add 对同一标题入列两次，生成两个不同 ID 的任务。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/create-duplicate.zip",
+      "originalZipSha256": "3bde52b89e9554d5e951f3ca9af05afda7b5718f659d040fc6cb137ad6f37a85",
+      "zipByteSize": 11482,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2510,
+            "sha256": "c797b4925c003ca919849df439aad450850fb278d5aef70590fe8ff0459d636a"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "e555474bde0191232a39bfafedcf3bf5ccd554d1d88604bec9d6fdba52935c0d"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "有效标题提交后数量增加二，唯一标题对应两项任务。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备得到重复标题，无法确认唯一目标与准确任务集合，预期 setup 受阻。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备得到重复标题，无法确认唯一目标与准确任务集合，预期 setup 受阻。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备得到重复标题，无法确认唯一目标与准确任务集合，预期 setup 受阻。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备得到重复标题，无法确认唯一目标与准确任务集合，预期 setup 受阻。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "本案例自己的准备得到重复标题，无法确认唯一目标与准确任务集合，预期 setup 受阻。"
+        }
+      ]
+    },
+    {
+      "sampleId": "filter-setup-blocked",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "correct",
+        "parentSourceManifestSha256": "1e518684a7f9647724a58b57525914baa36c1eb81596e2fa5e98fc1e76c4ac46",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "禁用任务状态复选框，正常 UI 无法准备一条完成和一条未完成任务。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/filter-setup-blocked.zip",
+      "originalZipSha256": "664354255a096e323af8f143fabfc3fdf33f5b3e92dd956e9e4b809f22c0459d",
+      "zipByteSize": 11483,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2440,
+            "sha256": "c2c272723710c6739b51c51b8be33cf7c17ba204c0148dcc473abc1ce98e8f96"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "df28991d82054237671bb8746e3e78bc65dc13fad9d936c01d94331aa6340287"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "有效且唯一的标题预期使数量恰好增加一，标题只对应一项。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "目标可以创建，但状态控件被禁用，双向切换要求被明确违反。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "FILTER-01 自己的准备无法得到经确认的混合状态。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "FILTER-02 自己的准备无法得到经确认的混合状态。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "FILTER-03 自己的准备无法得到经确认的混合状态。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "not_run",
+          "preconditionStatus": "blocked",
+          "reasonCode": "SETUP_BLOCKED",
+          "basis": "刷新前无法改变并确认目标状态，SAVE-01 的准备未完成。"
+        }
+      ]
+    },
+    {
+      "sampleId": "fixed-with-regression",
+      "implementationFamilyId": "vue-board-v1-development-family-001",
+      "purpose": "development",
+      "frozenEvaluationEligible": false,
+      "origin": {
+        "kind": "repository_template_derivative",
+        "templateVersion": "vue-board-v1",
+        "templatePath": "templates/vue-board-v1",
+        "derivedFromSampleId": "filter-defect",
+        "parentSourceManifestSha256": "7e7c0d2624f44777c9030284adee073692ca1013b0da475961d2076b082a8245",
+        "changedPaths": [
+          "src/App.vue"
+        ],
+        "changes": [
+          "恢复 filter-defect 的正确筛选谓词。",
+          "同时移除持久化 watch；首次加载仍读取 localStorage，但新任务与状态不再保存。"
+        ]
+      },
+      "authorization": {
+        "basis": "现有仓库模板及本轮授权的本地开发样本构造",
+        "scope": "controlled-development-and-demo",
+        "containsStudentSubmission": false,
+        "externalCourseAuthorization": "not-applicable"
+      },
+      "archivePath": "fixtures/fixed-with-regression.zip",
+      "originalZipSha256": "1d2acb8ba36e2e4c6b2a8a8963e8360b34eb64f657ec6db196bde95db1680703",
+      "zipByteSize": 11484,
+      "sourceManifest": {
+        "algorithmVersion": "source-manifest-v1",
+        "files": [
+          {
+            "path": "src/App.vue",
+            "byteSize": 2407,
+            "sha256": "20f3233f5ae04b404b8c8421c80409579e39e058a062c0b5f07ae94d56ac20e0"
+          },
+          {
+            "path": "src/main.js",
+            "byteSize": 90,
+            "sha256": "51a0495e86a8402c926932a96d80acff2c78a07f530d0e249b931ee41efda6d4"
+          }
+        ],
+        "sourceManifestSha256": "ecf4cdb5ca612609fd122a5e402900fed770e9333f29aa31bd183538484829a3"
+      },
+      "verification": {
+        "status": "expected-only",
+        "browserExecution": "not_run",
+        "actualRunId": null,
+        "observedCaseResults": []
+      },
+      "truthBasis": {
+        "kind": "constructed-source-and-public-case-requirements",
+        "specification": "docs/engineering/CONTRACTS_V1.md#c12-首版案例矩阵",
+        "limitation": "预期基于源码构造，不是教师独立标注或真实浏览器结论；实际运行结果需另存证据记录。"
+      },
+      "expectedRunStatus": "completed",
+      "expectedCases": [
+        {
+          "caseId": "NEW-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "有效且唯一的标题预期使数量恰好增加一，标题只对应一项。"
+        },
+        {
+          "caseId": "VALID-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "空字符串预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "VALID-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "纯空格预期被 trim 校验拦截，任务数量不变。"
+        },
+        {
+          "caseId": "STATE-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "目标任务预期可以双向切换完成状态，身份保持一致。"
+        },
+        {
+          "caseId": "FILTER-01",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，全部视图预期显示准确任务集合。"
+        },
+        {
+          "caseId": "FILTER-02",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，未完成视图预期只显示未完成任务。"
+        },
+        {
+          "caseId": "FILTER-03",
+          "verdict": "passed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_SATISFIED",
+          "basis": "独立准备混合状态后，已完成视图预期只显示完成任务。"
+        },
+        {
+          "caseId": "SAVE-01",
+          "verdict": "failed",
+          "preconditionStatus": "satisfied",
+          "reasonCode": "ASSERTION_MISMATCH",
+          "basis": "在独立空存储上下文中，新任务与状态没有写入，刷新后预期丢失。"
+        }
+      ]
+    }
+  ]
+}

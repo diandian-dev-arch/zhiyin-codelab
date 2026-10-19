@@ -1,0 +1,232 @@
+/* ==========================================================================
+   Glass Lab · 动效层
+   原则：慢一些、少一些、柔一些。只动 transform / opacity / filter。
+   所有动效在 prefers-reduced-motion 下关闭（文末）。
+   ========================================================================== */
+
+/* ---------- 入场显现：配合 v-gl-reveal 指令添加 .is-in ---------- */
+.gl-reveal {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0);
+  filter: blur(6px);
+  transition:
+    opacity var(--gl-dur-enter) var(--gl-ease-out),
+    transform calc(var(--gl-dur-enter) + 0.1s) var(--gl-ease-out),
+    filter var(--gl-dur-enter) var(--gl-ease-out);
+  transition-delay: var(--gl-delay, 0s);
+}
+.gl-reveal.is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+/* 工作台里用更轻的版本：只位移 12px、不模糊 */
+.gl-reveal--soft {
+  transform: translate3d(0, 12px, 0);
+  filter: none;
+}
+
+/* ---------- 逐字上浮：配合 splitText() / v-gl-split ---------- */
+.gl-split .gl-ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 0.6em, 0) rotate(4deg);
+  filter: blur(8px);
+  animation: gl-ch-in 1.2s var(--gl-ease-out) forwards;
+  animation-delay: calc(var(--i) * 40ms + var(--base, 0ms));
+}
+@keyframes gl-ch-in {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* ---------- 通用关键帧 ---------- */
+@keyframes gl-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    filter: blur(6px);
+  }
+}
+@keyframes gl-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes gl-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(8px);
+  }
+}
+@keyframes gl-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@keyframes gl-ping {
+  70% {
+    box-shadow: 0 0 0 8px rgb(var(--gl-c2-rgb) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--gl-c2-rgb) / 0);
+  }
+}
+@keyframes gl-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes gl-shake {
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+@keyframes gl-breathe {
+  50% {
+    transform: scale(1.12);
+    opacity: 0.7;
+  }
+}
+@keyframes gl-morph {
+  33% {
+    border-radius: 62% 38% 37% 63% / 54% 61% 39% 46%;
+    transform: rotate(60deg) scale(1.08);
+  }
+  66% {
+    border-radius: 36% 64% 52% 48% / 62% 35% 65% 38%;
+    transform: rotate(-30deg) scale(0.95);
+  }
+}
+@keyframes gl-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* 便捷类 */
+.gl-anim-fade-up {
+  animation: gl-fade-up 1s var(--gl-ease-out) both;
+  animation-delay: var(--gl-delay, 0s);
+}
+.gl-anim-scale-in {
+  animation: gl-scale-in 0.7s var(--gl-ease-out) both;
+}
+.gl-shake {
+  animation: gl-shake 0.5s var(--gl-ease-out);
+}
+
+/* ---------- Vue <Transition> 预设 ----------
+   <Transition name="gl-fade">、<Transition name="gl-rise">、<Transition name="gl-pop"> */
+.gl-fade-enter-active,
+.gl-fade-leave-active {
+  transition: opacity var(--gl-dur) var(--gl-ease-out);
+}
+.gl-fade-enter-from,
+.gl-fade-leave-to {
+  opacity: 0;
+}
+.gl-rise-enter-active,
+.gl-rise-leave-active {
+  transition:
+    opacity var(--gl-dur-slow) var(--gl-ease-out),
+    transform var(--gl-dur-slow) var(--gl-ease-out);
+}
+.gl-rise-enter-from,
+.gl-rise-leave-to {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+.gl-pop-enter-active {
+  transition:
+    opacity 0.45s var(--gl-ease-out),
+    transform 0.6s var(--gl-ease-spring);
+}
+.gl-pop-leave-active {
+  transition:
+    opacity 0.25s,
+    transform 0.3s var(--gl-ease-out);
+}
+.gl-pop-enter-from,
+.gl-pop-leave-to {
+  opacity: 0;
+  transform: scale(0.94) translate3d(0, 8px, 0);
+}
+/* 路由切换：<RouterView v-slot="{ Component }"><Transition name="gl-page" mode="out-in"> */
+.gl-page-enter-active {
+  transition:
+    opacity 0.55s var(--gl-ease-out),
+    transform 0.7s var(--gl-ease-out),
+    filter 0.55s var(--gl-ease-out);
+}
+.gl-page-leave-active {
+  transition:
+    opacity 0.22s ease,
+    filter 0.22s ease;
+}
+.gl-page-enter-from {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  filter: blur(6px);
+}
+.gl-page-leave-to {
+  opacity: 0;
+  filter: blur(4px);
+}
+/* 列表增删：<TransitionGroup name="gl-list"> */
+.gl-list-move,
+.gl-list-enter-active,
+.gl-list-leave-active {
+  transition:
+    opacity 0.5s var(--gl-ease-out),
+    transform 0.6s var(--gl-ease-out);
+}
+.gl-list-enter-from,
+.gl-list-leave-to {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+}
+.gl-list-leave-active {
+  position: absolute;
+}
+
+/* 配色切换的圆形揭示（View Transitions API，由 theme.ts 驱动） */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* ---------- 减少动态效果 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    /* 必须精确为 0s：tests/e2e-design 断言 transitionDuration === "0s" */
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+  .gl-reveal,
+  .gl-split .gl-ch {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

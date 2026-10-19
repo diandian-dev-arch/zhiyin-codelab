@@ -1,0 +1,209 @@
+/* 雾港手稿 · motion layer (loaded after studio.css, before manuscript.css)
+   Principles:
+   1. Motion explains a change (arrive, respond, progress); idle content stays still.
+   2. Entrances use `translate`/`opacity`, hover uses `transform`, so they never fight.
+   3. Every final state equals the static design; reduced-motion users get it directly.
+   4. Real data only: rings, gauges and counters move toward API values, never invent them.
+   5. Manuscript feel: slow ink, no glow, no drop shadow — lines draw, numbers turn rust. */
+
+@property --progress { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes studio-rise { from { opacity: 0; translate: 0 18px; } }
+@keyframes studio-fade { from { opacity: 0; } }
+@keyframes studio-drop-in { from { opacity: 0; translate: 0 -8px; } }
+@keyframes studio-pop { 0% { scale: .96; } 100% { scale: 1; } }
+@keyframes studio-dialog-in { from { opacity: 0; translate: 0 16px; } }
+@keyframes studio-spin { to { rotate: 360deg; } }
+@keyframes studio-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 40%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 7px transparent; }
+}
+@keyframes studio-ring-fill { from { --progress: 0%; } }
+@keyframes studio-breathe { 50% { scale: 1.05; } }
+@keyframes studio-bob { 50% { translate: 0 -4px; } }
+@keyframes studio-draw { from { scale: 0 1; } }
+@keyframes studio-ink { from { stroke-dashoffset: var(--len, 1200); } }
+@keyframes studio-tide { from { translate: -100% 0; } to { translate: 100% 0; } }
+@keyframes studio-loading-bar { from { background-position: -60% 0, 0 0; } to { background-position: 160% 0, 0 0; } }
+
+/* ── Canvas & global polish ────────────────────────────────── */
+::selection { background: color-mix(in srgb, var(--accent) 24%, var(--paper)); color: var(--ink); }
+html { scrollbar-color: color-mix(in srgb, var(--fog) 70%, transparent) transparent; }
+.animated-number, .overview-item strong, .review-progress strong, .task-pulse strong { font-variant-numeric: tabular-nums; }
+
+/* ── Shell: sidebar, topbar, mobile nav ────────────────────── */
+.sidebar .brand svg { transition: rotate 1.2s var(--ease-emphasis), color var(--duration-state); }
+.sidebar .brand:hover svg { color: var(--on-ink); }
+.nav-item { position: relative; transition: background var(--duration-state), color var(--duration-state), border-color var(--duration-state); }
+.nav-item svg { transition: translate var(--duration-state) var(--ease-out-expo), color var(--duration-state), rotate 1.2s var(--ease-emphasis); }
+.sidebar .nav-item:hover svg { color: var(--on-ink); }
+
+.topbar { transition: background var(--duration-state), border-color var(--duration-state); }
+.topbar.is-scrolled {
+  background: color-mix(in srgb, var(--canvas) 86%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom-color: var(--ink-line);
+}
+.topbar-path strong { animation: studio-fade var(--duration-enter) var(--ease-out) both; }
+.mobile-workspace-nav a { transition: background var(--duration-state), color var(--duration-state); }
+
+/* ── Controls ──────────────────────────────────────────────── */
+button, .button { transition: background var(--duration-state), border-color var(--duration-state), color var(--duration-state), transform var(--duration-press) var(--ease-out); }
+button:active:not(:disabled), .button:active { transform: scale(.98); }
+button svg, .button svg, .task-arrow svg, .overview-action svg, a svg { transition: translate .5s var(--ease-emphasis), rotate .5s var(--ease-emphasis); }
+button:hover:not(:disabled) > .lucide-arrow-right, .button:hover > .lucide-arrow-right,
+button:hover:not(:disabled) > .lucide-arrow-right-icon, a:hover > .lucide-arrow-right, a:hover > .lucide-arrow-right-icon { translate: 4px 0; }
+button:hover:not(:disabled) > .lucide-arrow-up-right, a:hover > .lucide-arrow-up-right,
+button:hover:not(:disabled) > .lucide-arrow-up-right-icon, a:hover > .lucide-arrow-up-right-icon { translate: 3px -3px; }
+button:hover:not(:disabled) > .lucide-plus, button:hover:not(:disabled) > .lucide-plus-icon { rotate: 90deg; }
+
+input, select, textarea { transition: border-color var(--duration-state), background var(--duration-state); }
+input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--ink); }
+.studio-search { transition: border-color var(--duration-state); }
+.studio-search:focus-within { border-color: var(--ink); }
+
+/* ── Overview metrics ──────────────────────────────────────── */
+.overview-item { position: relative; transition: background var(--duration-state), border-color var(--duration-state); }
+.overview-item:hover:not(:disabled) .overview-action svg { translate: 4px 0; }
+.overview-item .overview-metric svg { transition: rotate 1.2s var(--ease-emphasis); }
+.overview-item:hover:not(:disabled) .overview-metric svg { color: var(--accent); }
+
+/* ── Task list ─────────────────────────────────────────────── */
+.task-list > .task-card { position: relative; isolation: isolate; }
+.task-list > .task-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-xs));
+  z-index: -1;
+  background: color-mix(in srgb, var(--gl-solid) 4%, transparent);
+  opacity: 0;
+  transition: opacity .6s var(--ease-out);
+}
+.task-list > .task-card:is(:hover, :focus-within)::before { opacity: 1; }
+.task-card .task-icon { transition: background var(--duration-state), color var(--duration-state), rotate 1.2s var(--ease-emphasis); }
+.task-card:hover .task-icon { color: var(--accent); }
+.task-arrow { transition: background var(--duration-state), color var(--duration-state), border-color var(--duration-state); }
+.task-card:hover .task-arrow { border-color: var(--ink); }
+.task-card:hover .task-arrow svg, .task-arrow:focus-visible svg { translate: 3px -3px; }
+
+/* ── Live states: status, progress, loading ────────────────── */
+.status:is(.running, .queued, .preparing, .building, .checking)::before,
+.studio-status i.lit { animation: studio-pulse 2.8s var(--ease-out) infinite; }
+.task-state.attention::before { animation: studio-pulse 2.8s var(--ease-out) infinite; }
+[class*="lucide-loader"] { animation: studio-spin 1.4s linear infinite; }
+
+.empty[role="status"], .loading[role="status"], .evidence-loading { position: relative; overflow: hidden; }
+.empty[role="status"]::after, .evidence-loading::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: studio-tide 2.2s var(--ease-emphasis) infinite;
+  pointer-events: none;
+}
+.loading[role="status"]::before {
+  content: '';
+  position: absolute;
+  top: calc(50% - 1.75rem);
+  left: 50%;
+  width: 8rem;
+  height: 1.5px;
+  translate: -50% 0;
+  background:
+    linear-gradient(90deg, transparent, var(--accent), transparent) 0 0 / 40% 100% no-repeat,
+    var(--line);
+  animation: studio-loading-bar 1.6s var(--ease-emphasis) infinite;
+}
+
+.agent-studio.is-working, .project-reading-state.is-running { position: relative; }
+.agent-studio.is-working::before,
+.project-reading-state.is-running::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.5px;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent) 0 0 / 40% 100% no-repeat;
+  animation: studio-loading-bar 2.4s var(--ease-emphasis) infinite;
+}
+
+.review-progress {
+  animation: studio-ring-fill var(--duration-data) var(--ease-out-expo) 120ms backwards;
+  transition: --progress var(--duration-data) var(--ease-out-expo);
+}
+
+/* Task content is immediately visible; motion is reserved for state changes. */
+.content > *, .overview-counts > *, .task-list > .task-card { animation: none; }
+
+.notice, .error, .import-note, .analysis-running-note { animation: studio-drop-in var(--duration-enter) var(--ease-out-expo) both; }
+
+/* ── Disclosure & dialog transitions (progressive) ─────────── */
+@supports selector(::details-content) {
+  :root { interpolate-size: allow-keywords; }
+  :where(.workspace, dialog) details:not(.map-files)::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition: opacity var(--duration-state) var(--ease-out), content-visibility var(--duration-state) allow-discrete;
+  }
+  :where(.workspace, dialog) details:not(.map-files)[open]::details-content { block-size: auto; opacity: 1; }
+}
+dialog[open] { animation: studio-dialog-in var(--duration-enter) var(--ease-out-expo); }
+dialog[open]::backdrop { animation: studio-fade var(--duration-enter) var(--ease-out); backdrop-filter: blur(2px); }
+
+/* ── Upload ────────────────────────────────────────────────── */
+.zip-drop { transition: border-color var(--duration-state), background .6s var(--ease-out); }
+.zip-drop .upload-symbol { transition: translate .8s var(--ease-emphasis), rotate 1.2s var(--ease-emphasis), color var(--duration-state); }
+.zip-drop:hover:not(.unavailable) .upload-symbol { translate: 0 -4px; rotate: -8deg; }
+.zip-drop.drag { border-style: solid; border-color: var(--accent); }
+.zip-drop.drag .upload-symbol { animation: studio-bob 900ms ease-in-out infinite; }
+.zip-drop.busy .upload-symbol { animation: studio-breathe 2.4s ease-in-out infinite; }
+
+/* ── Pointer spotlight (v-spotlight): a soft ink wash, not a glow ── */
+.has-spotlight { isolation: isolate; }
+.has-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(14rem circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity .6s var(--ease-out);
+}
+.has-spotlight:hover::after { opacity: 1; }
+
+/* ── Sign-in ───────────────────────────────────────────────── */
+.login-container { animation: studio-dialog-in var(--duration-emphasis) var(--ease-out-expo) both; }
+.signin-story h2, .signin-story > p, .login-workflow li, .login-card > * { animation: studio-rise var(--duration-emphasis) var(--ease-out-expo) both; }
+.signin-story > p { animation-delay: 120ms; }
+.login-workflow li { position: relative; }
+.login-workflow li::before {
+  content: '';
+  position: absolute;
+  inset: -1px 0 auto;
+  height: 1px;
+  background: color-mix(in srgb, var(--gold-on-ink) 60%, transparent);
+  transform-origin: left;
+  animation: studio-draw 1.4s var(--ease-draw) both;
+}
+.login-workflow li:nth-child(1), .login-workflow li:nth-child(1)::before { animation-delay: 240ms; }
+.login-workflow li:nth-child(2), .login-workflow li:nth-child(2)::before { animation-delay: 360ms; }
+.login-workflow li:nth-child(3), .login-workflow li:nth-child(3)::before { animation-delay: 480ms; }
+.login-card > :nth-child(2) { animation-delay: 80ms; }
+.login-card > :nth-child(3) { animation-delay: 160ms; }
+.login-card > :nth-child(n + 4) { animation-delay: 240ms; }
+.btn-login svg { transition: translate .5s var(--ease-emphasis); }
+.btn-login:hover:not(:disabled) svg { translate: 4px 0; }
+.password-field .icon-button svg { transition: scale var(--duration-state) var(--ease-emphasis); }
+.password-field .icon-button:active svg { scale: .85; }
+
+/* ── Reduced motion: final static states only ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  :where(.workspace, dialog) details::details-content { transition: none !important; }
+  .task-card:hover .task-icon, .zip-drop:hover .upload-symbol { rotate: none; translate: none; }
+}

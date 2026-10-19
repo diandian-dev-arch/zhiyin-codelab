@@ -1,0 +1,32 @@
+import { test, expect } from '@playwright/test';
+
+test('prototype hash link keeps destination, authenticates, navigates real pages and logs out', async ({page}, testInfo) => {
+  await page.goto('/#/projects');
+  await expect(page.getByLabel('邮箱', {exact:true})).toBeVisible();
+  await expect(page.locator('.workspace')).toHaveCount(0);
+  await page.getByLabel('邮箱', {exact:true}).fill('teacher@codelab.local');
+  await page.getByLabel('密码', {exact:true}).fill('Browser-test-only-2904!');
+  await page.getByRole('button', {name:'登录', exact:true}).click();
+  await expect(page.getByRole('heading', {name:'AI 项目解读',exact:true})).toBeVisible();
+  await expect(page).toHaveURL(/\/projects$/);
+  await page.screenshot({path:testInfo.outputPath('projects-desktop.png'),fullPage:true});
+  await page.reload();
+  await expect(page.getByRole('heading', {name:'AI 项目解读',exact:true})).toBeVisible();
+  await page.getByRole('navigation',{name:'工作台主导航'}).getByRole('link', {name:'账号与模型',exact:true}).click();
+  await expect(page.getByRole('definition').filter({hasText:'teacher@codelab.local'})).toBeVisible();
+  await page.getByRole('button',{name:'模型设置',exact:true}).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({width:390,height:844});
+  await expect(page.getByRole('navigation',{name:'工作台导航'}).getByRole('link',{name:'AI 项目解读',exact:true})).toBeVisible();
+  await page.screenshot({path:testInfo.outputPath('settings-mobile.png'),fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.getByRole('link',{name:'实训任务',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'实训任务',exact:true})).toBeVisible();
+  await page.goto('/student/submit/demo');
+  await expect(page.getByRole('heading',{name:'请从真实项目或任务继续'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'提交作业',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'退出登录',exact:true}).filter({visible:true}).click();
+  await expect(page.getByLabel('邮箱',{exact:true})).toBeVisible();
+  await expect(page.locator('.workspace')).toHaveCount(0);
+});

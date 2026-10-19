@@ -1,0 +1,157 @@
+import {test,expect} from '@playwright/test';
+import {zipSync,strToU8} from 'fflate';
+import {mkdir} from 'node:fs/promises';
+
+async function captureResponsive(page: import('@playwright/test').Page, name: string) {
+  await mkdir('output/frontend-design',{recursive:true});
+  for (const width of [320,375,414,768,1280]) {
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+    await page.screenshot({path:`output/frontend-design/${name}-${width}.png`,fullPage:!name.endsWith('dialog')});
+  }
+}
+
+test('real ZIP import, worker report, citations and history with synthetic model only',async({page},testInfo)=>{
+  await page.goto('/projects');
+  await page.getByLabel('邮箱',{exact:true}).fill('teacher@codelab.local');
+  await page.getByLabel('密码',{exact:true}).fill('Browser-test-only-2904!');
+  await page.getByRole('button',{name:'登录',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'AI 项目解读',exact:true})).toBeVisible();
+  const modelState=await (await page.request.get('/api/v2/model-settings')).json();
+  expect(modelState.configured).toBe(true);
+  expect(modelState.settings.model).toBe('source_ui_fixture');
+  let uploadRequests=0, analysisRequests=0;
+  page.on('request',request=>{
+    if(new URL(request.url()).pathname==='/api/v2/projects' && request.method()==='POST') uploadRequests++;
+    if(new URL(request.url()).pathname.endsWith('/analyze') && request.method()==='POST') analysisRequests++;
+  });
+  await page.getByLabel('选择项目 ZIP',{exact:true}).setInputFiles({
+    name:'source-flow-fixture.zip',mimeType:'application/zip',buffer:Buffer.from(zipSync({
+      'hello/app.py':strToU8('print("source-flow-fixture")'),
+      'hello/.env':strToU8('NOT_A_REAL_SECRET=fixture'),
+      'hello/node_modules/unused.js':strToU8('ignored'),
+    })),
+  });
+  await expect(page.getByRole('button',{name:'仅保存源码',exact:true})).toBeEnabled();
+  expect(uploadRequests).toBe(0);
+  const uploadAnalysis=page.getByRole('button',{name:'保存并继续',exact:true});
+  await expect(uploadAnalysis).toBeEnabled();
+  const uploaded=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v2/projects' && r.request().method()==='POST');
+  await uploadAnalysis.press('Enter');
+  const uploadResponse=await uploaded;
+  expect(uploadResponse.ok()).toBe(true);
+  expect((await uploadResponse.json()).analysisDisposition).toBe('not_requested');
+  await expect(page).toHaveURL(/\/projects\/[a-f0-9-]+$/);
+  const projectPath=new URL(page.url()).pathname;
+  expect(uploadRequests).toBe(1);
+  expect(analysisRequests).toBe(0);
+  await expect(page.getByRole('region',{name:'分析费用与预算'})).toBeVisible();
+  await page.getByRole('button',{name:'关闭解读配置',exact:true}).click();
+  expect(analysisRequests).toBe(0);
+  const start=page.getByRole('button',{name:'开始解读',exact:true});
+  await start.click();
+  await page.getByRole('button',{name:'关闭解读配置',exact:true}).click();
+  await expect(start).toBeFocused();
+  await start.click();
+  await page.getByRole('button',{name:/^确认并开始解读 ·/}).click();
+  const report=page.getByRole('region',{name:'项目解读报告',exact:true});
+  await expect(report).toContainText('合成模型集成测试报告',{timeout:30000});
+  const detail=await (await page.request.get('/api/v2'+projectPath)).json();
+  expect(detail.files.map((file:{path:string})=>file.path)).toEqual(['hello/app.py']);
+  expect(detail.omitted).toHaveLength(2);
+  expect(detail.analyses).toHaveLength(1);
+  expect(detail.analyses[0].status).toBe('succeeded');
+  expect(detail.analyses[0].events.length).toBeGreaterThan(1);
+  expect(analysisRequests).toBe(1);
+  await captureResponsive(page,'source-report');
+  await report.getByRole('tab',{name:'源码与模块',exact:true}).click();
+  await expect(report.getByRole('heading',{name:'先分清职责，再沿业务追踪'})).toBeVisible();
+  const firstModule=report.locator('.reader-entry').first();
+  const firstModuleSummary=firstModule.locator('summary');
+  await expect(firstModule).toHaveAttribute('open','');
+  await firstModuleSummary.focus();
+  await firstModuleSummary.press('Enter');
+  await expect(firstModule).not.toHaveAttribute('open','');
+  await expect(firstModule.locator('.reader-entry-body')).not.toBeVisible();
+  await firstModuleSummary.press('Space');
+  await expect(firstModule.locator('.reader-entry-body')).toBeVisible();
+  await report.getByRole('tab',{name:'读懂项目',exact:true}).click();
+  const citation=report.locator('.reader-source').first();
+  await citation.click();
+  const source=page.locator('.evidence-pane');
+  await expect(source).toContainText('print("source-flow-fixture")');
+  await captureResponsive(page,'source-dialog');
+  await source.getByRole('button',{name:'关闭源码',exact:true}).focus();
+  await page.keyboard.press('Escape');
+  await expect(source).not.toBeVisible();
+  await expect(citation).toBeFocused();
+  await page.getByRole('button',{name:'分析详情',exact:true}).click();
+  await expect(page.locator('.source-ledger')).toBeVisible();
+  await page.setViewportSize({width:1440,height:1000});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.screenshot({path:testInfo.outputPath('source-report.png'),fullPage:true});
+  await page.reload();
+  await expect(report).toContainText('合成模型集成测试报告');
+  await page.getByRole('link',{name:'我的项目',exact:true}).click();
+  await page.locator('.project-history a').filter({hasText:'source-flow-fixture'}).click();
+  await expect(report).toContainText('合成模型集成测试报告');
+  const restored=await (await page.request.get('/api/v2'+projectPath)).json();
+  expect(restored.analyses).toHaveLength(1);
+  await page.locator('.reading-more > summary').click();
+  await page.getByRole('button',{name:'重新解读',exact:true}).click();
+  await expect(page.getByRole('region',{name:'分析费用与预算'})).toBeVisible();
+  await page.getByRole('button',{name:/^确认并重新解读 ·/}).click();
+  await expect(page.locator('.reuse-notice[role="status"]')).toContainText('本次没有新模型调用');
+  expect((await (await page.request.get('/api/v2'+projectPath)).json()).analyses).toHaveLength(1);
+  await page.locator('.reading-more > summary').click();
+  await page.getByRole('button',{name:'重新解读',exact:true}).click();
+  await page.getByLabel('相同源码、模型与分析范围，优先复用已验证报告（不新增费用）').uncheck();
+  await page.getByText('价格依据与自定义单价',{exact:true}).click();
+  await page.getByLabel('使用我确认的人民币单价').check();
+  await page.getByLabel('输入 / 百万 token',{exact:true}).fill('100000');
+  await page.getByLabel('输出 / 百万 token',{exact:true}).fill('100000');
+  await page.getByLabel('启用单次费用控制').check();
+  await page.getByLabel('本次预算（元）').fill('0.01');
+  await page.getByRole('button',{name:/^确认并重新解读 ·/}).click();
+  await expect(page.getByRole('status').filter({hasText:'最新解读未完成'})).toBeVisible({timeout:15000});
+  await expect(report).toContainText('合成模型集成测试报告');
+  await page.getByRole('button',{name:'查看最新记录',exact:true}).click();
+  await expect(page.locator('.project-reading-state')).toContainText('单次预算不足以覆盖下一轮请求',{timeout:15000});
+  const stopped=await (await page.request.get('/api/v2'+projectPath)).json();
+  expect(stopped.analyses[0].code).toBe('SOURCE_COST_BUDGET');
+  expect(stopped.analyses[0].modelUsage.registeredCalls).toBe(0);
+  const history=page.locator('#project-analysis-record');
+  await expect(history).toBeVisible();
+  await history.selectOption(detail.analyses[0].id);
+  await expect(report).toContainText('合成模型集成测试报告');
+  await history.selectOption(stopped.analyses[0].id);
+  await expect(page.locator('.project-reading-state')).toContainText('单次预算不足以覆盖下一轮请求');
+  await page.getByRole('button',{name:'分析详情',exact:true}).click();
+  await expect(page.getByRole('region',{name:'本次费用估算'})).toBeVisible();
+  await page.screenshot({path:testInfo.outputPath('source-budget-desktop.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('button',{name:'关闭分析详情',exact:true}).click();
+  await page.getByRole('button',{name:'调整范围并重新分析',exact:true}).click();
+  await page.screenshot({path:testInfo.outputPath('source-budget-mobile.png'),fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.setViewportSize({width:1440,height:1000});
+  await page.getByRole('link',{name:'我的项目',exact:true}).click();
+  await page.getByRole('button',{name:'导入新项目',exact:true}).click();
+  await page.getByLabel('选择项目 ZIP',{exact:true}).setInputFiles({name:'source-flow-update.zip',mimeType:'application/zip',buffer:Buffer.from(zipSync({'hello/app.py':strToU8('print("updated")')}))});
+  await page.getByRole('button',{name:'保存并继续',exact:true}).click();
+  await page.getByText('高级选项：深入解读、重点目录与版本比较',{exact:true}).click();
+  const baseline = page.getByRole('combobox',{name:'对比版本',exact:true});
+  await baseline.focus();
+  await baseline.selectOption(projectPath.split('/').pop()!);
+  await page.getByRole('button',{name:/^确认并开始解读 ·/}).click();
+  await expect(report).toContainText('合成模型集成测试报告',{timeout:30000});
+  await page.getByRole('button',{name:'分析详情',exact:true}).click();
+  await expect(page.getByRole('region',{name:'变更分析范围'})).toContainText('修改 1');
+  await page.getByRole('button',{name:'退出登录',exact:true}).filter({visible:true}).click();
+  await page.getByLabel('邮箱',{exact:true}).fill('student@codelab.local');
+  await page.getByLabel('密码',{exact:true}).fill('Browser-test-only-2904!');
+  await page.getByRole('button',{name:'登录',exact:true}).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  expect((await page.request.get('/api/v2'+projectPath)).status()).toBe(404);
+  await expect(report).toHaveCount(0);
+});

@@ -1,0 +1,19 @@
+[Unit]
+Description=CodeLab independently scheduled resource cleanup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=codelab-runner
+Group=codelab-runner
+SupplementaryGroups=docker
+WorkingDirectory=/opt/codelab
+EnvironmentFile=/etc/codelab/runner.env
+ExecStart=/usr/bin/env node --import tsx apps/runner/src/reaper-cli.ts
+TimeoutStartSec=35
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/codelab-runner

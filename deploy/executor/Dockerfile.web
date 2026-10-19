@@ -1,0 +1,4 @@
+FROM node:22.14.0-bookworm-slim
+COPY deploy/executor/serve.mjs /opt/serve.mjs
+USER 1000:1000
+ENTRYPOINT ["node", "/opt/serve.mjs"]

@@ -1,0 +1,169 @@
+/* ==========================================================================
+   知因 CodeLab · Glass Lab 设计令牌（生产版）
+   --------------------------------------------------------------------------
+   · 全部变量使用 --gl- 前缀，避免与旧样式冲突。
+   · 四套深色配色通过 <html data-theme="..."> 切换，默认 bronze。
+   · *-rgb 变量是空格分隔的三元组，配合 rgb(var(--gl-c1-rgb) / 0.2) 使用，
+     也供 Canvas / WebGL 通过 getComputedStyle 读取。
+   · 色彩原则（务必遵守，见 01-DESIGN_SPEC.md §2）：
+       带色调的中性底 + 四个「明度/饱和度对齐」的莫兰迪色相，按语义分工；
+       渐变只在相邻色相之间；不使用高饱和霓虹色、不使用蓝紫 AI 渐变。
+   ========================================================================== */
+
+:root,
+html[data-theme="bronze"] {
+  /* 石墨·铜金（默认） */
+  --gl-bg: #0d0c0b;
+  --gl-bg-2: #16140f;
+  --gl-surface-rgb: 31 28 24;
+  --gl-text-rgb: 237 232 224;
+  --gl-muted-rgb: 158 150 139;
+  --gl-c1-rgb: 205 165 120; /* 主色 · 香槟铜 */
+  --gl-c2-rgb: 146 178 142; /* 绿 · 鼠尾草：通过 / 学生 */
+  --gl-c3-rgb: 234 214 188; /* 主色浅调：高光 */
+  --gl-c4-rgb: 212 144 126; /* 暖伴色 · 陶土玫瑰：需关注 */
+  --gl-c5-rgb: 130 172 178; /* 冷伴色 · 雾青：点缀 / 信息 */
+  --gl-on-c1: #17120c;
+}
+html[data-theme="celadon"] {
+  /* 墨色·青瓷 */
+  --gl-bg: #0a0f0f;
+  --gl-bg-2: #101817;
+  --gl-surface-rgb: 22 32 31;
+  --gl-text-rgb: 229 236 232;
+  --gl-muted-rgb: 140 157 152;
+  --gl-c1-rgb: 143 188 170;
+  --gl-c2-rgb: 210 182 128;
+  --gl-c3-rgb: 208 230 220;
+  --gl-c4-rgb: 214 150 130;
+  --gl-c5-rgb: 148 170 200;
+  --gl-on-c1: #0c1612;
+}
+html[data-theme="ochre"] {
+  /* 炭灰·赭石（延续旧品牌赭红） */
+  --gl-bg: #110e0c;
+  --gl-bg-2: #1a1512;
+  --gl-surface-rgb: 35 29 25;
+  --gl-text-rgb: 240 233 225;
+  --gl-muted-rgb: 162 149 138;
+  --gl-c1-rgb: 210 142 106;
+  --gl-c2-rgb: 166 178 126;
+  --gl-c3-rgb: 240 212 190;
+  --gl-c4-rgb: 206 146 158;
+  --gl-c5-rgb: 128 172 164;
+  --gl-on-c1: #1b0e07;
+}
+html[data-theme="rose"] {
+  /* 烟墨·灰玫 */
+  --gl-bg: #100e10;
+  --gl-bg-2: #181518;
+  --gl-surface-rgb: 33 29 32;
+  --gl-text-rgb: 238 232 233;
+  --gl-muted-rgb: 158 147 151;
+  --gl-c1-rgb: 206 158 164;
+  --gl-c2-rgb: 156 182 158;
+  --gl-c3-rgb: 238 218 216;
+  --gl-c4-rgb: 216 186 140;
+  --gl-c5-rgb: 150 172 192;
+  --gl-on-c1: #1a0f11;
+}
+
+:root {
+  /* ---------- 派生颜色 ---------- */
+  --gl-text: rgb(var(--gl-text-rgb));
+  --gl-text-2: rgb(var(--gl-text-rgb) / 0.78); /* 正文次级 */
+  --gl-muted: rgb(var(--gl-muted-rgb));
+  --gl-faint: rgb(var(--gl-muted-rgb) / 0.62); /* 只用于占位符、禁用态，不得用于需要阅读的文字 */
+  --gl-c1: rgb(var(--gl-c1-rgb));
+  --gl-c2: rgb(var(--gl-c2-rgb));
+  --gl-c3: rgb(var(--gl-c3-rgb));
+  --gl-c4: rgb(var(--gl-c4-rgb));
+  --gl-c5: rgb(var(--gl-c5-rgb));
+  --gl-line: rgb(var(--gl-text-rgb) / 0.09);
+  --gl-line-strong: rgb(var(--gl-text-rgb) / 0.16); /* 装饰性分隔 */
+  --gl-control-line: rgb(var(--gl-text-rgb) / 0.4); /* 表单控件边框，需 ≥3:1 */
+  --gl-glass: rgb(var(--gl-surface-rgb) / 0.52);
+  --gl-glass-strong: rgb(var(--gl-surface-rgb) / 0.78);
+  --gl-solid: rgb(var(--gl-surface-rgb)); /* 需要不透明时（表格表头、下拉菜单） */
+
+  /* ---------- 语义色 ---------- */
+  --gl-success-rgb: var(--gl-c2-rgb);
+  --gl-warning-rgb: var(--gl-c4-rgb);
+  --gl-info-rgb: var(--gl-c5-rgb);
+  --gl-danger-rgb: 222 128 112; /* 四套通用的低饱和砖红，只用于错误/破坏性操作 */
+  --gl-success: rgb(var(--gl-success-rgb));
+  --gl-warning: rgb(var(--gl-warning-rgb));
+  --gl-info: rgb(var(--gl-info-rgb));
+  --gl-danger: rgb(var(--gl-danger-rgb));
+
+  /* ---------- 身份色（body[data-role] 切换） ---------- */
+  --gl-role-rgb: var(--gl-c1-rgb);
+
+  /* ---------- 字体 ---------- */
+  --gl-font-sans: "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Source Han Sans SC",
+    "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --gl-font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+    Georgia, "Songti SC", "STSong", serif;
+  --gl-font-mono: "JetBrains Mono", "Cascadia Code", "SF Mono", Consolas, "Courier New",
+    monospace;
+
+  /* 字号阶梯（工作台以 14/15 为正文） */
+  --gl-fs-xs: 12px;
+  --gl-fs-sm: 13px;
+  --gl-fs-base: 14.5px;
+  --gl-fs-md: 16px;
+  --gl-fs-lg: 20px;
+  --gl-fs-xl: 26px;
+  --gl-fs-2xl: 34px;
+  --gl-fs-display: clamp(46px, 6.4vw, 94px);
+
+  /* ---------- 间距（4 的倍数） ---------- */
+  --gl-sp-1: 4px;
+  --gl-sp-2: 8px;
+  --gl-sp-3: 12px;
+  --gl-sp-4: 16px;
+  --gl-sp-5: 20px;
+  --gl-sp-6: 24px;
+  --gl-sp-8: 32px;
+  --gl-sp-10: 40px;
+  --gl-sp-12: 48px;
+
+  /* ---------- 圆角 ---------- */
+  --gl-r-xs: 6px;
+  --gl-r-sm: 10px;
+  --gl-r-md: 14px;
+  --gl-r-lg: 20px;
+  --gl-r-xl: 28px;
+  --gl-r-2xl: 40px;
+  --gl-r-pill: 999px;
+
+  /* ---------- 阴影 ---------- */
+  --gl-shadow-sm: 0 6px 18px -10px rgb(0 0 0 / 0.5);
+  --gl-shadow-md: 0 24px 60px -24px rgb(0 0 0 / 0.55);
+  --gl-shadow-lg: 0 40px 90px -30px rgb(0 0 0 / 0.65);
+  --gl-inner-hl: inset 0 1px 0 rgb(var(--gl-text-rgb) / 0.08);
+
+  /* ---------- 动效（节奏偏慢、偏柔，见规范 §5） ---------- */
+  --gl-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gl-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --gl-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --gl-dur-fast: 0.2s; /* 悬停颜色 */
+  --gl-dur: 0.4s; /* 常规状态切换 */
+  --gl-dur-slow: 0.7s; /* 面板、展开 */
+  --gl-dur-enter: 1.1s; /* 入场显现 */
+
+  /* ---------- 层级 ---------- */
+  --gl-z-nav: 50;
+  --gl-z-dropdown: 60;
+  --gl-z-dialog: 80;
+  --gl-z-toast: 90;
+  --gl-z-grain: 100;
+
+  color-scheme: dark;
+}
+
+body[data-role="student"] {
+  --gl-role-rgb: var(--gl-c2-rgb);
+}
+
+/* 旧令牌名到新令牌的映射见 tokens-bridge.css（替换 apps/web/tokens.css）。 */

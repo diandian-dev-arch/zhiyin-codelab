@@ -1,0 +1,20 @@
+import {afterEach,it,expect} from 'vitest';
+import {isolatedTestDB,type IsolatedTestDatabase} from './isolated-db';
+import {migrate} from '../apps/api/src/db';
+import {loadMigrations} from '../apps/api/src/migrations';
+import {migrateWorkspace} from '../scripts/workspace-migration-policy';
+let db:IsolatedTestDatabase;
+afterEach(async()=>{await db?.close();});
+it('pins an existing schema without upgrading and rejects mismatched or malformed pins',async()=>{
+  db=await isolatedTestDB();
+  const sources=await loadMigrations();await migrate(db,sources.filter(m=>m.version<=14));
+  const before=(await db.query('SELECT * FROM schema_migrations ORDER BY version')).rows;
+  await migrateWorkspace(db,{CODELAB_WORKSPACE_SCHEMA_PIN:'14'});
+  expect((await db.query('SELECT * FROM schema_migrations ORDER BY version')).rows).toEqual(before);
+  for(const pin of ['13','17'])await expect(migrateWorkspace(db,{CODELAB_WORKSPACE_SCHEMA_PIN:pin})).rejects.toThrow('PIN_MISMATCH');
+  for(const pin of ['','014','0','999','14;DROP TABLE users'])await expect(migrateWorkspace(db,{CODELAB_WORKSPACE_SCHEMA_PIN:pin})).rejects.toThrow('PIN_INVALID');
+  expect((await db.query('SELECT * FROM schema_migrations ORDER BY version')).rows).toEqual(before);
+  await migrateWorkspace(db,{});
+  expect((await db.query('SELECT max(version)::int AS version FROM schema_migrations')).rows[0].version).toBe(sources.at(-1)!.version);
+  await expect(migrateWorkspace(db,{CODELAB_WORKSPACE_SCHEMA_PIN:'14'})).rejects.toThrow('PIN_MISMATCH');
+},60000);

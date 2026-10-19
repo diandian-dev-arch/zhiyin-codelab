@@ -1,0 +1,121 @@
+/* ==========================================================================
+   tokens-bridge.css —— 直接替换 apps/web/tokens.css 的内容
+   --------------------------------------------------------------------------
+   apps/web/DESIGN.md 规定「换肤时令牌名保持稳定」。本文件保留旧令牌的全部名称，
+   只把值改为指向 Glass Lab 新令牌（--gl-*，定义在 glass/tokens.css）。
+   引入顺序要求：glass/tokens.css 必须先于本文件加载（见 02-IMPLEMENTATION_PLAN.md §2）。
+
+   语义变化说明（旧浅色 → 新深色）：
+   · ink / on-ink：旧版「墨色表面」是深色反白区。新版整站都是深色，
+     on-ink 统一为浅色文字，spine（侧栏）为略浅一档的深色。
+   · --dark 原本是「墨色实底按钮」，新版改为不透明深色表面，
+     主操作请改用 .gl-btn--primary（身份色实底）。
+   · --font-display：新版中文标题使用粗黑体，衬线只用于英文点缀与数字，
+     因此映射到无衬线；需要衬线的地方使用 .gl-serif 或 var(--gl-font-serif)。
+   · 对比度（以 bronze 为例，在 --canvas 上）：ink ≈15:1、muted ≈6.5:1、
+     control-line ≈3.4:1、accent ≈9:1。四套配色均满足 ≥4.5:1 / ≥3:1，
+     可用 handoff/tools/contrast-check.mjs 复核。
+   ========================================================================== */
+:root {
+  /* ---------- 表面 ---------- */
+  --canvas: var(--gl-bg);
+  --sidebar: var(--gl-bg-2);
+  --paper: rgb(var(--gl-surface-rgb) / 0.78);
+  --surface: rgb(var(--gl-text-rgb) / 0.05);
+  --mist: var(--surface);
+
+  /* ---------- 文字与线 ---------- */
+  --ink: var(--gl-text);
+  --muted: var(--gl-muted);
+  --quiet: var(--gl-muted);
+  --line: var(--gl-line);
+  --control-line: var(--gl-control-line);
+  --ink-line: var(--gl-control-line);
+  --fog: var(--gl-faint);
+
+  /* ---------- 主色（身份色跟随 body[data-role]） ---------- */
+  --accent: rgb(var(--gl-role-rgb));
+  --accent-hover: var(--gl-c3);
+  --accent-soft: rgb(var(--gl-role-rgb) / 0.14);
+  --accent-ink: var(--gl-c3);
+  --apricot: var(--gl-c3);
+  --blue: var(--gl-c5);
+
+  /* ---------- 语义色 ---------- */
+  --success: var(--gl-success);
+  --success-soft: rgb(var(--gl-success-rgb) / 0.14);
+  --danger: var(--gl-danger);
+  --danger-soft: rgb(var(--gl-danger-rgb) / 0.14);
+  --warning: var(--gl-warning);
+  --warning-soft: rgb(var(--gl-warning-rgb) / 0.14);
+
+  /* ---------- 辅助色 ---------- */
+  --dark: var(--gl-solid);
+  --teal: var(--gl-c5);
+  --sea: var(--gl-c5);
+  --sea-soft: rgb(var(--gl-c5-rgb) / 0.14);
+  --gold: var(--gl-c1);
+  --gold-soft: rgb(var(--gl-c1-rgb) / 0.14);
+
+  /* ---------- 「墨色表面」（侧栏、登录封面、Agent 刊头） ---------- */
+  --on-ink: var(--gl-text);
+  --on-ink-muted: var(--gl-muted);
+  --on-ink-line: var(--gl-line);
+  --spine: var(--gl-bg-2);
+  --spine-2: rgb(var(--gl-surface-rgb));
+  --accent-on-ink: var(--gl-c1);
+  --gold-on-ink: var(--gl-c3);
+  --sea-glow: rgb(var(--gl-c5-rgb) / 0.16);
+  --gold-line: rgb(var(--gl-c1-rgb) / 0.28);
+  --accent-glow: rgb(var(--gl-c1-rgb) / 0.22);
+
+  /* ---------- 字体 ---------- */
+  --font-body: var(--gl-font-sans);
+  --font-display: var(--gl-font-sans);
+  --font-outlier: var(--gl-font-mono);
+
+  /* ---------- 间距与字号（保持旧值，避免版式整体位移） ---------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: 2rem;
+
+  /* ---------- 圆角（新版更圆润） ---------- */
+  --radius: var(--gl-r-lg);
+  --radius-input: var(--gl-r-md);
+  --radius-pill: var(--gl-r-pill);
+
+  /* ---------- 阴影与光 ---------- */
+  --shadow: var(--gl-shadow-sm);
+  --shadow-raised: var(--gl-shadow-md);
+  --shadow-floating: var(--gl-shadow-lg);
+  --shadow-dialog: var(--gl-shadow-lg);
+  --highlight-inset: var(--gl-inner-hl);
+  --focus-glow: 0 0 0 4px rgb(var(--gl-role-rgb) / 0.18);
+  --glow-apricot: rgb(var(--gl-c1-rgb) / 0.25);
+
+  /* ---------- 动效（整体比旧版更慢、更柔） ---------- */
+  --duration-press: 120ms;
+  --duration-state: 200ms;
+  --duration-enter: 900ms;
+  --duration-emphasis: 1200ms;
+  --duration-data: 1800ms;
+  --ease-out: var(--gl-ease-out);
+  --ease-out-expo: var(--gl-ease-out);
+  --ease-emphasis: var(--gl-ease-in-out);
+  --ease-draw: cubic-bezier(0.4, 0.1, 0.2, 1);
+  --stagger: 120ms;
+
+  --banner-height: 4rem;
+  color-scheme: dark;
+}

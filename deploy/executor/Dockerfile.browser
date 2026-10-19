@@ -1,0 +1,6 @@
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
+WORKDIR /opt/checks
+RUN npm install --ignore-scripts --no-audit --no-fund playwright@1.58.2
+COPY deploy/executor/check.mjs ./
+USER 1000:1000
+ENTRYPOINT ["node", "/opt/checks/check.mjs"]
