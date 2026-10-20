@@ -2,7 +2,7 @@ import { onScopeDispose, ref } from 'vue';
 import { apiV2 } from '../api';
 import type { PersonalModelState } from '@codelab/contracts/model-settings';
 
-export function usePersonalModelSummary() {
+export function usePersonalModelSummary(enabled = true) {
   const state = ref<PersonalModelState>();
   const loading = ref(false);
   const error = ref('');
@@ -30,6 +30,6 @@ export function usePersonalModelSummary() {
   }
 
   onScopeDispose(() => { revision++; controller?.abort(); });
-  void refresh();
+  if (enabled) void refresh();
   return { state, loading, error, refresh };
 }

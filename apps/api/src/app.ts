@@ -27,7 +27,10 @@ import type {
 import { registerV2Routes } from "./routes-v2.js";
 import { registerSourceProjects } from './source-projects.js';
 import { createUserModelService, registerUserModelRoutes, type UserModelService } from './user-model-settings.js';
+import { enforceTeacherTrialRequest } from './teacher-trial-policy.js';
 export interface Config {
+  teacherTrial?: boolean;
+  sessionCookieName?: string;
   coursework?: {enabled?:boolean;background?:boolean};
   userModels?: UserModelService;
   sourceProvider?: import('./model-provider-v2.js').SummaryProviderV2;
@@ -52,6 +55,11 @@ export function problem(status: number, message: string): never {
   throw Object.assign(new Error(message), { statusCode: status });
 }
 export async function createApp(db: DB, config: Config) {
+  const sessionCookieName = config.sessionCookieName ?? (config.teacherTrial ? 'codelab_teacher_trial_sid' : 'sid');
+  if (!/^[A-Za-z_][A-Za-z0-9_-]{0,63}$/.test(sessionCookieName) || (config.teacherTrial && sessionCookieName === 'sid'))
+    throw new Error('SESSION_COOKIE_NAME_INVALID');
+  if (config.teacherTrial && (config.executionApproved || config.userModels || config.sourceProvider || config.packs?.length || config.evidenceReader || config.approvedFingerprint))
+    throw new Error('TEACHER_TRIAL_CAPABILITIES_MUST_BE_DISABLED');
   const app = Fastify({ logger: false, bodyLimit: 11 * 1024 * 1024 });
   await app.register(cookie);
   await app.register(multipart, {
@@ -131,7 +139,7 @@ export async function createApp(db: DB, config: Config) {
       problem(403, "请求来源不受信任");
     if (req.url === "/api/v1/health" || req.url === "/api/v1/session/login")
       return;
-    const sid = req.cookies.sid;
+    const sid = req.cookies[sessionCookieName];
     if (!sid) problem(401, "请先登录");
     const session = (
       await db.query(
@@ -154,6 +162,7 @@ export async function createApp(db: DB, config: Config) {
       problem(403, "安全令牌已失效，请刷新页面");
     if (
       config.businessVersion === 2 &&
+      !config.teacherTrial &&
       !["GET", "HEAD"].includes(req.method) &&
       /^\/api\/v1\/(tasks|submissions|runs)(\/|\?|$)/.test(req.url)
     )
@@ -161,6 +170,9 @@ export async function createApp(db: DB, config: Config) {
         new Error("业务接口已升级，请刷新工作台；历史报告仍可读取"),
         { statusCode: 409, code: "CLIENT_UPGRADE_REQUIRED" },
       );
+  });
+  if (config.teacherTrial) app.addHook('preValidation', async req => {
+    enforceTeacherTrialRequest({ method: req.method, url: req.url, body: req.body });
   });
   const user = (req: any) => req.user;
   const teacher = (req: any) => {
@@ -209,6 +221,7 @@ export async function createApp(db: DB, config: Config) {
     ok: true,
     executionApproved: config.executionApproved,
     businessVersion: config.businessVersion ?? 1,
+    ...(config.teacherTrial ? { workspace: 'teacher-trial', modelsEnabled: false, codeExecutionEnabled: false } : {}),
   }));
   app.post(
     "/api/v1/session/login",
@@ -233,7 +246,7 @@ export async function createApp(db: DB, config: Config) {
         "INSERT INTO sessions VALUES($1,$2,$3,now()+interval '8 hours')",
         [digest(sid), u.id, csrf],
       );
-      reply.setCookie("sid", sid, {
+      reply.setCookie(sessionCookieName, sid, {
         httpOnly: true,
         secure: config.secure,
         sameSite: "strict",
@@ -251,12 +264,13 @@ export async function createApp(db: DB, config: Config) {
     csrf: (req as any).session.csrf,
     executionApproved: config.executionApproved,
     businessVersion: config.businessVersion ?? 1,
+    ...(config.teacherTrial ? { workspace: 'teacher-trial' } : {}),
   }));
   app.post("/api/v1/session/logout", async (req, reply) => {
     await db.query("DELETE FROM sessions WHERE id=$1", [
       (req as any).session.id,
     ]);
-    reply.clearCookie("sid", { path: "/" });
+    reply.clearCookie(sessionCookieName, { path: "/" });
     return { ok: true };
   });
   app.get("/api/v1/classes", async (req) => ({
@@ -825,7 +839,7 @@ export async function createApp(db: DB, config: Config) {
     reply.raw.end();
   });
   await registerV2Routes(app, db, {
-    coursework:config.coursework,
+    coursework:config.teacherTrial ? { ...config.coursework, background: false } : config.coursework,
     courseVault: config.userModels,
     personalModels: config.userModels?.resolve,
     storageAdmission: config.storageAdmission,
@@ -838,6 +852,11 @@ export async function createApp(db: DB, config: Config) {
     approvedFingerprint: config.approvedFingerprint,
   });
   registerUserModelRoutes(app, config.userModels ?? createUserModelService(db, undefined));
-  await registerSourceProjects(app, db, config.userModels ? config.userModels.resolve : config.sourceProvider, config.storageAdmission);
+  if (config.teacherTrial) {
+    // The first trial has no project-analysis worker or shared upload-spool reaper.
+    app.get('/api/v2/projects', async () => ({ projects: [], available: false }));
+  } else {
+    await registerSourceProjects(app, db, config.userModels ? config.userModels.resolve : config.sourceProvider, config.storageAdmission);
+  }
   return app;
 }

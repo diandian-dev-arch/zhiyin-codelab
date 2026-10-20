@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab | 风格预览</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: white;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 32px;
+      margin-bottom: 80px;
+    }
+
+    .preview-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .preview-card:hover {
+      transform: translateY(-4px);
+      border-color: #666;
+      box-shadow: 0 8px 32px rgba(255,255,255,0.1);
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 700;
+    }
+
+    .preview-info {
+      padding: 24px;
+    }
+
+    .preview-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .preview-desc {
+      font-size: 15px;
+      color: #999;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .preview-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    /* 风格 1: 赛博朋克网格 */
+    .style-1 {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
+      background-image:
+        linear-gradient(rgba(255,0,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,0,255,0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    /* 风格 2: 纸张折叠 */
+    .style-2 {
+      background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 100%);
+      position: relative;
+    }
+
+    .style-2::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.02) 49%, rgba(0,0,0,0.02) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.02) 49%, rgba(0,0,0,0.02) 51%, transparent 52%);
+      background-size: 40px 40px;
+    }
+
+    /* 风格 3: 极简线条 */
+    .style-3 {
+      background: #fafafa;
+      border-left: 4px solid #000;
+    }
+
+    /* 风格 4: 深空渐变 */
+    .style-4 {
+      background: radial-gradient(ellipse at top, #1e3a5f 0%, #0a0e27 50%, #000000 100%);
+    }
+
+    /* 风格 5: 暖色卡片 */
+    .style-5 {
+      background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+    }
+
+    /* 风格 6: 极光 */
+    .style-6 {
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(120,220,180,0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(140,180,255,0.3) 0%, transparent 50%),
+        linear-gradient(180deg, #0a1628 0%, #000814 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>选择你喜欢的视觉风格</h1>
+
+    <div class="grid">
+      <!-- 风格 1 -->
+      <div class="preview-card" onclick="window.open('variant-cyber-grid.html')">
+        <div class="preview-image style-1">
+          <span style="color: #ff00ff; text-shadow: 0 0 20px #ff00ff;">CYBER</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">赛博朋克网格</div>
+          <div class="preview-desc">霓虹色彩 + 网格背景 + 故障艺术效果，充满科技感和未来感</div>
+          <div class="preview-tags">
+            <span class="tag">霓虹色</span>
+            <span class="tag">网格</span>
+            <span class="tag">故障风</span>
+            <span class="tag">科技感</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格 2 -->
+      <div class="preview-card" onclick="window.open('variant-paper-fold.html')">
+        <div class="preview-image style-2">
+          <span style="color: #2a2a2a;">PAPER</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">纸张折叠</div>
+          <div class="preview-desc">米白纸质纹理 + 折痕阴影 + 立体层次，温暖亲和的手工质感</div>
+          <div class="preview-tags">
+            <span class="tag">纸质</span>
+            <span class="tag">折叠</span>
+            <span class="tag">温暖</span>
+            <span class="tag">亲和</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格 3 -->
+      <div class="preview-card" onclick="window.open('variant-minimal-line.html')">
+        <div class="preview-image style-3">
+          <span style="color: #000;">MINIMAL</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">极简线条</div>
+          <div class="preview-desc">黑白配色 + 粗线框 + 大留白，专业严肃的杂志风格</div>
+          <div class="preview-tags">
+            <span class="tag">黑白</span>
+            <span class="tag">线条</span>
+            <span class="tag">留白</span>
+            <span class="tag">专业</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格 4 -->
+      <div class="preview-card" onclick="window.open('variant-deep-space.html')">
+        <div class="preview-image style-4">
+          <span style="color: #8ab4f8;">SPACE</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">深空渐变</div>
+          <div class="preview-desc">深蓝星空 + 径向渐变 + 柔和光晕，神秘沉浸的宇宙感</div>
+          <div class="preview-tags">
+            <span class="tag">深蓝</span>
+            <span class="tag">星空</span>
+            <span class="tag">渐变</span>
+            <span class="tag">沉浸</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格 5 -->
+      <div class="preview-card" onclick="window.open('variant-warm-card.html')">
+        <div class="preview-image style-5">
+          <span style="color: #d97706;">WARM</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">暖色卡片</div>
+          <div class="preview-desc">奶油橙 + 圆角卡片 + 柔和阴影，温暖友好的治愈系</div>
+          <div class="preview-tags">
+            <span class="tag">暖色</span>
+            <span class="tag">圆角</span>
+            <span class="tag">柔和</span>
+            <span class="tag">友好</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风格 6 -->
+      <div class="preview-card" onclick="window.open('variant-aurora.html')">
+        <div class="preview-image style-6">
+          <span style="color: #78ddb4; text-shadow: 0 0 20px #78ddb4;">AURORA</span>
+        </div>
+        <div class="preview-info">
+          <div class="preview-title">极光渐变</div>
+          <div class="preview-desc">青绿光晕 + 多层渐变 + 流动感，梦幻柔美的自然光效</div>
+          <div class="preview-tags">
+            <span class="tag">极光</span>
+            <span class="tag">光晕</span>
+            <span class="tag">流动</span>
+            <span class="tag">梦幻</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

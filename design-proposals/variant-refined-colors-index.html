@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab | 精致配色方案</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0f;
+      color: #f1f5f9;
+      padding: 80px 40px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 12px;
+    }
+
+    .schemes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 32px;
+    }
+
+    .scheme-card {
+      background: #16161d;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .scheme-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .scheme-preview {
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .preview-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.6;
+    }
+
+    /* 方案1：冰蓝科技 */
+    .scheme-1 { background: linear-gradient(135deg, #0d0d12 0%, #16161d 100%); }
+    .scheme-1 .orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; right: -50px; }
+    .scheme-1 .orb-2 { width: 200px; height: 200px; background: #06b6d4; bottom: -50px; left: -50px; }
+
+    /* 方案2：紫罗兰雾 */
+    .scheme-2 { background: linear-gradient(135deg, #0f0f15 0%, #1a1a24 100%); }
+    .scheme-2 .orb-1 { width: 300px; height: 300px; background: #8b5cf6; top: -100px; right: -50px; }
+    .scheme-2 .orb-2 { width: 200px; height: 200px; background: #ec4899; bottom: -50px; left: -50px; }
+
+    /* 方案3：极地灰阶 */
+    .scheme-3 { background: linear-gradient(135deg, #0d1117 0%, #1a1e2e 100%); }
+    .scheme-3 .orb-1 { width: 300px; height: 300px; background: #60a5fa; top: -100px; right: -50px; }
+    .scheme-3 .orb-2 { width: 200px; height: 200px; background: #6b7280; bottom: -50px; left: -50px; }
+
+    /* 方案4：深海青蓝 */
+    .scheme-4 { background: linear-gradient(135deg, #0a0e1a 0%, #1a1d2e 100%); }
+    .scheme-4 .orb-1 { width: 300px; height: 300px; background: #06b6d4; top: -100px; right: -50px; }
+    .scheme-4 .orb-2 { width: 200px; height: 200px; background: #0284c7; bottom: -50px; left: -50px; }
+
+    /* 方案5：紫粉渐变 */
+    .scheme-5 { background: linear-gradient(135deg, #0c0c14 0%, #1c1c2a 100%); }
+    .scheme-5 .orb-1 { width: 300px; height: 300px; background: #a78bfa; top: -100px; right: -50px; }
+    .scheme-5 .orb-2 { width: 200px; height: 200px; background: #f472b6; bottom: -50px; left: -50px; }
+
+    .color-palette {
+      display: flex;
+      gap: 8px;
+      padding: 16px;
+      justify-content: center;
+    }
+
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .scheme-info {
+      padding: 28px;
+    }
+
+    .scheme-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .scheme-subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    .scheme-desc {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .view-link {
+      display: inline-block;
+      padding: 10px 24px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 8px;
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .view-link:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.3);
+      transform: translateX(4px);
+    }
+
+    @media (max-width: 768px) {
+      .schemes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 知因 CodeLab 精致配色</h1>
+      <p class="subtitle">五种专业级配色方案 · 点击查看完整设计</p>
+      <p class="note">每个方案都基于相同的设计系统，只改变色彩搭配</p>
+    </header>
+
+    <div class="schemes-grid">
+      <!-- 方案1：冰蓝科技 -->
+      <a href="variant-refined-1.html" class="scheme-card">
+        <div class="scheme-preview scheme-1">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #3b82f6;"></div>
+          <div class="color-dot" style="background: #60a5fa;"></div>
+          <div class="color-dot" style="background: #06b6d4;"></div>
+          <div class="color-dot" style="background: #0d0d12;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">方案 1：冰蓝科技</h3>
+          <p class="scheme-subtitle">Ice Blue Tech</p>
+          <p class="scheme-desc">专业的科技蓝 + 克制的青色点缀。冷静、理性、高效，适合追求极致专业感的场景。</p>
+          <span class="view-link">查看完整方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案2：紫罗兰雾 -->
+      <a href="variant-refined-2.html" class="scheme-card">
+        <div class="scheme-preview scheme-2">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #8b5cf6;"></div>
+          <div class="color-dot" style="background: #a78bfa;"></div>
+          <div class="color-dot" style="background: #ec4899;"></div>
+          <div class="color-dot" style="background: #0f0f15;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">方案 2：紫罗兰雾</h3>
+          <p class="scheme-subtitle">Violet Mist</p>
+          <p class="scheme-desc">高贵的紫色 + 粉色渐变点缀。神秘、智能、优雅，AI 产品的经典配色，平衡科技与艺术。</p>
+          <span class="view-link">查看完整方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案3：极地灰阶 -->
+      <a href="variant-refined-3.html" class="scheme-card">
+        <div class="scheme-preview scheme-3">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #60a5fa;"></div>
+          <div class="color-dot" style="background: #6b7280;"></div>
+          <div class="color-dot" style="background: #1f2937;"></div>
+          <div class="color-dot" style="background: #0d1117;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">方案 3：极地灰阶</h3>
+          <p class="scheme-subtitle">Arctic Slate</p>
+          <p class="scheme-desc">克制的灰蓝 + 极简石板灰。类似 Linear，专业、低调、高效，避免过度装饰。</p>
+          <span class="view-link">查看完整方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案4：深海青蓝 -->
+      <a href="variant-refined-4.html" class="scheme-card">
+        <div class="scheme-preview scheme-4">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #06b6d4;"></div>
+          <div class="color-dot" style="background: #0284c7;"></div>
+          <div class="color-dot" style="background: #1e2a3a;"></div>
+          <div class="color-dot" style="background: #0a0e1a;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">方案 4：深海青蓝</h3>
+          <p class="scheme-subtitle">Ocean Depths</p>
+          <p class="scheme-desc">深海蓝 + 青绿渐变。平衡温度感，既有科技感又不失亲和力，适合教育场景。</p>
+          <span class="view-link">查看完整方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案5：紫粉渐变 -->
+      <a href="variant-refined-5.html" class="scheme-card">
+        <div class="scheme-preview scheme-5">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #a78bfa;"></div>
+          <div class="color-dot" style="background: #f472b6;"></div>
+          <div class="color-dot" style="background: #2a2438;"></div>
+          <div class="color-dot" style="background: #0c0c14;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">方案 5：紫粉渐变</h3>
+          <p class="scheme-subtitle">Violet Pink</p>
+          <p class="scheme-desc">紫 + 粉红现代渐变。有活力、有温度，在严肃中加入一丝温暖和创意。</p>
+          <span class="view-link">查看完整方案 →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

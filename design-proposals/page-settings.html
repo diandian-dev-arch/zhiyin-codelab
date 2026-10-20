@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统设置 | 知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #fdfbf7;
+      --bg-card: #fffcf5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-tertiary: #6a6a6a;
+      --accent-gold: #daa520;
+      --accent-blue: #4682b4;
+      --accent-green: #4caf50;
+      --fold-pink: #f8bbd0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* 背景 */
+    .paper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+        radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+      background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      z-index: 0;
+    }
+
+    /* 导航栏 */
+    nav {
+      position: relative;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    /* 主内容 */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      margin-bottom: 40px;
+    }
+
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    /* 两栏布局 */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
+    }
+
+    /* 侧边栏菜单 */
+    .settings-sidebar {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 8px;
+      height: fit-content;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      position: sticky;
+      top: 24px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .menu-item:hover {
+      background: rgba(0,0,0,0.04);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active {
+      background: var(--text-primary);
+      color: white;
+    }
+
+    .menu-icon {
+      font-size: 18px;
+    }
+
+    /* 设置内容区 */
+    .settings-content {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: visible;
+    }
+
+    /* 折角 */
+    .settings-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 72px 72px 0;
+      border-color: transparent var(--fold-pink) transparent transparent;
+      filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+
+    .settings-content::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, transparent 50%, rgba(248, 187, 208, 0.12) 50%);
+      z-index: 1;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    /* 设置项 */
+    .setting-group {
+      margin-bottom: 40px;
+    }
+
+    .group-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(0,0,0,0.08);
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      flex: 1;
+      margin-right: 24px;
+    }
+
+    .setting-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .setting-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .setting-control {
+      flex-shrink: 0;
+    }
+
+    /* 开关 */
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background: rgba(0,0,0,0.12);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: var(--accent-green);
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.active::before {
+      left: 27px;
+    }
+
+    /* 输入框 */
+    .setting-input {
+      padding: 10px 14px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      font-size: 14px;
+      width: 240px;
+      transition: all 0.3s;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(70, 130, 180, 0.1);
+    }
+
+    .setting-select {
+      padding: 10px 14px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      width: 240px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .setting-select:hover {
+      border-color: var(--accent-blue);
+    }
+
+    /* 按钮 */
+    .setting-btn {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .setting-btn:hover {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .setting-btn.secondary {
+      background: transparent;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      color: var(--text-secondary);
+    }
+
+    .setting-btn.secondary:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    /* 危险区域 */
+    .danger-zone {
+      background: rgba(229, 57, 53, 0.04);
+      border: 1px solid rgba(229, 57, 53, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 40px;
+    }
+
+    .danger-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #e53935;
+      margin-bottom: 12px;
+    }
+
+    .danger-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .danger-btn {
+      padding: 10px 24px;
+      background: #e53935;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .danger-btn:hover {
+      background: #c62828;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+    }
+
+    /* 保存按钮 */
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-top: 1px solid rgba(0,0,0,0.12);
+      padding: 20px;
+      display: none;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+
+    .save-bar.show {
+      display: flex;
+    }
+
+    /* 响应式 */
+    @media (max-width: 968px) {
+      .settings-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-bg" id="paperBg"></div>
+
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="logo">
+          <div class="logo-icon">知</div>
+          <span class="logo-text">知因 CodeLab</span>
+        </a>
+      </div>
+      <a href="/teacher/tasks" class="back-btn">
+        <span>←</span>
+        <span>返回</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <h1 class="page-title">系统设置</h1>
+      <p class="page-subtitle">个性化配置你的 CodeLab 体验</p>
+    </div>
+
+    <!-- 两栏布局 -->
+    <div class="settings-layout">
+      <!-- 侧边栏菜单 -->
+      <div class="settings-sidebar">
+        <div class="menu-item active" data-section="account">
+          <span class="menu-icon">👤</span>
+          <span>账号信息</span>
+        </div>
+        <div class="menu-item" data-section="notifications">
+          <span class="menu-icon">🔔</span>
+          <span>通知设置</span>
+        </div>
+        <div class="menu-item" data-section="preferences">
+          <span class="menu-icon">⚙️</span>
+          <span>偏好设置</span>
+        </div>
+        <div class="menu-item" data-section="security">
+          <span class="menu-icon">🔒</span>
+          <span>安全与隐私</span>
+        </div>
+      </div>
+
+      <!-- 设置内容 -->
+      <div class="settings-content">
+        <div class="section-title">账号信息</div>
+        <div class="section-desc">管理你的个人资料和账号信息</div>
+
+        <div class="setting-group">
+          <div class="group-title">基本信息</div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">用户名</div>
+              <div class="setting-desc">显示在系统中的名称</div>
+            </div>
+            <div class="setting-control">
+              <input type="text" class="setting-input" value="王老师">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">邮箱地址</div>
+              <div class="setting-desc">用于登录和接收通知</div>
+            </div>
+            <div class="setting-control">
+              <input type="email" class="setting-input" value="teacher@codelab.local">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">手机号码</div>
+              <div class="setting-desc">用于账号安全验证</div>
+            </div>
+            <div class="setting-control">
+              <input type="tel" class="setting-input" value="138****8888">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">所属机构</div>
+              <div class="setting-desc">你的工作单位或学校</div>
+            </div>
+            <div class="setting-control">
+              <input type="text" class="setting-input" value="清华大学计算机系">
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="group-title">通知设置</div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">新提交通知</div>
+              <div class="setting-desc">学生提交作业时发送邮件通知</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch active"></div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">评论回复通知</div>
+              <div class="setting-desc">学生回复你的评论时通知</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch active"></div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">系统更新通知</div>
+              <div class="setting-desc">接收系统功能更新和维护通知</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="group-title">偏好设置</div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">界面语言</div>
+              <div class="setting-desc">选择系统显示语言</div>
+            </div>
+            <div class="setting-control">
+              <select class="setting-select">
+                <option>简体中文</option>
+                <option>English</option>
+                <option>繁體中文</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">时区</div>
+              <div class="setting-desc">影响时间显示和截止日期</div>
+            </div>
+            <div class="setting-control">
+              <select class="setting-select">
+                <option>UTC+8 北京</option>
+                <option>UTC+9 东京</option>
+                <option>UTC-8 洛杉矶</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">每页显示数量</div>
+              <div class="setting-desc">列表页面每页显示的条目数</div>
+            </div>
+            <div class="setting-control">
+              <select class="setting-select">
+                <option>20 条</option>
+                <option>50 条</option>
+                <option>100 条</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="group-title">安全设置</div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">修改密码</div>
+              <div class="setting-desc">更新你的登录密码</div>
+            </div>
+            <div class="setting-control">
+              <button class="setting-btn secondary">修改密码</button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">两步验证</div>
+              <div class="setting-desc">为账号添加额外的安全保护</div>
+            </div>
+            <div class="setting-control">
+              <button class="setting-btn secondary">启用</button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">活跃会话</div>
+              <div class="setting-desc">查看和管理登录设备</div>
+            </div>
+            <div class="setting-control">
+              <button class="setting-btn secondary">管理</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 危险区域 -->
+        <div class="danger-zone">
+          <div class="danger-title">危险区域</div>
+          <div class="danger-desc">以下操作不可逆，请谨慎操作</div>
+          <button class="danger-btn">删除账号</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 保存按钮栏 -->
+  <div class="save-bar" id="saveBar">
+    <button class="setting-btn secondary">取消</button>
+    <button class="setting-btn">保存更改</button>
+  </div>
+
+  <script>
+    // 背景鼠标交互
+    const paperBg = document.getElementById('paperBg');
+    let mouseX = 50, mouseY = 50, targetX = 50, targetY = 50;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth) * 100;
+      targetY = (e.clientY / window.innerHeight) * 100;
+      const offsetX = (e.clientX / window.innerWidth - 0.5) * 60;
+      const offsetY = (e.clientY / window.innerHeight - 0.5) * 60;
+      paperBg.style.backgroundPosition = `
+        ${offsetX * 1.2}px ${offsetY * 1.2}px,
+        ${-offsetX * 1.2}px ${-offsetY * 1.2}px,
+        ${offsetX * 0.3}px ${offsetY * 0.3}px,
+        ${-offsetX * 0.3}px ${-offsetY * 0.3}px,
+        0 0, 0 0, 0 0
+      `;
+    });
+
+    function updateBackground() {
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
+      paperBg.style.setProperty('--mouse-x', `${mouseX}%`);
+      paperBg.style.setProperty('--mouse-y', `${mouseY}%`);
+      requestAnimationFrame(updateBackground);
+    }
+    updateBackground();
+
+    // 菜单切换
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // 开关切换
+    document.querySelectorAll('.toggle-switch').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        showSaveBar();
+      });
+    });
+
+    // 输入框变化
+    document.querySelectorAll('.setting-input, .setting-select').forEach(input => {
+      input.addEventListener('change', showSaveBar);
+    });
+
+    function showSaveBar() {
+      document.getElementById('saveBar').classList.add('show');
+    }
+
+    // 保存按钮
+    document.querySelector('.save-bar .setting-btn:not(.secondary)').addEventListener('click', () => {
+      alert('设置已保存');
+      document.getElementById('saveBar').classList.remove('show');
+    });
+
+    // 取消按钮
+    document.querySelector('.save-bar .setting-btn.secondary').addEventListener('click', () => {
+      document.getElementById('saveBar').classList.remove('show');
+    });
+  </script>
+</body>
+</html>

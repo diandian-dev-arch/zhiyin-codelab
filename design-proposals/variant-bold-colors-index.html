@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab | 大胆配色方案</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0f;
+      color: #f1f5f9;
+      padding: 80px 40px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    h1 {
+      font-size: 56px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .note {
+      font-size: 15px;
+      color: #64748b;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .schemes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 40px;
+    }
+
+    .scheme-card {
+      background: #16161d;
+      border: 2px solid rgba(148, 163, 184, 0.15);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+
+    .scheme-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(148, 163, 184, 0.3);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    .scheme-preview {
+      height: 280px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .preview-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.7;
+      animation: float-orb 15s infinite ease-in-out;
+    }
+
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.15); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    /* 方案1：赛博朋克 - 霓虹城市 */
+    .scheme-neon { background: linear-gradient(135deg, #0f0315 0%, #1a0a2e 50%, #16213e 100%); }
+    .scheme-neon .orb-1 { width: 350px; height: 350px; background: #ff006e; top: -120px; right: -80px; }
+    .scheme-neon .orb-2 { width: 300px; height: 300px; background: #ffbe0b; bottom: -100px; left: -60px; animation-delay: -5s; }
+    .scheme-neon .orb-3 { width: 250px; height: 250px; background: #00f5ff; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
+
+    /* 方案2：极光 - 北欧夜空 */
+    .scheme-aurora { background: linear-gradient(135deg, #001f3f 0%, #0a2540 50%, #1a3a52 100%); }
+    .scheme-aurora .orb-1 { width: 400px; height: 400px; background: #00ff88; top: -150px; right: -100px; }
+    .scheme-aurora .orb-2 { width: 350px; height: 350px; background: #00d4ff; bottom: -120px; left: -80px; animation-delay: -7s; }
+    .scheme-aurora .orb-3 { width: 300px; height: 300px; background: #b794f6; top: 40%; left: 60%; animation-delay: -3s; }
+
+    /* 方案3：日落 - 暖橙渐变 */
+    .scheme-sunset { background: linear-gradient(135deg, #2d1b2e 0%, #3d2639 50%, #4a2c44 100%); }
+    .scheme-sunset .orb-1 { width: 380px; height: 380px; background: #ff6b35; top: -130px; right: -90px; }
+    .scheme-sunset .orb-2 { width: 320px; height: 320px; background: #f7931e; bottom: -110px; left: -70px; animation-delay: -6s; }
+    .scheme-sunset .orb-3 { width: 280px; height: 280px; background: #ff006e; top: 45%; left: 55%; animation-delay: -4s; }
+
+    /* 方案4：电音 - 荧光绿粉 */
+    .scheme-electric { background: linear-gradient(135deg, #0d0221 0%, #190b28 50%, #240b36 100%); }
+    .scheme-electric .orb-1 { width: 360px; height: 360px; background: #39ff14; top: -140px; right: -95px; }
+    .scheme-electric .orb-2 { width: 310px; height: 310px; background: #ff10f0; bottom: -105px; left: -75px; animation-delay: -8s; }
+    .scheme-electric .orb-3 { width: 270px; height: 270px; background: #00e5ff; top: 48%; left: 52%; animation-delay: -2s; }
+
+    /* 方案5：焦糖拿铁 - 暖色系 */
+    .scheme-latte { background: linear-gradient(135deg, #1a1410 0%, #2a1f1a 50%, #3a2920 100%); }
+    .scheme-latte .orb-1 { width: 370px; height: 370px; background: #d4a574; top: -135px; right: -85px; }
+    .scheme-latte .orb-2 { width: 330px; height: 330px; background: #ff8c42; bottom: -115px; left: -65px; animation-delay: -4s; }
+    .scheme-latte .orb-3 { width: 290px; height: 290px; background: #ffd700; top: 42%; left: 58%; animation-delay: -9s; }
+
+    .color-palette {
+      display: flex;
+      gap: 12px;
+      padding: 20px;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .color-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .scheme-info {
+      padding: 32px;
+    }
+
+    .scheme-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .scheme-subtitle {
+      font-size: 15px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .scheme-desc {
+      font-size: 16px;
+      color: #cbd5e1;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .scheme-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      letter-spacing: 0.02em;
+    }
+
+    .view-link {
+      display: inline-block;
+      padding: 12px 28px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .view-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateX(4px);
+    }
+
+    @media (max-width: 768px) {
+      .schemes-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💥 大胆配色方案</h1>
+      <p class="subtitle">不平庸 · 高辨识度 · 视觉冲击力</p>
+      <p class="note">摆脱单调的深色，这些配色方案更有个性、更有记忆点<br/>每个方案都敢于用色，适合想要脱颖而出的 AI 产品</p>
+    </header>
+
+    <div class="schemes-grid">
+      <!-- 方案1：赛博朋克 -->
+      <a href="variant-bold-1-neon.html" class="scheme-card">
+        <div class="scheme-preview scheme-neon">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+          <div class="preview-orb orb-3"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #ff006e;"></div>
+          <div class="color-dot" style="background: #ffbe0b;"></div>
+          <div class="color-dot" style="background: #00f5ff;"></div>
+          <div class="color-dot" style="background: #1a0a2e;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">赛博朋克 · 霓虹城市</h3>
+          <p class="scheme-subtitle">Cyberpunk Neon</p>
+          <p class="scheme-desc">霓虹粉 + 电黄 + 青蓝。极具冲击力的三色组合，致敬《赛博朋克2077》，科技感爆棚，适合想要张扬个性的产品。</p>
+          <div class="scheme-tags">
+            <span class="tag">高对比</span>
+            <span class="tag">科幻感</span>
+            <span class="tag">前卫</span>
+          </div>
+          <span class="view-link">查看方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案2：极光 -->
+      <a href="variant-bold-2-aurora.html" class="scheme-card">
+        <div class="scheme-preview scheme-aurora">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+          <div class="preview-orb orb-3"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #00ff88;"></div>
+          <div class="color-dot" style="background: #00d4ff;"></div>
+          <div class="color-dot" style="background: #b794f6;"></div>
+          <div class="color-dot" style="background: #001f3f;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">极光 · 北欧夜空</h3>
+          <p class="scheme-subtitle">Aurora Borealis</p>
+          <p class="scheme-desc">翠绿 + 冰蓝 + 紫光。灵感来自北极光，神秘而优雅，既有科技感又有自然的灵动，适合 AI 智能产品。</p>
+          <div class="scheme-tags">
+            <span class="tag">自然灵感</span>
+            <span class="tag">流动感</span>
+            <span class="tag">梦幻</span>
+          </div>
+          <span class="view-link">查看方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案3：日落 -->
+      <a href="variant-bold-3-sunset.html" class="scheme-card">
+        <div class="scheme-preview scheme-sunset">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+          <div class="preview-orb orb-3"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #ff6b35;"></div>
+          <div class="color-dot" style="background: #f7931e;"></div>
+          <div class="color-dot" style="background: #ff006e;"></div>
+          <div class="color-dot" style="background: #2d1b2e;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">日落 · 暖橙渐变</h3>
+          <p class="scheme-subtitle">Golden Sunset</p>
+          <p class="scheme-desc">橘红 + 金橙 + 洋红。温暖而有活力，打破冷色系的单调，适合想要传递温度和人文关怀的教育产品。</p>
+          <div class="scheme-tags">
+            <span class="tag">温暖</span>
+            <span class="tag">活力</span>
+            <span class="tag">人文</span>
+          </div>
+          <span class="view-link">查看方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案4：电音 -->
+      <a href="variant-bold-4-electric.html" class="scheme-card">
+        <div class="scheme-preview scheme-electric">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+          <div class="preview-orb orb-3"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #39ff14;"></div>
+          <div class="color-dot" style="background: #ff10f0;"></div>
+          <div class="color-dot" style="background: #00e5ff;"></div>
+          <div class="color-dot" style="background: #0d0221;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">电音 · 荧光派对</h3>
+          <p class="scheme-subtitle">Electric Rave</p>
+          <p class="scheme-desc">荧光绿 + 品红 + 电蓝。最激进的配色，灵感来自电音派对，极具年轻感和叛逆精神，适合面向 Z 世代的产品。</p>
+          <div class="scheme-tags">
+            <span class="tag">年轻化</span>
+            <span class="tag">激进</span>
+            <span class="tag">潮流</span>
+          </div>
+          <span class="view-link">查看方案 →</span>
+        </div>
+      </a>
+
+      <!-- 方案5：焦糖拿铁 -->
+      <a href="variant-bold-5-latte.html" class="scheme-card">
+        <div class="scheme-preview scheme-latte">
+          <div class="preview-orb orb-1"></div>
+          <div class="preview-orb orb-2"></div>
+          <div class="preview-orb orb-3"></div>
+        </div>
+        <div class="color-palette">
+          <div class="color-dot" style="background: #d4a574;"></div>
+          <div class="color-dot" style="background: #ff8c42;"></div>
+          <div class="color-dot" style="background: #ffd700;"></div>
+          <div class="color-dot" style="background: #1a1410;"></div>
+        </div>
+        <div class="scheme-info">
+          <h3 class="scheme-title">焦糖拿铁 · 咖啡暖调</h3>
+          <p class="scheme-subtitle">Caramel Latte</p>
+          <p class="scheme-desc">焦糖色 + 橙金 + 金黄。罕见的暖色系深色方案，舒适、温馨、有质感，适合想要营造轻松氛围的教育平台。</p>
+          <div class="scheme-tags">
+            <span class="tag">舒适</span>
+            <span class="tag">质感</span>
+            <span class="tag">独特</span>
+          </div>
+          <span class="view-link">查看方案 →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab 视觉方案 | 三版设计预览</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      padding: 60px 24px;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .variants-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+
+    .variant-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 32px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: slideUp 0.8s ease-out both;
+    }
+
+    .variant-card:nth-child(1) { animation-delay: 0.1s; }
+    .variant-card:nth-child(2) { animation-delay: 0.2s; }
+    .variant-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .variant-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .variant-number {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .variant-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .variant-subtitle {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .variant-description {
+      font-size: 15px;
+      line-height: 1.7;
+      opacity: 0.9;
+      margin-bottom: 24px;
+    }
+
+    .features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .features li {
+      padding: 8px 0;
+      font-size: 14px;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .features li::before {
+      content: '✓';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+    }
+
+    .view-button {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #1e3c72;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .view-button:hover {
+      background: #fff;
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+    }
+
+    .design-notes {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 40px;
+      animation: fadeIn 1s ease-out 0.5s both;
+    }
+
+    .design-notes h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .design-notes p {
+      font-size: 15px;
+      line-height: 1.8;
+      opacity: 0.9;
+      margin-bottom: 16px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 36px;
+      }
+
+      .variants-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 知因 CodeLab 视觉方案</h1>
+      <p class="subtitle">三版高质量前端设计 · iOS 液态毛玻璃风格演绎</p>
+    </header>
+
+    <div class="variants-grid">
+      <!-- Variant 1 -->
+      <div class="variant-card">
+        <div class="variant-number">1</div>
+        <h2 class="variant-title">流光溯源</h2>
+        <p class="variant-subtitle">Luminous Trace</p>
+        <p class="variant-description">
+          采用渐变紫蓝背景 + 全局毛玻璃卡片系统，证据链可视化为三节点流动动画。灵感来源于 iOS 动态岛的流畅交互。
+        </p>
+        <ul class="features">
+          <li>Spring 弹性动效</li>
+          <li>证据流程可视化</li>
+          <li>悬浮 FAB 交互</li>
+          <li>数据卡片动画</li>
+        </ul>
+        <a href="variant-1-luminous-trace.html" class="view-button">查看方案 →</a>
+      </div>
+
+      <!-- Variant 2 -->
+      <div class="variant-card">
+        <div class="variant-number">2</div>
+        <h2 class="variant-title">纸墨证链</h2>
+        <p class="variant-subtitle">Paper & Ink Evidence</p>
+        <p class="variant-description">
+          保留现有设计体系的 apricot 色调，在纸质底色上叠加增强毛玻璃效果。证据链条以四步骤卡片呈现，融合传统与现代。
+        </p>
+        <ul class="features">
+          <li>品牌色延续性强</li>
+          <li>呼吸动画效果</li>
+          <li>渐变边框交互</li>
+          <li>证据标签悬停</li>
+        </ul>
+        <a href="variant-2-paper-ink.html" class="view-button">查看方案 →</a>
+      </div>
+
+      <!-- Variant 3 -->
+      <div class="variant-card">
+        <div class="variant-number">3</div>
+        <h2 class="variant-title">深空探测</h2>
+        <p class="variant-subtitle">Deep Space Explorer</p>
+        <p class="variant-description">
+          暗色主题 + 科技感雷达可视化，粒子背景营造深空探索氛围。毛玻璃卡片采用 cyan/purple 双色渐变，极具未来感。
+        </p>
+        <ul class="features">
+          <li>暗色护眼模式</li>
+          <li>雷达扫描动画</li>
+          <li>粒子背景效果</li>
+          <li>霓虹发光设计</li>
+        </ul>
+        <a href="variant-3-deep-space.html" class="view-button">查看方案 →</a>
+      </div>
+    </div>
+
+    <div class="design-notes">
+      <h2>💡 设计说明</h2>
+      <p>
+        <strong>设计理念：</strong>三个方案均遵循 iOS 液态毛玻璃（Glass Morphism）设计语言，使用 backdrop-filter 实现真实的模糊效果，避免了常见的 AI 生成设计陷阱（紫蓝渐变+暗色发光、Inter 字体泛滥、过度使用卡片嵌套）。
+      </p>
+      <p>
+        <strong>动效策略：</strong>采用 spring（弹性）和 ease-out 缓动曲线，遵循 Apple Human Interface Guidelines 的流畅性原则。所有动画均支持 prefers-reduced-motion 无障碍设置。
+      </p>
+      <p>
+        <strong>证据链可视化：</strong>每个方案都以不同形式呈现"需求→证据→决策"的核心工作流，体现知因 CodeLab 的证据驱动理念。方案 1 用流动箭头，方案 2 用阶梯式卡片，方案 3 用雷达扫描。
+      </p>
+      <p>
+        <strong>响应式适配：</strong>所有方案在移动端均可正常浏览，断点设置参考 iOS Safari 常见尺寸。建议在 Chrome/Safari 最新版本中预览以获得最佳毛玻璃效果。
+      </p>
+    </div>
+  </div>
+</body>
+</html>

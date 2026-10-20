@@ -3,18 +3,22 @@ import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { inspectWorkspaceRuntime, selectWorkspaceRuntime } from './workspace-runtime.js';
+import { teacherTrialEnvironment } from './teacher-trial-config.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 try {
   const args = process.argv.slice(2);
-  if (new Set(args).size !== args.length || args.some(a => !['--direct', '--check'].includes(a)))
+  if (new Set(args).size !== args.length || args.some(a => !['--direct', '--check', '--teacher-trial'].includes(a)) ||
+      (args.includes('--teacher-trial') && args.includes('--direct')))
     throw new Error('WORKSPACE_LAUNCH_ARGUMENT_INVALID');
   const runtime = await inspectWorkspaceRuntime(await selectWorkspaceRuntime(root));
   console.log(JSON.stringify({ event: 'workspace_runtime_selected', ...runtime }));
   if (!args.includes('--check')) {
-    const child = spawn(runtime.executable, ['--import', 'tsx', '--env-file-if-exists=.env',
-      args.includes('--direct') ? 'scripts/workspace-v2.ts' : 'scripts/supervised-workspace.ts'], {
-      cwd: root, stdio: 'inherit', windowsHide: true,
+    const trial = args.includes('--teacher-trial');
+    const childEnvironment = trial ? teacherTrialEnvironment() : process.env;
+    const child = spawn(runtime.executable, ['--import', 'tsx', ...(trial ? [] : ['--env-file-if-exists=.env']),
+      trial ? 'scripts/teacher-trial.ts' : args.includes('--direct') ? 'scripts/workspace-v2.ts' : 'scripts/supervised-workspace.ts'], {
+      cwd: root, stdio: 'inherit', windowsHide: true, env: childEnvironment,
     });
     // Terminal Ctrl+C is delivered to the foreground process group on Windows.
     // Keep this parent alive so the supervisor can finish its bounded shutdown.

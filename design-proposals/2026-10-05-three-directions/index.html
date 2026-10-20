@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>知因 CodeLab · 三版视觉方案</title>
+<style>
+/* Contrast (WCAG): ink #16181A on #F2F0EB 16.1:1 · muted #55595C on #F2F0EB 6.5:1 · on #FFFFFF 7.3:1 */
+:root{
+  --bg:#F2F0EB; --card:#FFFFFF; --ink:#16181A; --muted:#55595C; --line:rgba(22,24,26,.12);
+  --sans:"PingFang SC","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+  --mono:ui-monospace,"JetBrains Mono","SF Mono",Consolas,monospace;
+  --ease:cubic-bezier(.2,.7,.1,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1440px;margin:0 auto;padding:56px clamp(20px,4vw,56px) 72px}
+header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;border-bottom:1px solid var(--ink);padding-bottom:28px}
+.kicker{font:600 12px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font:600 clamp(32px,4.4vw,56px)/1.12 var(--serif);margin:14px 0 0;letter-spacing:.01em}
+.lede{max-width:46ch;color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+  opacity:0;transform:translateY(18px);animation:rise .8s var(--ease) forwards;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.card:nth-child(2){animation-delay:.08s}.card:nth-child(3){animation-delay:.16s}
+.card:hover{transform:translateY(-4px);box-shadow:0 24px 60px -32px rgba(22,24,26,.45)}
+@keyframes rise{to{opacity:1;transform:none}}
+.shot{position:relative;aspect-ratio:1440/900;overflow:hidden;background:#ddd;border-bottom:1px solid var(--line)}
+.shot iframe{position:absolute;inset:0;width:1440px;height:900px;border:0;transform-origin:0 0;pointer-events:none}
+.shot .num{position:absolute;left:14px;top:12px;font:600 12px/1 var(--mono);letter-spacing:.14em;background:var(--card);color:var(--ink);padding:7px 9px;border-radius:6px}
+.body{padding:22px 24px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
+.name{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.name h2{font:600 24px/1.25 var(--serif);margin:0}
+.name span{font:12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mood{margin:0;color:var(--muted)}
+.swatches{display:flex;gap:6px;margin:2px 0}
+.swatches i{flex:1;height:30px;border-radius:6px;border:1px solid var(--line);position:relative}
+.swatches i::after{content:attr(data-hex);position:absolute;left:0;top:calc(100% + 4px);font:10px/1 var(--mono);color:var(--muted)}
+ul{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+li{display:grid;grid-template-columns:22px 1fr;gap:6px}
+li b{font:600 12px/1.9 var(--mono);color:var(--muted)}
+.open{margin-top:auto;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 18px;border-radius:10px;
+  background:var(--ink);color:#fff;text-decoration:none;font-weight:600;transition:transform .3s var(--ease)}
+.open:hover{transform:translateX(3px)}
+.open svg{transition:transform .3s var(--ease)}.open:hover svg{transform:translateX(4px)}
+a:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+kbd{font:12px var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:var(--card)}
+@media (max-width:1080px){.grid{grid-template-columns:1fr}header{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.card{animation:none;opacity:1;transform:none}.card,.open,.open svg{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">Zhiyin CodeLab · Visual Directions · 2026-10-05</div>
+      <h1>三版视觉方案：<br>同一份 AI 项目分析，三种气质</h1>
+    </div>
+    <p class="lede">三版使用同一份示例数据（校园食堂订餐系统），只比较色彩、版式、动效与交互。每个方案打开后会自动播放一次分析过程，可跳过或重新播放。</p>
+  </header>
+
+  <section class="grid" aria-label="方案列表">
+    <article class="card">
+      <div class="shot"><span class="num">A</span><iframe src="night-atlas.html" title="方案 A 预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div>
+      <div class="body">
+        <div class="name"><h2>夜航星图</h2><span>Night Atlas</span></div>
+        <p class="mood">深夜书房里的星图导航。深墨蓝底，青瓷绿为信号，灯火琥珀标出证据。</p>
+        <div class="swatches" aria-hidden="true"><i style="background:#0B1119" data-hex="#0B1119"></i><i style="background:#17222E" data-hex="#17222E"></i><i style="background:#86CDB6" data-hex="#86CDB6"></i><i style="background:#E9B872" data-hex="#E9B872"></i><i style="background:#E8E2D4" data-hex="#E8E2D4"></i></div>
+        <ul>
+          <li><b>01</b><span>阅读星图：文件化作星辰，AI 每读一个文件便点亮一颗，并连出阅读航线</span></li>
+          <li><b>02</b><span>灯下阅读：跟随指针的柔和灯光，引用代码行如被灯火照亮</span></li>
+          <li><b>03</b><span>航海日志式的分析轨迹，业务链路以航点与航线呈现</span></li>
+        </ul>
+        <a class="open" href="night-atlas.html">打开方案 A <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><span class="num">B</span><iframe src="swiss-lab.html" title="方案 B 预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div>
+      <div class="body">
+        <div class="name"><h2>格律实验室</h2><span>Swiss Lab</span></div>
+        <p class="mood">国际主义网格遇上精密实验室。纸白与墨黑之间只有钴蓝和朱红两种信号色。</p>
+        <div class="swatches" aria-hidden="true"><i style="background:#F5F4EF" data-hex="#F5F4EF"></i><i style="background:#121212" data-hex="#121212"></i><i style="background:#1D3FD8" data-hex="#1D3FD8"></i><i style="background:#E8462A" data-hex="#E8462A"></i><i style="background:#FFE98A" data-hex="#FFE98A"></i></div>
+        <ul>
+          <li><b>01</b><span>仓库热力格：按行数切分的文件矩阵，扫描带掠过，已读文件逐格填色</span></li>
+          <li><b>02</b><span>论据连线：选中问题线索，贝塞尔连线直达被引用的代码行</span></li>
+          <li><b>03</b><span><kbd>⌘K</kbd> 命令面板与 <kbd>G</kbd> 网格彩蛋，机械翻牌式阶段计数</span></li>
+        </ul>
+        <a class="open" href="swiss-lab.html">打开方案 B <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><span class="num">C</span><iframe src="living-garden.html" title="方案 C 预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div>
+      <div class="body">
+        <div class="name"><h2>苔原生长</h2><span>Living Garden</span></div>
+        <p class="mood">理解是慢慢长出来的。燕麦奶油底、苔藓绿为主色，陶土红只留给风险。</p>
+        <div class="swatches" aria-hidden="true"><i style="background:#F4EFE4" data-hex="#F4EFE4"></i><i style="background:#2F5A3F" data-hex="#2F5A3F"></i><i style="background:#DCE5D3" data-hex="#DCE5D3"></i><i style="background:#B5532F" data-hex="#B5532F"></i><i style="background:#F1DFA6" data-hex="#F1DFA6"></i></div>
+        <ul>
+          <li><b>01</b><span>知识树：模块是枝干，文件是叶片，读过的叶子随分析逐片萌发</span></li>
+          <li><b>02</b><span>阅读小径：推荐路线化作蜿蜒小径，标记沿路弹性行走</span></li>
+          <li><b>03</b><span>触感弹簧：按钮按压回弹、卡片轻抬，背景形状随指针轻漂</span></li>
+        </ul>
+        <a class="open" href="living-garden.html">打开方案 C <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    <span>设计原型 · 示例数据，不代表真实分析结果。所有方案均支持键盘操作与“减少动态效果”系统设置。</span>
+    <span>快捷键：<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> 打开对应方案</span>
+  </footer>
+</div>
+<script>
+  // 把 1440×900 的实时预览缩放进卡片
+  const fit = () => document.querySelectorAll('.shot').forEach(s => {
+    s.querySelector('iframe').style.transform = `scale(${s.clientWidth / 1440})`;
+  });
+  new ResizeObserver(fit).observe(document.body); fit();
+  const pages = ['night-atlas.html', 'swiss-lab.html', 'living-garden.html'];
+  addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea/i.test(e.target.tagName)) return;
+    const i = Number(e.key) - 1;
+    if (pages[i]) location.href = pages[i];
+  });
+</script>
+</body>
+</html>

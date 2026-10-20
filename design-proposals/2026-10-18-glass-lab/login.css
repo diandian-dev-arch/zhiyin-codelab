@@ -1,0 +1,692 @@
+/* ==========================================================
+   Glass Lab · 登录页
+   身份色：教师用主色 c1，学生用辅色 c2，所有强调跟随 --r-rgb
+   ========================================================== */
+body {
+  --r-rgb: var(--c1-rgb);
+  --danger-rgb: 222 128 112;
+  overflow: hidden;
+}
+body[data-role="student"] {
+  --r-rgb: var(--c2-rgb);
+}
+.auth {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  height: 100vh;
+  height: 100svh;
+}
+
+/* ================= 左侧场景 ================= */
+.scene {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, #000 78%, transparent);
+}
+.scene-liquid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: fade-in 2.4s var(--ease-out) both;
+}
+.scene::after {
+  /* 底部压暗，托住标语 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--bg) 80%, transparent), transparent 45%);
+}
+.scene-canvas {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scene-core {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: clamp(130px, 13vw, 190px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+.brand {
+  position: absolute;
+  top: 36px;
+  left: 44px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  animation: fade-up 1s var(--ease-out) both 0.2s;
+}
+.brand b {
+  font-weight: 700;
+}
+.brand-mark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgb(var(--r-rgb)), var(--c4), var(--c5), rgb(var(--r-rgb)));
+  animation: spin 18s linear infinite;
+}
+.brand-mark i {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: rgb(var(--r-rgb));
+  box-shadow: 0 0 12px rgb(var(--r-rgb));
+}
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* 绕核心公转的证据标签（始终保持正向） */
+@property --spin {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+.orbit {
+  --R: clamp(170px, 17vw, 250px);
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  animation: orbit 80s linear infinite;
+}
+@keyframes orbit {
+  to {
+    --spin: 360deg;
+  }
+}
+.o-chip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  translate: -50% -50%;
+  transform: rotate(calc(var(--a) + var(--spin))) translateX(var(--R))
+    rotate(calc(-1 * (var(--a) + var(--spin))));
+  animation: fade-in 1.2s var(--ease-out) both 1s;
+}
+.o-chip i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.o-chip .ok {
+  background: var(--c2);
+}
+.o-chip .warn {
+  background: var(--c4);
+  box-shadow: 0 0 8px var(--c4);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.quote {
+  position: absolute;
+  left: 44px;
+  bottom: 48px;
+  z-index: 2;
+  width: min(560px, calc(100% - 88px));
+}
+.quote h2 {
+  margin: 14px 0 6px;
+  font-size: clamp(30px, 3.4vw, 50px);
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+.quote h2 em {
+  font-style: normal;
+  color: rgb(var(--r-rgb));
+  transition: color 0.6s;
+}
+.quote .serif {
+  margin: 0;
+  font-size: 19px;
+  color: var(--muted);
+  transition:
+    opacity 0.4s,
+    transform 0.6s var(--ease-out);
+}
+.quote .eyebrow::before {
+  background: rgb(var(--r-rgb));
+}
+.quote.out .serif {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ================= 右侧表单 ================= */
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.card {
+  --gx: 50%;
+  --gy: 0%;
+  width: min(440px, 100%);
+  padding: 40px 38px 30px;
+  border-radius: 32px;
+  animation: card-in 1.2s var(--ease-out) both 0.35s;
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0) scale(0.97);
+    filter: blur(10px);
+  }
+}
+.card-glow {
+  /* 跟随光标的描边高光 */
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(260px circle at var(--gx) var(--gy), rgb(var(--r-rgb) / 0.75), transparent 65%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: opacity 0.4s;
+}
+.card.shake {
+  animation: shake 0.5s var(--ease-out);
+}
+@keyframes shake {
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+.card header h1 {
+  margin: 12px 0 4px;
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.card .eyebrow::before {
+  background: rgb(var(--r-rgb));
+}
+.sub {
+  margin: 0;
+  color: var(--muted);
+}
+#roleWord {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--text);
+  transition:
+    opacity 0.25s,
+    transform 0.4s var(--ease-out),
+    filter 0.25s;
+}
+#roleWord.out {
+  opacity: 0;
+  transform: translateY(-6px);
+  filter: blur(3px);
+}
+
+/* 身份切换 */
+.roles {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 28px 0 22px;
+  padding: 5px;
+  border-radius: 16px;
+  background: rgb(0 0 0 / 0.22);
+  border: 1px solid var(--line);
+}
+.roles-pill {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgb(var(--r-rgb) / 0.28), rgb(var(--r-rgb) / 0.12));
+  border: 1px solid rgb(var(--r-rgb) / 0.45);
+  box-shadow: 0 8px 24px -10px rgb(var(--r-rgb) / 0.6);
+  transition:
+    transform 0.6s var(--ease-spring),
+    background 0.6s,
+    border-color 0.6s;
+}
+body[data-role="student"] .roles-pill {
+  transform: translateX(100%);
+}
+.roles button {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.4s;
+}
+.roles button[aria-checked="true"] {
+  color: var(--text);
+}
+.roles svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.5s var(--ease-spring);
+}
+.roles button[aria-checked="true"] svg {
+  transform: scale(1.12) rotate(-6deg);
+  stroke: rgb(var(--r-rgb));
+}
+
+/* 浮动标签输入框 */
+.field {
+  position: relative;
+  display: block;
+  margin-bottom: 14px;
+}
+.field input {
+  width: 100%;
+  height: 58px;
+  padding: 20px 46px 4px 46px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: rgb(var(--text-rgb) / 0.035);
+  outline: none;
+  font-size: 15px;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.4s var(--ease-out),
+    background-color 0.3s;
+}
+.field input:hover {
+  background: rgb(var(--text-rgb) / 0.055);
+}
+.field input:focus {
+  border-color: rgb(var(--r-rgb) / 0.8);
+  box-shadow: 0 0 0 4px rgb(var(--r-rgb) / 0.13);
+  background: rgb(var(--text-rgb) / 0.05);
+}
+.field .lbl {
+  position: absolute;
+  left: 46px;
+  top: 29px;
+  translate: 0 -50%;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: left center;
+  transition:
+    top 0.35s var(--ease-out),
+    scale 0.35s var(--ease-out),
+    color 0.3s;
+}
+.field input:focus + .lbl,
+.field input:not(:placeholder-shown) + .lbl {
+  top: 17px;
+  scale: 0.78;
+}
+.field input:focus + .lbl {
+  color: rgb(var(--r-rgb));
+}
+.f-ico {
+  position: absolute;
+  left: 15px;
+  top: 29px;
+  translate: 0 -50%;
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s;
+}
+.field input:focus ~ .f-ico {
+  stroke: rgb(var(--r-rgb));
+}
+.peek {
+  position: absolute;
+  right: 8px;
+  top: 29px;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  cursor: pointer;
+}
+.peek:hover {
+  background: rgb(var(--text-rgb) / 0.06);
+}
+.peek svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.peek .slash {
+  stroke-dasharray: 23;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.4s var(--ease-out);
+}
+.peek[aria-pressed="true"] .slash {
+  stroke-dashoffset: 23;
+}
+.err {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  padding-left: 4px;
+  color: rgb(var(--danger-rgb));
+  font-size: 12.5px;
+  transition: height 0.35s var(--ease-out);
+}
+.field.bad .err {
+  height: 22px;
+  padding-top: 4px;
+}
+.field.bad input {
+  border-color: rgb(var(--danger-rgb) / 0.8);
+  box-shadow: 0 0 0 4px rgb(var(--danger-rgb) / 0.12);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0 24px;
+  font-size: 13.5px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.check input {
+  position: absolute;
+  opacity: 0;
+}
+.check .box {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  transition: 0.3s var(--ease-out);
+}
+.check .box::after {
+  content: "";
+  position: absolute;
+  left: 5.5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--on-c1);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.4s var(--ease-spring);
+}
+.check input:checked + .box {
+  background: rgb(var(--r-rgb));
+  border-color: transparent;
+}
+.check input:checked + .box::after {
+  transform: rotate(45deg) scale(1);
+}
+.check input:focus-visible + .box {
+  outline: 2px solid rgb(var(--r-rgb));
+  outline-offset: 2px;
+}
+.link {
+  color: var(--muted);
+  transition: color 0.3s;
+}
+.link:hover {
+  color: rgb(var(--r-rgb));
+}
+
+/* 提交按钮：文字 → 加载 → 对勾 */
+.submit {
+  width: 100%;
+  height: 56px;
+  background: rgb(var(--r-rgb));
+  box-shadow:
+    0 12px 32px -12px rgb(var(--r-rgb) / 0.8),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+  transition:
+    transform 0.5s var(--ease-out),
+    box-shadow 0.4s,
+    background-color 0.6s;
+}
+.submit:hover {
+  box-shadow:
+    0 16px 40px -12px rgb(var(--r-rgb) / 0.9),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+}
+.s-text {
+  transition:
+    opacity 0.3s,
+    transform 0.4s var(--ease-out);
+}
+.spinner,
+.tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  opacity: 0;
+}
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgb(0 0 0 / 0.2);
+  border-top-color: var(--on-c1);
+  animation: spin 0.8s linear infinite;
+  transition: opacity 0.3s;
+}
+.tick {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--on-c1);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.submit.loading .s-text,
+.submit.done .s-text {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.submit.loading .spinner {
+  opacity: 1;
+}
+.submit.done .tick {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s var(--ease-out);
+}
+.submit.done {
+  pointer-events: none;
+}
+
+.hint {
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  text-align: center;
+  color: rgb(var(--muted-rgb) / 0.75);
+}
+.back {
+  margin-top: 22px;
+  font-size: 13.5px;
+  color: var(--muted);
+  transition: color 0.3s;
+  animation: fade-in 1s both 1s;
+}
+.back:hover {
+  color: var(--text);
+}
+
+/* ================= 成功转场 ================= */
+.wipe {
+  --wx: 50%;
+  --wy: 50%;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgb(var(--r-rgb) / 0.22), transparent 70%),
+    var(--bg-2);
+  clip-path: circle(0 at var(--wx) var(--wy));
+  pointer-events: none;
+  transition: clip-path 1s var(--ease-in-out);
+}
+.wipe.on {
+  clip-path: circle(150% at var(--wx) var(--wy));
+  pointer-events: auto;
+}
+.wipe-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s 0.5s,
+    transform 0.8s var(--ease-out) 0.5s;
+}
+.wipe.on .wipe-inner {
+  opacity: 1;
+  transform: none;
+}
+.brand-mark.big {
+  width: 64px;
+  height: 64px;
+  animation-duration: 2.4s;
+}
+.brand-mark.big i {
+  inset: 9px;
+}
+.brand-mark.big::after {
+  inset: 23px;
+}
+.wipe p {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+}
+
+/* ================= 响应式 ================= */
+@media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+  .auth {
+    grid-template-columns: 1fr;
+    grid-template-rows: 40vh auto;
+    height: auto;
+    min-height: 100svh;
+  }
+  .scene {
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent);
+    mask-image: linear-gradient(180deg, #000 70%, transparent);
+  }
+  .scene-core,
+  .orbit {
+    top: 52%;
+  }
+  .orbit {
+    --R: 130px;
+  }
+  .brand {
+    top: 22px;
+    left: 22px;
+  }
+  .quote {
+    display: none;
+  }
+  .panel {
+    padding: 0 18px 100px;
+    margin-top: -40px;
+  }
+  .card {
+    padding: 32px 24px 24px;
+  }
+}

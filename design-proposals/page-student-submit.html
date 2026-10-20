@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提交作业 | 知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #fdfbf7;
+      --bg-card: #fffcf5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-tertiary: #6a6a6a;
+      --accent-gold: #daa520;
+      --accent-blue: #4682b4;
+      --accent-green: #4caf50;
+      --fold-green: #c8e6c9;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* 背景 */
+    .paper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+        radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+      background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      z-index: 0;
+    }
+
+    /* 导航栏 */
+    nav {
+      position: relative;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    /* 主内容 */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+
+    /* 表单卡片 */
+    .submit-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 48px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      overflow: visible;
+    }
+
+    /* 折角 */
+    .submit-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 88px 88px 0;
+      border-color: transparent var(--fold-green) transparent transparent;
+      filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+
+    .submit-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 88px;
+      height: 88px;
+      background: linear-gradient(135deg, transparent 50%, rgba(76, 175, 80, 0.12) 50%);
+      z-index: 1;
+    }
+
+    .form-header {
+      margin-bottom: 40px;
+    }
+
+    .form-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .form-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* 任务信息 */
+    .task-info {
+      background: rgba(76, 175, 80, 0.08);
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+    }
+
+    .task-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .task-info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .task-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .task-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .task-deadline {
+      color: var(--accent-gold);
+    }
+
+    /* 表单组 */
+    .form-group {
+      margin-bottom: 32px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .form-label-required::after {
+      content: '*';
+      color: #e53935;
+      margin-left: 4px;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.3s;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    .form-help {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+    }
+
+    /* 文件上传区域 */
+    .upload-area {
+      border: 2px dashed rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      background: white;
+      position: relative;
+    }
+
+    .upload-area:hover {
+      border-color: var(--accent-green);
+      background: rgba(76, 175, 80, 0.02);
+    }
+
+    .upload-area.drag-over {
+      border-color: var(--accent-green);
+      background: rgba(76, 175, 80, 0.08);
+      transform: scale(1.01);
+    }
+
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      opacity: 0.4;
+    }
+
+    .upload-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-btn:hover {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .upload-input {
+      display: none;
+    }
+
+    /* 已上传文件列表 */
+    .file-list {
+      margin-top: 24px;
+      display: none;
+    }
+
+    .file-list.has-files {
+      display: block;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+
+    .file-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .file-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .file-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-details {
+      flex: 1;
+    }
+
+    .file-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .file-remove {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      color: #e53935;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-remove:hover {
+      background: #e53935;
+      color: white;
+      border-color: #e53935;
+    }
+
+    /* 提交按钮区 */
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .submit-btn {
+      flex: 1;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent-green) 0%, #66bb6a 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #43a047 0%, var(--accent-green) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: rgba(0,0,0,0.12);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .cancel-btn {
+      padding: 16px 32px;
+      background: transparent;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cancel-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .submit-card {
+        padding: 32px 24px;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .cancel-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-bg" id="paperBg"></div>
+
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="logo">
+          <div class="logo-icon">知</div>
+          <span class="logo-text">知因 CodeLab</span>
+        </a>
+      </div>
+      <a href="/student/courses" class="back-btn">
+        <span>←</span>
+        <span>返回课程</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <div class="submit-card">
+      <div class="form-header">
+        <h1 class="form-title">提交作业</h1>
+        <p class="form-subtitle">前端基础 - Vue3 实战 / 第三次作业</p>
+      </div>
+
+      <!-- 任务信息 -->
+      <div class="task-info">
+        <div class="task-info-row">
+          <span class="task-label">任务名称</span>
+          <span class="task-value">实现一个待办事项应用</span>
+        </div>
+        <div class="task-info-row">
+          <span class="task-label">发布时间</span>
+          <span class="task-value">2024-03-15 10:00</span>
+        </div>
+        <div class="task-info-row">
+          <span class="task-label">截止时间</span>
+          <span class="task-value task-deadline">2024-03-22 23:59</span>
+        </div>
+        <div class="task-info-row">
+          <span class="task-label">提交次数</span>
+          <span class="task-value">第 1 次提交</span>
+        </div>
+      </div>
+
+      <form id="submitForm">
+        <!-- 项目描述 -->
+        <div class="form-group">
+          <label class="form-label form-label-required">作业说明</label>
+          <textarea
+            class="form-textarea"
+            placeholder="简要描述你的实现思路、遇到的问题和解决方案..."
+            required
+          ></textarea>
+          <div class="form-help">请详细说明你的实现方案，这有助于评审老师更好地理解你的代码</div>
+        </div>
+
+        <!-- GitHub 仓库 -->
+        <div class="form-group">
+          <label class="form-label form-label-required">GitHub 仓库地址</label>
+          <input
+            type="url"
+            class="form-input"
+            placeholder="https://github.com/username/repository"
+            required
+          />
+          <div class="form-help">确保仓库是公开的，或已邀请评审老师为协作者</div>
+        </div>
+
+        <!-- 部署链接 -->
+        <div class="form-group">
+          <label class="form-label">在线演示地址（可选）</label>
+          <input
+            type="url"
+            class="form-input"
+            placeholder="https://your-app.vercel.app"
+          />
+          <div class="form-help">如果已部署，请提供在线访问链接</div>
+        </div>
+
+        <!-- 文件上传 -->
+        <div class="form-group">
+          <label class="form-label">补充材料（可选）</label>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" opacity="0.3"/>
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="upload-title">拖拽文件到这里，或点击上传</div>
+            <div class="upload-text">支持 ZIP、PDF、PNG、JPG 等格式，单个文件不超过 50MB</div>
+            <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+              选择文件
+            </button>
+            <input type="file" id="fileInput" class="upload-input" multiple />
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <!-- 提交按钮 -->
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">提交作业</button>
+          <button type="button" class="cancel-btn" onclick="history.back()">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 背景鼠标交互
+    const paperBg = document.getElementById('paperBg');
+    let mouseX = 50, mouseY = 50, targetX = 50, targetY = 50;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth) * 100;
+      targetY = (e.clientY / window.innerHeight) * 100;
+      const offsetX = (e.clientX / window.innerWidth - 0.5) * 60;
+      const offsetY = (e.clientY / window.innerHeight - 0.5) * 60;
+      paperBg.style.backgroundPosition = `
+        ${offsetX * 1.2}px ${offsetY * 1.2}px,
+        ${-offsetX * 1.2}px ${-offsetY * 1.2}px,
+        ${offsetX * 0.3}px ${offsetY * 0.3}px,
+        ${-offsetX * 0.3}px ${-offsetY * 0.3}px,
+        0 0, 0 0, 0 0
+      `;
+    });
+
+    function updateBackground() {
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
+      paperBg.style.setProperty('--mouse-x', `${mouseX}%`);
+      paperBg.style.setProperty('--mouse-y', `${mouseY}%`);
+      requestAnimationFrame(updateBackground);
+    }
+    updateBackground();
+
+    // 文件上传
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    let uploadedFiles = [];
+
+    // 拖拽上传
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    // 点击上传
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        if (file.size > 50 * 1024 * 1024) {
+          alert(`文件 ${file.name} 超过 50MB 限制`);
+          return;
+        }
+        uploadedFiles.push(file);
+      });
+      renderFileList();
+    }
+
+    function renderFileList() {
+      if (uploadedFiles.length === 0) {
+        fileList.classList.remove('has-files');
+        fileList.innerHTML = '';
+        return;
+      }
+
+      fileList.classList.add('has-files');
+      fileList.innerHTML = uploadedFiles.map((file, index) => `
+        <div class="file-item">
+          <div class="file-info">
+            <div class="file-icon">📄</div>
+            <div class="file-details">
+              <div class="file-name">${file.name}</div>
+              <div class="file-size">${formatFileSize(file.size)}</div>
+            </div>
+          </div>
+          <button type="button" class="file-remove" onclick="removeFile(${index})">删除</button>
+        </div>
+      `).join('');
+    }
+
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      renderFileList();
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    // 表单提交
+    document.getElementById('submitForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // 模拟提交
+      const submitBtn = document.querySelector('.submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '提交中...';
+
+      setTimeout(() => {
+        alert('作业提交成功！');
+        window.location.href = '/student/courses';
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

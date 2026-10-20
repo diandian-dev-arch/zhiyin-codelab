@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✦ Cosmic Canvas — Creative Animation Showcase</title>
+<style>
+  /* ─── Reset & Base ─── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --c1: #0a0a1a;
+    --c2: #1a0a2e;
+    --accent: #7c3aed;
+    --glow: #a78bfa;
+    --pink: #ec4899;
+    --cyan: #22d3ee;
+    --gold: #fbbf24;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--c1);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--c1);
+    color: #e2e8f0;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ─── Custom Cursor ─── */
+  .cursor-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--cyan);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transition: transform 0.1s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 2px solid var(--glow);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+  .cursor-ring.hover {
+    width: 60px; height: 60px;
+    border-color: var(--pink);
+  }
+
+  /* ─── Hero Section ─── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, #1a0a3e 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, #0a1a3e 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, #2a0a2e 0%, transparent 50%),
+                var(--c1);
+    animation: bgShift 12s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgShift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    50%  { filter: hue-rotate(30deg) brightness(1.1); }
+    100% { filter: hue-rotate(-20deg) brightness(0.9); }
+  }
+
+  /* Stars */
+  .stars-canvas { position: absolute; inset: 0; z-index: 1; }
+
+  /* Aurora overlay */
+  .aurora {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.4;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .aurora-band {
+    position: absolute;
+    width: 120%;
+    height: 300px;
+    border-radius: 50%;
+    animation: auroraFloat 8s ease-in-out infinite alternate;
+  }
+  .aurora-band:nth-child(1) {
+    top: 10%; left: -10%;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--cyan), transparent);
+    animation-delay: 0s;
+  }
+  .aurora-band:nth-child(2) {
+    top: 30%; left: -20%;
+    background: linear-gradient(90deg, transparent, var(--pink), var(--glow), transparent);
+    animation-delay: -3s;
+    animation-duration: 10s;
+  }
+  .aurora-band:nth-child(3) {
+    top: 50%; left: -5%;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--accent), transparent);
+    animation-delay: -5s;
+    animation-duration: 12s;
+  }
+
+  @keyframes auroraFloat {
+    0%   { transform: translateX(-10%) rotate(-3deg) scaleY(1); }
+    100% { transform: translateX(10%) rotate(3deg) scaleY(1.3); }
+  }
+
+  /* Hero content */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--glow) 30%, var(--cyan) 60%, var(--pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleReveal 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  @keyframes titleReveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    color: #94a3b8;
+    margin-top: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 1s 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeUp 1s 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  .scroll-indicator span {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+    50%      { transform: scaleY(1); opacity: 1; }
+  }
+
+  /* ─── Section Base ─── */
+  section {
+    position: relative;
+    padding: 120px 5vw;
+    overflow: hidden;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff, var(--glow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-desc {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    max-width: 600px;
+    margin-bottom: 4rem;
+    line-height: 1.8;
+  }
+
+  /* Reveal on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── Section 1: Morphing Blobs ─── */
+  .blobs-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    background: radial-gradient(ellipse at center, #0f0a2e 0%, var(--c1) 70%);
+  }
+
+  .blob-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+  }
+
+  .blob {
+    position: absolute;
+    inset: 0;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation: morph 8s ease-in-out infinite;
+    filter: blur(1px);
+  }
+
+  .blob-1 {
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    animation-delay: 0s;
+  }
+  .blob-2 {
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    opacity: 0.7;
+    animation-delay: -2s;
+    animation-duration: 10s;
+  }
+  .blob-3 {
+    background: linear-gradient(135deg, var(--cyan), var(--accent));
+    opacity: 0.5;
+    animation-delay: -4s;
+    animation-duration: 12s;
+  }
+
+  @keyframes morph {
+    0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: rotate(0deg) scale(1); }
+    25%      { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; transform: rotate(90deg) scale(1.05); }
+    50%      { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; transform: rotate(180deg) scale(0.95); }
+    75%      { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; transform: rotate(270deg) scale(1.03); }
+  }
+
+  .blob-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    text-align: center;
+  }
+  .blob-text h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  }
+  .blob-text p {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 0.5rem;
+  }
+
+  .blobs-info {
+    max-width: 400px;
+    margin-left: 4rem;
+  }
+
+  .blobs-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── Section 2: Particle Wave ─── */
+  .wave-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+  }
+
+  .wave-canvas {
+    width: 100%;
+    max-width: 1000px;
+    height: 400px;
+    border-radius: 20px;
+    background: rgba(15,10,30,0.5);
+    border: 1px solid rgba(124,58,237,0.2);
+  }
+
+  /* ─── Section 3: 3D Cards ─── */
+  .cards-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    perspective: 1000px;
+  }
+
+  .card-3d {
+    position: relative;
+    height: 360px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(30,20,60,0.8), rgba(15,10,30,0.9));
+    border: 1px solid rgba(124,58,237,0.2);
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+
+  .card-3d:hover {
+    box-shadow: 0 25px 60px rgba(124,58,237,0.3),
+                0 0 80px rgba(124,58,237,0.1);
+  }
+
+  .card-glow {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .card-3d:hover .card-glow { opacity: 0.6; }
+
+  .card-3d:nth-child(1) .card-glow { background: var(--accent); }
+  .card-3d:nth-child(2) .card-glow { background: var(--pink); }
+  .card-3d:nth-child(3) .card-glow { background: var(--cyan); }
+  .card-3d:nth-child(4) .card-glow { background: var(--gold); }
+
+  .card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .card-content {
+    position: relative;
+    z-index: 2;
+    padding: 2.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .card-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #fff;
+  }
+
+  .card-content p {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+
+  .card-pattern {
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    opacity: 0.05;
+  }
+
+  /* ─── Section 4: Clock Visualization ─── */
+  .clock-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 50%, #0f0a2e, var(--c1));
+  }
+
+  .clock-canvas {
+    width: 400px;
+    height: 400px;
+  }
+
+  /* ─── Section 5: Typography ─── */
+  .typo-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+  }
+
+  .text-line {
+    font-size: clamp(2rem, 6vw, 5rem);
+    font-weight: 800;
+    overflow: hidden;
+    line-height: 1.2;
+  }
+
+  .text-line span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100%);
+    animation: wordSlide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes wordSlide {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .gradient-text-1 {
+    background: linear-gradient(90deg, #fff, var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .gradient-text-2 {
+    background: linear-gradient(90deg, var(--pink), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .gradient-text-3 {
+    background: linear-gradient(90deg, var(--accent), var(--cyan), var(--pink));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: gradientFlow 3s linear infinite;
+  }
+
+  @keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .glitch-text {
+    position: relative;
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .glitch-text::before {
+    color: var(--cyan);
+    animation: glitch1 3s infinite linear alternate-reverse;
+    clip-path: inset(0 0 65% 0);
+  }
+  .glitch-text::after {
+    color: var(--pink);
+    animation: glitch2 2s infinite linear alternate-reverse;
+    clip-path: inset(35% 0 0 0);
+  }
+
+  @keyframes glitch1 {
+    0%, 80%  { transform: translate(0); }
+    85%      { transform: translate(-3px, 2px); }
+    90%      { transform: translate(3px, -1px); }
+    95%      { transform: translate(-2px, 1px); }
+    100%     { transform: translate(0); }
+  }
+  @keyframes glitch2 {
+    0%, 75%  { transform: translate(0); }
+    80%      { transform: translate(2px, -2px); }
+    85%      { transform: translate(-3px, 1px); }
+    90%      { transform: translate(2px, 2px); }
+    95%      { transform: translate(-1px, -1px); }
+    100%     { transform: translate(0); }
+  }
+
+  /* ─── Section 6: Interactive Rings ─── */
+  .rings-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .rings-canvas { width: 500px; height: 500px; }
+
+  /* ─── Section 7: Flowing Grid ─── */
+  .grid-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flowing-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    max-width: 600px;
+  }
+
+  .grid-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--accent);
+    opacity: 0.1;
+    transition: all 0.3s ease;
+  }
+
+  .grid-cell.active {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px currentColor;
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 80px 5vw;
+    text-align: center;
+    position: relative;
+  }
+  footer p {
+    color: #475569;
+    font-size: 0.9rem;
+  }
+  .footer-line {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 2rem auto;
+  }
+
+  /* ─── Navigation Dots ─── */
+  .nav-dots {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nav-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(167,139,250,0.4);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-dot.active {
+    background: var(--glow);
+    box-shadow: 0 0 10px var(--glow);
+    transform: scale(1.3);
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .blobs-grid { flex-direction: column; }
+    .blobs-info { margin-left: 0; margin-top: 2rem; text-align: center; }
+    .blob-container { width: 280px; height: 280px; }
+    .nav-dots { display: none; }
+    body { cursor: auto; }
+    .cursor-dot, .cursor-ring { display: none; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .clock-canvas { width: 300px; height: 300px; }
+    .rings-canvas { width: 300px; height: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Navigation Dots -->
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero" data-section="0">
+  <div class="hero-bg"></div>
+  <canvas class="stars-canvas" id="starsCanvas"></canvas>
+  <div class="aurora">
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+  </div>
+  <div class="hero-content">
+    <h1 class="hero-title">Cosmic Canvas</h1>
+    <p class="hero-subtitle">An Animated Journey Through Digital Art</p>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════ MORPHING BLOBS ═══════════ -->
+<section class="blobs-section" data-section="1">
+  <div class="blobs-grid">
+    <div class="blob-container reveal">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob-text">
+        <span class="card-icon">🌊</span>
+        <h3>Fluid Motion</h3>
+        <p>Organic morphing shapes</p>
+      </div>
+    </div>
+    <div class="blobs-info reveal" style="transition-delay: 0.2s;">
+      <h2 class="section-title">Morphing Blobs</h2>
+      <p class="section-desc">
+        Three layered gradients dance in harmony, each following its own path through
+        organic border-radius transitions. Pure CSS magic — no JavaScript required.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PARTICLE WAVE ═══════════ -->
+<section class="wave-section" data-section="2">
+  <div class="reveal">
+    <h2 class="section-title" style="text-align:center;">Particle Wave</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      A sea of particles responding to sine-wave mathematics, creating an endlessly flowing landscape.
+    </p>
+  </div>
+  <canvas class="wave-canvas reveal" id="waveCanvas" style="transition-delay: 0.3s;"></canvas>
+</section>
+
+<!-- ═══════════ 3D CARDS ═══════════ -->
+<section class="cards-section" data-section="3">
+  <div class="reveal">
+    <h2 class="section-title" style="text-align:center;">Interactive 3D Cards</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      Move your mouse over each card to experience perspective-tracking 3D tilt effects.
+    </p>
+  </div>
+  <div class="cards-grid reveal" style="transition-delay: 0.2s;">
+    <div class="card-3d">
+      <div class="card-glow"></div>
+      <div class="card-content">
+        <span class="card-icon">🎨</span>
+        <h3>Creative Design</h3>
+        <p>Blending art with technology through stunning visual narratives and immersive experiences.</p>
+      </div>
+    </div>
+    <div class="card-3d">
+      <div class="card-glow"></div>
+      <div class="card-content">
+        <span class="card-icon">⚡</span>
+        <h3>Lightning Fast</h3>
+        <p>GPU-accelerated CSS transforms and requestAnimationFrame for buttery 60fps animations.</p>
+      </div>
+    </div>
+    <div class="card-3d">
+      <div class="card-glow"></div>
+      <div class="card-content">
+        <span class="card-icon">🌐</span>
+        <h3>Web Native</h3>
+        <p>Zero dependencies. Pure HTML, CSS & JavaScript — runs everywhere, beautifully.</p>
+      </div>
+    </div>
+    <div class="card-3d">
+      <div class="card-glow"></div>
+      <div class="card-content">
+        <span class="card-icon">✨</span>
+        <h3>Pixel Perfect</h3>
+        <p>Every gradient, every shadow, every transition crafted with obsessive attention to detail.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CLOCK ═══════════ -->
+<section class="clock-section" data-section="4">
+  <div class="reveal">
+    <h2 class="section-title" style="text-align:center;">Living Clock</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      A real-time circular visualization — watch the seconds orbit, minutes sweep, and hours glow.
+    </p>
+  </div>
+  <canvas class="clock-canvas reveal" id="clockCanvas" style="transition-delay: 0.3s;"></canvas>
+</section>
+
+<!-- ═══════════ TYPOGRAPHY ═══════════ -->
+<section class="typo-section" data-section="5">
+  <div class="reveal">
+    <div class="text-line"><span class="gradient-text-1">Design is thinking</span></div>
+  </div>
+  <div class="reveal" style="transition-delay: 0.15s;">
+    <div class="text-line"><span class="gradient-text-2">made visual.</span></div>
+  </div>
+  <div class="reveal" style="transition-delay: 0.3s;">
+    <div class="text-line"><span class="gradient-text-3">∞ Infinite Gradient ∞</span></div>
+  </div>
+  <div class="reveal" style="transition-delay: 0.45s;">
+    <div class="glitch-text" data-text="GLITCH">GLITCH</div>
+  </div>
+</section>
+
+<!-- ═══════════ ORBITAL RINGS ═══════════ -->
+<section class="rings-section" data-section="6">
+  <div class="reveal">
+    <h2 class="section-title" style="text-align:center;">Orbital Rings</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      Concentric rings of particles orbit a central point, each ring spinning at its own speed and hue.
+    </p>
+  </div>
+  <canvas class="rings-canvas reveal" id="ringsCanvas" style="transition-delay: 0.3s;"></canvas>
+</section>
+
+<!-- ═══════════ FLOWING GRID ═══════════ -->
+<section class="grid-section" data-section="7">
+  <div class="reveal">
+    <h2 class="section-title" style="text-align:center;">Wave Grid</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      A grid of cells animated by mathematical wave functions, creating mesmerizing ripple patterns.
+    </p>
+  </div>
+  <div class="flowing-grid reveal" id="flowingGrid" style="transition-delay: 0.3s;"></div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <div class="footer-line"></div>
+  <p>Crafted with ♥ — Cosmic Canvas 2026</p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   1. CUSTOM CURSOR
+   ═══════════════════════════════════════ */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  dot.style.left = mouseX - 4 + 'px';
+  dot.style.top  = mouseY - 4 + 'px';
+});
+
+function animateCursor() {
+  ringX += (mouseX - ringX) * 0.15;
+  ringY += (mouseY - ringY) * 0.15;
+  ring.style.left = ringX - 20 + 'px';
+  ring.style.top  = ringY - 20 + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('a, button, .card-3d, .nav-dot').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+});
+
+/* ═══════════════════════════════════════
+   2. STARFIELD
+   ═══════════════════════════════════════ */
+const starsCanvas = document.getElementById('starsCanvas');
+const starsCtx = starsCanvas.getContext('2d');
+
+function resizeStars() {
+  starsCanvas.width = window.innerWidth;
+  starsCanvas.height = window.innerHeight;
+}
+resizeStars();
+window.addEventListener('resize', resizeStars);
+
+class Star {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * starsCanvas.width;
+    this.y = Math.random() * starsCanvas.height;
+    this.size = Math.random() * 2;
+    this.speed = Math.random() * 0.5 + 0.1;
+    this.opacity = Math.random();
+    this.flickerSpeed = Math.random() * 0.02 + 0.005;
+    this.angle = Math.random() * Math.PI * 2;
+  }
+  update() {
+    this.angle += this.flickerSpeed;
+    this.opacity = 0.3 + Math.sin(this.angle) * 0.5;
+    this.y += this.speed;
+    if (this.y > starsCanvas.height) { this.y = 0; this.x = Math.random() * starsCanvas.width; }
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+    ctx.fill();
+  }
+}
+
+const stars = Array.from({ length: 200 }, () => new Star());
+
+function animateStars() {
+  starsCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+  stars.forEach(s => { s.update(); s.draw(starsCtx); });
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+/* shooting stars */
+function shootingStar() {
+  const sx = Math.random() * starsCanvas.width;
+  const sy = Math.random() * starsCanvas.height * 0.5;
+  const len = 80 + Math.random() * 120;
+  const angle = Math.PI / 4 + Math.random() * 0.3;
+  let progress = 0;
+
+  function draw() {
+    progress += 4;
+    if (progress > len + 40) return;
+    const head = Math.min(progress, len);
+    const tail = Math.max(0, progress - 40);
+    starsCtx.beginPath();
+    starsCtx.moveTo(sx + Math.cos(angle) * tail, sy + Math.sin(angle) * tail);
+    starsCtx.lineTo(sx + Math.cos(angle) * head, sy + Math.sin(angle) * head);
+    const grad = starsCtx.createLinearGradient(
+      sx + Math.cos(angle) * tail, sy + Math.sin(angle) * tail,
+      sx + Math.cos(angle) * head, sy + Math.sin(angle) * head
+    );
+    grad.addColorStop(0, 'rgba(255,255,255,0)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.8)');
+    starsCtx.strokeStyle = grad;
+    starsCtx.lineWidth = 1.5;
+    starsCtx.stroke();
+    requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(shootingStar, 3000 + Math.random() * 5000);
+}
+setTimeout(shootingStar, 2000);
+
+/* ═══════════════════════════════════════
+   3. PARTICLE WAVE
+   ═══════════════════════════════════════ */
+const waveCanvas = document.getElementById('waveCanvas');
+const waveCtx = waveCanvas.getContext('2d');
+
+function resizeWave() {
+  const rect = waveCanvas.getBoundingClientRect();
+  waveCanvas.width = rect.width * devicePixelRatio;
+  waveCanvas.height = rect.height * devicePixelRatio;
+  waveCtx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeWave();
+window.addEventListener('resize', resizeWave);
+
+let waveTime = 0;
+function animateWave() {
+  const w = waveCanvas.width / devicePixelRatio;
+  const h = waveCanvas.height / devicePixelRatio;
+  waveCtx.clearRect(0, 0, w, h);
+  waveTime += 0.015;
+
+  const cols = 80, rows = 30;
+  const spacingX = w / cols, spacingY = h / rows;
+
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const x = i * spacingX + spacingX / 2;
+      const baseY = j * spacingY + spacingY / 2;
+      const dist = Math.sqrt((i - cols / 2) ** 2 + (j - rows / 2) ** 2);
+      const offset = Math.sin(dist * 0.3 - waveTime * 2) * 12;
+      const y = baseY + offset;
+      const size = 1 + Math.sin(dist * 0.2 - waveTime) * 1;
+      const hue = 260 + Math.sin(dist * 0.1 + waveTime) * 40;
+      const alpha = 0.3 + Math.sin(dist * 0.2 - waveTime * 1.5) * 0.4;
+
+      waveCtx.beginPath();
+      waveCtx.arc(x, y, Math.max(0.5, size), 0, Math.PI * 2);
+      waveCtx.fillStyle = `hsla(${hue}, 80%, 65%, ${Math.max(0.1, alpha)})`;
+      waveCtx.fill();
+    }
+  }
+  requestAnimationFrame(animateWave);
+}
+animateWave();
+
+/* ═══════════════════════════════════════
+   4. 3D CARD TILT
+   ═══════════════════════════════════════ */
+document.querySelectorAll('.card-3d').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(1000px) rotateY(${x * 20}deg) rotateX(${-y * 20}deg) scale3d(1.03,1.03,1.03)`;
+
+    const glow = card.querySelector('.card-glow');
+    glow.style.left = e.clientX - rect.left - 100 + 'px';
+    glow.style.top  = e.clientY - rect.top  - 100 + 'px';
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateY(0) rotateX(0) scale3d(1,1,1)';
+  });
+});
+
+/* ═══════════════════════════════════════
+   5. CLOCK VISUALIZATION
+   ═══════════════════════════════════════ */
+const clockCanvas = document.getElementById('clockCanvas');
+const clockCtx = clockCanvas.getContext('2d');
+
+function resizeClock() {
+  const rect = clockCanvas.getBoundingClientRect();
+  clockCanvas.width = rect.width * devicePixelRatio;
+  clockCanvas.height = rect.height * devicePixelRatio;
+  clockCtx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeClock();
+window.addEventListener('resize', resizeClock);
+
+function drawClock() {
+  const w = clockCanvas.width / devicePixelRatio;
+  const h = clockCanvas.height / devicePixelRatio;
+  const cx = w / 2, cy = h / 2;
+  const r = Math.min(cx, cy) - 20;
+  clockCtx.clearRect(0, 0, w, h);
+
+  const now = new Date();
+  const sec = now.getSeconds() + now.getMilliseconds() / 1000;
+  const min = now.getMinutes() + sec / 60;
+  const hr  = (now.getHours() % 12) + min / 60;
+
+  // Outer ring of dots for seconds
+  for (let i = 0; i < 60; i++) {
+    const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+    const dotR = i <= sec ? 3 : 1.5;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+
+    if (i <= sec) {
+      const hue = 260 + (i / 60) * 60;
+      clockCtx.beginPath();
+      clockCtx.arc(x, y, dotR, 0, Math.PI * 2);
+      clockCtx.fillStyle = `hsl(${hue}, 80%, 65%)`;
+      clockCtx.fill();
+      clockCtx.shadowBlur = 8;
+      clockCtx.shadowColor = `hsl(${hue}, 80%, 65%)`;
+      clockCtx.fill();
+      clockCtx.shadowBlur = 0;
+    } else {
+      clockCtx.beginPath();
+      clockCtx.arc(x, y, dotR, 0, Math.PI * 2);
+      clockCtx.fillStyle = 'rgba(255,255,255,0.15)';
+      clockCtx.fill();
+    }
+  }
+
+  // Minute arc
+  const minAngle = (min / 60) * Math.PI * 2 - Math.PI / 2;
+  clockCtx.beginPath();
+  clockCtx.arc(cx, cy, r * 0.75, -Math.PI / 2, minAngle);
+  clockCtx.strokeStyle = 'rgba(236,72,153,0.6)';
+  clockCtx.lineWidth = 3;
+  clockCtx.lineCap = 'round';
+  clockCtx.stroke();
+
+  // Minute dot
+  clockCtx.beginPath();
+  clockCtx.arc(cx + Math.cos(minAngle) * r * 0.75, cy + Math.sin(minAngle) * r * 0.75, 5, 0, Math.PI * 2);
+  clockCtx.fillStyle = '#ec4899';
+  clockCtx.fill();
+  clockCtx.shadowBlur = 12;
+  clockCtx.shadowColor = '#ec4899';
+  clockCtx.fill();
+  clockCtx.shadowBlur = 0;
+
+  // Hour arc
+  const hrAngle = (hr / 12) * Math.PI * 2 - Math.PI / 2;
+  clockCtx.beginPath();
+  clockCtx.arc(cx, cy, r * 0.5, -Math.PI / 2, hrAngle);
+  clockCtx.strokeStyle = 'rgba(34,211,238,0.6)';
+  clockCtx.lineWidth = 4;
+  clockCtx.stroke();
+
+  // Hour dot
+  clockCtx.beginPath();
+  clockCtx.arc(cx + Math.cos(hrAngle) * r * 0.5, cy + Math.sin(hrAngle) * r * 0.5, 6, 0, Math.PI * 2);
+  clockCtx.fillStyle = '#22d3ee';
+  clockCtx.fill();
+  clockCtx.shadowBlur = 14;
+  clockCtx.shadowColor = '#22d3ee';
+  clockCtx.fill();
+  clockCtx.shadowBlur = 0;
+
+  // Center
+  clockCtx.beginPath();
+  clockCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+  clockCtx.fillStyle = '#fff';
+  clockCtx.fill();
+
+  // Time text
+  const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+  clockCtx.font = '600 1.4rem "Segoe UI", system-ui, sans-serif';
+  clockCtx.fillStyle = 'rgba(255,255,255,0.7)';
+  clockCtx.textAlign = 'center';
+  clockCtx.textBaseline = 'middle';
+  clockCtx.fillText(timeStr, cx, cy + r * 0.25);
+
+  requestAnimationFrame(drawClock);
+}
+drawClock();
+
+/* ═══════════════════════════════════════
+   6. ORBITAL RINGS
+   ═══════════════════════════════════════ */
+const ringsCanvas = document.getElementById('ringsCanvas');
+const ringsCtx = ringsCanvas.getContext('2d');
+
+function resizeRings() {
+  const rect = ringsCanvas.getBoundingClientRect();
+  ringsCanvas.width = rect.width * devicePixelRatio;
+  ringsCanvas.height = rect.height * devicePixelRatio;
+  ringsCtx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeRings();
+window.addEventListener('resize', resizeRings);
+
+let ringsTime = 0;
+function animateRings() {
+  const w = ringsCanvas.width / devicePixelRatio;
+  const h = ringsCanvas.height / devicePixelRatio;
+  const cx = w / 2, cy = h / 2;
+  ringsCtx.fillStyle = 'rgba(10,10,26,0.15)';
+  ringsCtx.fillRect(0, 0, w, h);
+  ringsTime += 0.008;
+
+  const ringCount = 7;
+  for (let ring = 0; ring < ringCount; ring++) {
+    const radius = 30 + ring * 28;
+    const particleCount = 12 + ring * 6;
+    const speed = (0.5 + ring * 0.15) * (ring % 2 === 0 ? 1 : -1);
+    const hue = 260 + ring * 25;
+
+    for (let p = 0; p < particleCount; p++) {
+      const angle = (p / particleCount) * Math.PI * 2 + ringsTime * speed;
+      const wobble = Math.sin(ringsTime * 3 + p + ring) * 5;
+      const x = cx + Math.cos(angle) * (radius + wobble);
+      const y = cy + Math.sin(angle) * (radius + wobble);
+      const size = 1.5 + Math.sin(ringsTime * 2 + p) * 1;
+
+      ringsCtx.beginPath();
+      ringsCtx.arc(x, y, Math.max(0.5, size), 0, Math.PI * 2);
+      ringsCtx.fillStyle = `hsla(${hue}, 80%, 65%, 0.8)`;
+      ringsCtx.fill();
+    }
+  }
+
+  // Center glow
+  const grad = ringsCtx.createRadialGradient(cx, cy, 0, cx, cy, 20);
+  grad.addColorStop(0, 'rgba(167,139,250,0.6)');
+  grad.addColorStop(1, 'rgba(167,139,250,0)');
+  ringsCtx.beginPath();
+  ringsCtx.arc(cx, cy, 20, 0, Math.PI * 2);
+  ringsCtx.fillStyle = grad;
+  ringsCtx.fill();
+
+  requestAnimationFrame(animateRings);
+}
+animateRings();
+
+/* ═══════════════════════════════════════
+   7. FLOWING GRID
+   ═══════════════════════════════════════ */
+const gridContainer = document.getElementById('flowingGrid');
+const cols = 12, rows = 12;
+const cells = [];
+
+for (let i = 0; i < rows * cols; i++) {
+  const cell = document.createElement('div');
+  cell.className = 'grid-cell';
+  gridContainer.appendChild(cell);
+  cells.push(cell);
+}
+
+let gridTime = 0;
+function animateGrid() {
+  gridTime += 0.04;
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const idx = j * cols + i;
+      const wave = Math.sin(i * 0.5 + gridTime) + Math.sin(j * 0.5 + gridTime * 0.7);
+      const norm = (wave + 2) / 4; // 0 to 1
+      const hue = 260 + norm * 80;
+      cells[idx].style.opacity = 0.1 + norm * 0.9;
+      cells[idx].style.background = `hsl(${hue}, 75%, 55%)`;
+      cells[idx].style.transform = `scale(${0.8 + norm * 0.4})`;
+      cells[idx].style.borderRadius = `${2 + norm * 6}px`;
+    }
+  }
+  requestAnimationFrame(animateGrid);
+}
+animateGrid();
+
+/* ═══════════════════════════════════════
+   8. SCROLL REVEAL
+   ═══════════════════════════════════════ */
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+reveals.forEach(el => observer.observe(el));
+
+/* ═══════════════════════════════════════
+   9. NAV DOTS
+   ═══════════════════════════════════════ */
+const sections = document.querySelectorAll('[data-section]');
+const navDots = document.getElementById('navDots');
+sections.forEach((sec, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  navDots.appendChild(d);
+});
+
+const dotsArr = document.querySelectorAll('.nav-dot');
+const secObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = +entry.target.dataset.section;
+      dotsArr.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => secObserver.observe(s));
+
+/* ═══════════════════════════════════════
+   10. TEXT ANIMATION ON SCROLL
+   ═══════════════════════════════════════ */
+const textSpans = document.querySelectorAll('.text-line span');
+const textObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+    }
+  });
+}, { threshold: 0.5 });
+textSpans.forEach(span => {
+  span.style.animationPlayState = 'paused';
+  textObserver.observe(span);
+});
+</script>
+</body>
+</html>

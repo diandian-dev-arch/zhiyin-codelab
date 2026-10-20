@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>深空探测 · 知因 AI 项目分析</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Dark theme palette */
+      --deep-bg: #0A0E27;
+      --surface-dark: #141B3D;
+      --surface-light: #1E2749;
+      --accent-cyan: #00D9FF;
+      --accent-purple: #8B5CF6;
+      --accent-amber: #FBBF24;
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+
+      /* Glass properties */
+      --glass-bg: rgba(30, 39, 73, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+      /* Motion curves */
+      --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+      background: var(--deep-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(0, 217, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: particleFloat 20s linear infinite;
+    }
+
+    .particle:nth-child(2n) {
+      background: var(--accent-purple);
+      animation-duration: 25s;
+    }
+
+    .particle:nth-child(3n) {
+      background: var(--accent-amber);
+      animation-duration: 30s;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Glass morphism cards */
+    .glass-morph {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: var(--glass-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s var(--ease-smooth);
+    }
+
+    .glass-morph::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+      transition: left 0.6s;
+    }
+
+    .glass-morph:hover::before {
+      left: 100%;
+    }
+
+    .glass-morph:hover {
+      border-color: rgba(0, 217, 255, 0.3);
+      box-shadow: 0 12px 48px rgba(0, 217, 255, 0.15);
+      transform: translateY(-4px);
+    }
+
+    /* Header */
+    .control-bar {
+      margin-bottom: 36px;
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideFromTop 0.8s var(--ease-smooth);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-orb {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      position: relative;
+      animation: orbPulse 3s ease-in-out infinite;
+    }
+
+    .logo-orb::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-cyan);
+      opacity: 0.5;
+      animation: ringExpand 2s ease-out infinite;
+    }
+
+    .brand-info h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .brand-info p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .status-indicators {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    /* Hero Section */
+    .mission-control {
+      margin-bottom: 32px;
+      padding: 56px 48px;
+      position: relative;
+      animation: slideFromBottom 0.8s var(--ease-smooth) 0.2s both;
+    }
+
+    .mission-header {
+      margin-bottom: 48px;
+    }
+
+    .mission-tag {
+      display: inline-block;
+      padding: 8px 16px;
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(0, 217, 255, 0.2));
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-purple);
+      margin-bottom: 20px;
+    }
+
+    .mission-title {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mission-description {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 720px;
+    }
+
+    /* Radar visualization */
+    .analysis-radar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      margin-top: 40px;
+    }
+
+    .radar-display {
+      position: relative;
+      width: 280px;
+      height: 280px;
+    }
+
+    .radar-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(0, 217, 255, 0.2);
+      border-radius: 50%;
+    }
+
+    .radar-ring:nth-child(1) { width: 280px; height: 280px; }
+    .radar-ring:nth-child(2) { width: 200px; height: 200px; border-color: rgba(139, 92, 246, 0.2); }
+    .radar-ring:nth-child(3) { width: 120px; height: 120px; border-color: rgba(251, 191, 36, 0.2); }
+
+    .radar-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      box-shadow: 0 0 40px rgba(0, 217, 255, 0.5);
+      animation: centerGlow 2s ease-in-out infinite;
+    }
+
+    .radar-center small {
+      font-size: 9px;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .radar-blip {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--accent-amber);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-amber);
+      animation: blipPulse 2s ease-in-out infinite;
+    }
+
+    .radar-blip:nth-child(4) { top: 15%; left: 30%; animation-delay: 0s; }
+    .radar-blip:nth-child(5) { top: 70%; left: 80%; animation-delay: 0.5s; }
+    .radar-blip:nth-child(6) { top: 45%; left: 10%; animation-delay: 1s; }
+
+    .radar-sweep {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+      transform-origin: left center;
+      animation: radarSweep 4s linear infinite;
+    }
+
+    .radar-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .stat-content h3 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+
+    .stat-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Data Grid */
+    .data-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+      animation: slideFromBottom 0.8s var(--ease-smooth) 0.4s both;
+    }
+
+    .data-card {
+      padding: 32px 28px;
+      position: relative;
+    }
+
+    .data-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 28px;
+      right: 28px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-smooth);
+    }
+
+    .data-card:hover::after {
+      opacity: 1;
+    }
+
+    .data-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .data-icon {
+      font-size: 28px;
+    }
+
+    .data-badge {
+      padding: 6px 12px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .data-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .data-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .code-reference {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 10px;
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 11px;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-smooth);
+    }
+
+    .code-reference:hover {
+      background: rgba(0, 217, 255, 0.15);
+      border-color: var(--accent-cyan);
+      transform: translateX(4px);
+    }
+
+    /* Command Center */
+    .command-center {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 100;
+    }
+
+    .cmd-button {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0, 217, 255, 0.4);
+      transition: all 0.4s var(--ease-elastic);
+      animation: cmdFloat 3s ease-in-out infinite;
+    }
+
+    .cmd-button:hover {
+      transform: scale(1.2) rotate(90deg);
+      box-shadow: 0 12px 48px rgba(0, 217, 255, 0.6);
+    }
+
+    .cmd-button:active {
+      transform: scale(1.1);
+    }
+
+    /* Animations */
+    @keyframes slideFromTop {
+      from {
+        opacity: 0;
+        transform: translateY(-60px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideFromBottom {
+      from {
+        opacity: 0;
+        transform: translateY(60px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes orbPulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes ringExpand {
+      0% {
+        transform: scale(1);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes centerGlow {
+      0%, 100% {
+        box-shadow: 0 0 40px rgba(0, 217, 255, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 60px rgba(0, 217, 255, 0.8);
+      }
+    }
+
+    @keyframes blipPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+      }
+    }
+
+    @keyframes radarSweep {
+      0% {
+        transform: rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(360deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.4;
+      }
+      90% {
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes cmdFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 968px) {
+      .mission-control {
+        padding: 40px 32px;
+      }
+
+      .mission-title {
+        font-size: 38px;
+      }
+
+      .analysis-radar {
+        flex-direction: column;
+        gap: 36px;
+      }
+
+      .data-matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .command-center {
+        bottom: 32px;
+        right: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Particle effect -->
+  <div class="particles">
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 9s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 12s;"></div>
+  </div>
+
+  <div class="container">
+    <!-- Control Bar -->
+    <header class="glass-morph control-bar">
+      <div class="logo-section">
+        <div class="logo-orb">🔭</div>
+        <div class="brand-info">
+          <h1>知因 CodeLab</h1>
+          <p>深度 AI 项目分析引擎</p>
+        </div>
+      </div>
+      <div class="status-indicators">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>分析完成</span>
+        </div>
+        <div class="status-pill" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--accent-purple);">
+          <span>02:47 已用</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mission Control -->
+    <section class="glass-morph mission-control">
+      <div class="mission-header">
+        <span class="mission-tag">源码探测任务</span>
+        <h2 class="mission-title">react-admin-dashboard.zip</h2>
+        <p class="mission-description">
+          对 192 个源文件进行深度扫描，已完成 58 个关键模块的证据采集。所有判断均可回溯至具体代码位置，保证分析的透明性与可验证性。
+        </p>
+      </div>
+
+      <div class="analysis-radar">
+        <div class="radar-display">
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-blip"></div>
+          <div class="radar-blip"></div>
+          <div class="radar-blip"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-center">
+            58
+            <small>已探测</small>
+          </div>
+        </div>
+
+        <div class="radar-stats">
+          <div class="stat-item">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+              <h3>192</h3>
+              <p>源文件总数</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">🔍</div>
+            <div class="stat-content">
+              <h3>58</h3>
+              <p>已读文件片段</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-content">
+              <h3>14</h3>
+              <p>搜索执行次数</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Matrix -->
+    <div class="data-matrix">
+      <div class="glass-morph data-card">
+        <div class="data-header">
+          <span class="data-icon">🎯</span>
+          <span class="data-badge">架构</span>
+        </div>
+        <h3 class="data-title">模块化设计</h3>
+        <p class="data-body">
+          React 18 + TypeScript 架构，使用 Redux Toolkit 管理全局状态。路由模块采用懒加载策略，组件按业务域划分清晰。
+        </p>
+        <span class="code-reference">📄 src/store/index.ts:18-64</span>
+      </div>
+
+      <div class="glass-morph data-card">
+        <div class="data-header">
+          <span class="data-icon">🔄</span>
+          <span class="data-badge">数据流</span>
+        </div>
+        <h3 class="data-title">状态管理</h3>
+        <p class="data-body">
+          Redux slices 按功能模块划分，使用 RTK Query 处理异步请求。持久化层通过 redux-persist 实现，支持多种存储引擎。
+        </p>
+        <span class="code-reference">📄 src/features/auth.slice.ts:12-89</span>
+      </div>
+
+      <div class="glass-morph data-card">
+        <div class="data-header">
+          <span class="data-icon">⚠️</span>
+          <span class="data-badge">风险</span>
+        </div>
+        <h3 class="data-title">安全问题</h3>
+        <p class="data-body">
+          Token 存储在 localStorage 未加密，存在 XSS 攻击风险。API 请求缺少统一错误处理和重试机制，敏感数据未脱敏。
+        </p>
+        <span class="code-reference">📄 src/utils/auth.ts:25-38</span>
+      </div>
+
+      <div class="glass-morph data-card">
+        <div class="data-header">
+          <span class="data-icon">💡</span>
+          <span class="data-badge">建议</span>
+        </div>
+        <h3 class="data-title">优化方向</h3>
+        <p class="data-body">
+          建议引入 HttpOnly Cookie 存储敏感信息，添加请求拦截器统一处理错误，使用 React.memo 优化列表渲染性能。
+        </p>
+        <span class="code-reference">查看完整建议 →</span>
+      </div>
+    </div>
+
+    <!-- Command Center -->
+    <div class="command-center">
+      <button class="cmd-button" aria-label="新建任务">+</button>
+    </div>
+  </div>
+
+  <script>
+    // Simple particle generation
+    const particlesContainer = document.querySelector('.particles');
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 20 + 's';
+      particlesContainer.appendChild(particle);
+    }
+  </script>
+</body>
+</html>

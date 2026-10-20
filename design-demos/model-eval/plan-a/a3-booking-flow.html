@@ -1,0 +1,1373 @@
+<!--
+设计思路：
+视觉取江南山居的纸本质感：暖米白底、苔绿主色、赭石点缀，安静克制。苔绿承载主操作与选中态；赭石只做焦点环与错误提示；满房用斜线加文字双重标识，不只靠颜色区分。标题用宋体营造人文气息，正文用无衬线，价格用等宽数字对齐。取舍：日历采用单元格漫游焦点而非逐格按钮；支付提供演示开关，便于复现成功与失败。
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>选择日期与人数 · 栖溪山居 在线预订</title>
+<style>
+:root{
+  --paper:#F5F0E6; --surface:#FFFDF8; --ink:#22261F; --muted:#585C52; --line:#D9D0BF; --line-soft:#E9E2D4;
+  --moss:#2F5D46; --moss-deep:#234836; --moss-soft:#E2EBDF; --moss-tint:#F0F4EC;
+  --clay:#A4472B; --clay-soft:#F8E9E2; --focus:#B4531E;
+  --serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
+  --sans:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --radius:14px; --shadow:0 1px 2px rgba(34,38,31,.06),0 8px 24px rgba(34,38,31,.06);
+  --bar-h:0px;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:16px;scroll-padding-bottom:calc(var(--bar-h) + 16px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.3;margin:0}
+.num{font-variant-numeric:tabular-nums}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+h2[tabindex="-1"]:focus{outline:3px solid var(--focus);outline-offset:6px;border-radius:4px}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:50;text-decoration:none}
+.skip:focus{top:12px}
+
+/* 头部与步骤指示器 */
+.site-head{background:var(--surface);border-bottom:1px solid var(--line-soft)}
+.head-inner{max-width:1120px;margin:0 auto;padding:18px 24px 0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{flex:none}
+.brand h1{font-size:22px;letter-spacing:.08em}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.stepper{margin:18px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stepper li{position:relative}
+.step-btn{width:100%;display:flex;align-items:center;gap:10px;padding:12px 4px 14px;background:none;border:0;border-bottom:3px solid var(--line-soft);text-align:left;cursor:default;color:var(--muted)}
+.step-btn .dot{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);font-size:13px;font-weight:600;background:var(--surface)}
+.step-btn .label{font-size:14px;line-height:1.3}
+.step-btn .label small{display:block;font-size:12px;color:var(--muted)}
+.stepper li.is-done .step-btn{cursor:pointer;color:var(--ink);border-bottom-color:var(--moss)}
+.stepper li.is-done .dot{background:var(--moss);border-color:var(--moss);color:#fff}
+.stepper li.is-done .step-btn:hover .label{text-decoration:underline;text-underline-offset:3px}
+.stepper li.is-current .step-btn{color:var(--ink);border-bottom-color:var(--clay)}
+.stepper li.is-current .dot{border-color:var(--clay);color:var(--clay);border-width:2px}
+.step-btn:disabled{opacity:1}
+.step-compact{display:none}
+
+/* 布局 */
+.layout{max-width:1120px;margin:0 auto;padding:28px 24px 48px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}
+.step-head{margin-bottom:20px}
+.step-head .eyebrow{font-size:13px;color:var(--clay);letter-spacing:.12em;margin:0 0 4px}
+.step-head h2{font-size:26px;display:inline-block}
+.step-head p{margin:6px 0 0;color:var(--muted)}
+.section-title{font-size:18px;margin:28px 0 12px}
+.step-panel[hidden]{display:none}
+.step-panel{animation:fadeIn .32s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* 日历 */
+.cal-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin:0 0 14px;padding:0;list-style:none}
+.cal-legend li{display:flex;align-items:center;gap:6px}
+.swatch{width:14px;height:14px;border-radius:4px;border:1px solid var(--line)}
+.swatch.sel{background:var(--moss);border-color:var(--moss)}
+.swatch.rng{background:var(--moss-soft);border-color:var(--moss-soft)}
+.swatch.full{background:repeating-linear-gradient(135deg,#E6E0D3 0 3px,#F6F2EA 3px 6px)}
+.cal-shell{position:relative;border:1px solid var(--line-soft);border-radius:12px;padding:16px}
+.cal-nav{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}
+.icon-btn{pointer-events:auto;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.icon-btn:hover:not(:disabled){background:var(--moss-tint);border-color:var(--moss)}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed}
+.cal-months{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.cal-month h3{text-align:center;font-size:17px;height:40px;line-height:40px;margin-bottom:6px}
+table.cal{width:100%;border-collapse:separate;border-spacing:0 4px;table-layout:fixed}
+table.cal th{font-size:12px;font-weight:500;color:var(--muted);padding:4px 0}
+table.cal td{padding:0;height:54px;text-align:center;vertical-align:middle;position:relative;cursor:pointer;user-select:none}
+table.cal td.empty{cursor:default}
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;margin:0 1px;border-radius:10px;transition:background-color .15s,color .15s}
+.cell .d{font-size:15px;font-weight:600;line-height:1.1}
+.cell .p{font-size:11px;line-height:1.2;margin-top:3px;color:var(--muted)}
+.cell .p.hot{color:var(--clay)}
+td[role=gridcell]:not(.empty):not(.is-disabled):hover .cell{background:var(--moss-tint);box-shadow:inset 0 0 0 1.5px var(--moss)}
+td.in-range .cell,td.in-preview .cell{background:var(--moss-soft);border-radius:0;margin:0}
+td.in-preview .cell{background:repeating-linear-gradient(90deg,var(--moss-soft) 0 6px,var(--moss-tint) 6px 12px)}
+td.is-start .cell,td.is-end .cell{background:var(--moss);color:#fff}
+td.is-start .cell .p,td.is-end .cell .p{color:#E7EFE4}
+td.is-start .cell{border-radius:10px 0 0 10px;margin:0 0 0 1px}
+td.is-end .cell{border-radius:0 10px 10px 0;margin:0 1px 0 0}
+td.is-start.is-only .cell{border-radius:10px;margin:0 1px}
+td.is-today .d{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+td.is-disabled{cursor:not-allowed}
+td.is-disabled .cell{color:#8C8A82}
+td.is-past .cell .d{color:#A19E95}
+td.is-full .cell{background:repeating-linear-gradient(135deg,#ECE6DA 0 3px,#F8F5EE 3px 6px)}
+td.is-full .cell .d{text-decoration:line-through;color:#6E6B63}
+td.is-full .cell .p{color:#6E6B63}
+table.cal td:focus{outline:none}
+table.cal td:focus-visible .cell,table.cal td.kbd-focus:focus .cell{outline:3px solid var(--focus);outline-offset:1px;position:relative;z-index:2}
+.cal-status{margin:12px 2px 0;font-size:14px;color:var(--muted);min-height:1.6em}
+.cal-help{font-size:13px;color:var(--muted);margin:8px 2px 0}
+.cal-help kbd{font:12px/1 var(--sans);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 5px;background:var(--surface)}
+.stay-chips{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-bottom:16px}
+.chip{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.chip span{display:block;font-size:12px;color:var(--muted)}
+.chip strong{font-size:16px}
+.chip.is-active{border-color:var(--moss);box-shadow:inset 0 0 0 1px var(--moss)}
+.btn-text{background:none;border:0;color:var(--moss);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px 4px;font-size:14px}
+
+/* 人数 */
+.guests{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.counter{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.counter .meta strong{display:block}
+.counter .meta span{font-size:13px;color:var(--muted)}
+.counter .ctrl{display:flex;align-items:center;gap:10px}
+.counter output{min-width:1.5em;text-align:center;font-size:18px;font-weight:600}
+.round{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--moss);background:var(--surface);color:var(--moss);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.round:hover:not([aria-disabled=true]){background:var(--moss-tint)}
+.round[aria-disabled=true]{border-color:var(--line);color:#A19E95;cursor:not-allowed}
+
+/* 房型与附加服务 */
+.rooms{display:grid;gap:12px;border:0;margin:0;padding:0}
+.rooms legend,.addons legend{font-family:var(--serif);font-weight:700;font-size:18px;margin-bottom:12px;padding:0}
+.room{position:relative;display:grid;grid-template-columns:120px 1fr auto;gap:16px;align-items:center;border:1.5px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;background:var(--surface);transition:border-color .2s,box-shadow .2s,background-color .2s}
+.room:hover{border-color:var(--moss)}
+.room input,.addon input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.room:has(input:checked){border-color:var(--moss);background:var(--moss-tint);box-shadow:0 0 0 1px var(--moss)}
+.room:has(input:focus-visible),.addon:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:3px}
+.room:has(input:disabled){cursor:not-allowed;background:#F3EFE7;border-style:dashed}
+.room:has(input:disabled) .room-art{filter:grayscale(1);opacity:.55}
+.room-art{width:120px;height:84px;border-radius:10px;overflow:hidden;display:block}
+.room .rname{display:block;font-family:var(--serif);font-size:17px}
+.room .facts{display:block;margin:4px 0 0;font-size:13px;color:var(--muted)}
+.room .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--paper);color:var(--muted);border:1px solid var(--line-soft)}
+.room .price{text-align:right;min-width:96px}
+.room .price strong{font-size:18px}
+.room .price span{display:block;font-size:12px;color:var(--muted)}
+.room .note{display:block;font-size:12px;color:var(--clay);margin-top:6px}
+.radio-mark{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--surface)}
+.room:has(input:checked) .radio-mark{border-color:var(--moss);box-shadow:inset 0 0 0 5px var(--surface);background:var(--moss)}
+.room .price{padding-top:22px}
+.addons{display:grid;grid-template-columns:1fr 1fr;gap:12px;border:0;margin:28px 0 0;padding:0}
+.addons legend{grid-column:1/-1}
+.addon{position:relative;display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .2s,background-color .2s}
+.addon:hover{border-color:var(--moss)}
+.addon:has(input:checked){border-color:var(--moss);background:var(--moss-tint)}
+.check-mark{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;background:var(--surface);margin-top:2px}
+.check-mark svg{opacity:0;transition:opacity .15s}
+.addon:has(input:checked) .check-mark{background:var(--moss);border-color:var(--moss)}
+.addon:has(input:checked) .check-mark svg{opacity:1}
+.addon strong{display:block;font-size:15px}
+.addon .desc{display:block;font-size:13px;color:var(--muted)}
+.addon .cost{display:block;font-size:13px;color:var(--moss-deep);font-weight:600;margin-top:4px}
+.field-error,.group-error{display:flex;gap:6px;align-items:flex-start;color:var(--clay);font-size:14px;margin:8px 0 0}
+.field-error[hidden],.group-error[hidden]{display:none}
+.field-error svg,.group-error svg{flex:none;margin-top:3px}
+
+/* 表单 */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 18px}
+.field{display:flex;flex-direction:column}
+.field.full{grid-column:1/-1}
+.field label{font-weight:600;font-size:15px;margin-bottom:6px}
+.field label .req{font-weight:400;font-size:12px;color:var(--clay);margin-left:6px}
+.field label .opt{font-weight:400;font-size:12px;color:var(--muted);margin-left:6px}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
+.input{width:100%;min-height:48px;padding:11px 14px;border:1.5px solid #B9B09E;border-radius:10px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.input:hover{border-color:var(--muted)}
+.input:focus-visible,.input:focus{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--ink)}
+.input[aria-invalid=true]{border-color:var(--clay);background:#FFFBF9}
+textarea.input{min-height:112px;resize:vertical}
+.counter-text{font-size:12px;color:var(--muted);text-align:right;margin-top:4px}
+.form-note{display:flex;gap:10px;margin-top:22px;padding:12px 14px;border-radius:10px;background:var(--paper);font-size:13px;color:var(--muted)}
+
+/* 确认与支付 */
+.summary-block{border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.summary-block header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.summary-block h3{font-size:16px}
+.kv{display:grid;grid-template-columns:7em 1fr;gap:6px 12px;margin:0;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:0;padding:0;margin:0}
+.pay-methods legend{font-family:var(--serif);font-weight:700;font-size:18px;margin-bottom:12px;padding:0}
+.pay{position:relative;display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.pay input{position:absolute;opacity:0}
+.pay:has(input:checked){border-color:var(--moss);background:var(--moss-tint)}
+.pay:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:3px}
+.policy{margin-top:20px;padding:14px 16px;border-left:3px solid var(--moss);background:var(--moss-tint);border-radius:0 10px 10px 0;font-size:14px}
+.policy p{margin:0}
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:16px;cursor:pointer}
+.agree input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--moss);flex:none}
+.demo-switch{margin-top:20px;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;font-size:14px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.demo-switch select{min-height:40px;border:1.5px solid #B9B09E;border-radius:8px;padding:6px 10px;background:#fff}
+.pay-result{margin-top:20px;border-radius:12px;padding:18px}
+.pay-result[hidden]{display:none}
+.pay-result.fail{background:var(--clay-soft);border:1.5px solid var(--clay)}
+.pay-result.fail h3{color:var(--clay);font-size:17px}
+.pay-result p{margin:6px 0 0;font-size:14px}
+.success{text-align:center;padding:24px 8px 8px}
+.success .seal{width:84px;height:84px;margin:0 auto 14px}
+.success .order-no{display:inline-block;margin:12px 0 18px;padding:6px 14px;border-radius:999px;background:var(--moss-tint);font-size:14px}
+.success .kv{text-align:left;max-width:420px;margin:0 auto}
+.success .tips{max-width:460px;margin:18px auto 0;font-size:14px;color:var(--muted)}
+
+/* 侧栏摘要 */
+.aside{position:sticky;top:20px}
+.aside h2{font-size:18px;margin-bottom:12px}
+.trip{list-style:none;margin:0;padding:0;font-size:14px}
+.trip li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line-soft)}
+.trip li span:first-child{color:var(--muted);flex:none}
+.trip li span:last-child{text-align:right}
+.lines{list-style:none;margin:14px 0 0;padding:0;font-size:14px}
+.lines li{display:flex;justify-content:space-between;padding:4px 0;color:var(--muted)}
+.total-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.total-row strong{font-size:26px;font-family:var(--serif);color:var(--moss-deep)}
+.total-row strong.bump{animation:bump .45s ease}
+@keyframes bump{40%{color:var(--clay);transform:translateY(-2px)}}
+.aside .fine{font-size:12px;color:var(--muted);margin:8px 0 0}
+
+/* 操作栏 */
+.actions{display:flex;align-items:center;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line-soft)}
+.actions[hidden]{display:none!important}
+.pay-result:focus{outline:3px solid var(--focus);outline-offset:3px}
+.actions .bar-total{display:none}
+.actions .spacer{flex:1}
+.btn{min-height:48px;padding:0 22px;border-radius:12px;border:1.5px solid transparent;font-weight:600;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background-color .15s,transform .1s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--moss);color:#fff}
+.btn-primary:hover{background:var(--moss-deep)}
+.btn-primary[aria-disabled=true]{background:#5E7A6A;cursor:progress}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--paper)}
+.btn[hidden]{display:none}
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 移动端 */
+@media (max-width:760px){
+  .head-inner{padding:14px 16px 0}
+  .brand h1{font-size:19px}
+  .stepper{display:none}
+  .step-compact{display:block;padding:12px 0 14px}
+  .step-compact p{margin:0 0 8px;font-size:14px;display:flex;justify-content:space-between}
+  .step-compact .bar{height:6px;border-radius:99px;background:var(--line-soft);overflow:hidden}
+  .step-compact .bar i{display:block;height:100%;background:var(--moss);border-radius:99px;transition:width .35s ease}
+  .layout{grid-template-columns:1fr;padding:16px 12px 24px;gap:16px}
+  .aside{display:none}
+  .panel{padding:20px 14px}
+  .step-head h2{font-size:22px}
+  .cal-months{grid-template-columns:1fr;gap:12px}
+  .cal-shell{padding:12px 6px}
+  table.cal td{height:50px}
+  .stay-chips{grid-template-columns:1fr 1fr}
+  .stay-chips .btn-text{grid-column:1/-1;justify-self:start}
+  .guests,.addons,.form-grid{grid-template-columns:1fr}
+  .room{grid-template-columns:76px 1fr;gap:12px}
+  .room-art{width:76px;height:76px}
+  .room .price{grid-column:1/-1;text-align:left;padding-top:0;display:flex;gap:8px;align-items:baseline}
+  .room .price span{display:inline}
+  .pay-methods{grid-template-columns:1fr}
+  .actions{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(34,38,31,.08)}
+  .actions .bar-total{display:block;line-height:1.2}
+  .actions .bar-total span{display:block;font-size:12px;color:var(--muted)}
+  .actions .bar-total strong{font-size:20px;font-family:var(--serif);color:var(--moss-deep)}
+  .actions .btn{padding:0 16px}
+  .actions .btn-ghost{padding:0 12px}
+  body{padding-bottom:96px}
+  :root{--bar-h:80px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .spinner{animation:none;border-top-color:rgba(255,255,255,.4);border-right-color:#fff}
+}
+@media (forced-colors:active){
+  td.is-start .cell,td.is-end .cell{forced-color-adjust:none;background:Highlight;color:HighlightText}
+  .room:has(input:checked),.addon:has(input:checked){outline:2px solid Highlight}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到预订内容</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-alert" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.2v4.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.4" r="1.05" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.4l3 3 6-6.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <rect width="40" height="40" rx="10" fill="#2F5D46"/>
+        <path d="M6 28l9-11 6 7 4-4 9 8z" fill="#E2EBDF"/>
+        <path d="M6 31c5-2.5 9 2.5 14 0s9 2.5 14 0" fill="none" stroke="#F5F0E6" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="29" cy="12" r="3.2" fill="#E9B98F"/>
+      </svg>
+      <div>
+        <h1>栖溪山居</h1>
+        <p>浙江 · 德清莫干山 · 竹林溪畔的八间客房</p>
+      </div>
+    </div>
+    <nav aria-label="预订进度">
+      <ol class="stepper" id="stepper">
+        <li data-step="1"><button type="button" class="step-btn"><span class="dot" aria-hidden="true">1</span><span class="label">日期与人数<small class="state"></small></span></button></li>
+        <li data-step="2"><button type="button" class="step-btn"><span class="dot" aria-hidden="true">2</span><span class="label">房型与服务<small class="state"></small></span></button></li>
+        <li data-step="3"><button type="button" class="step-btn"><span class="dot" aria-hidden="true">3</span><span class="label">入住人信息<small class="state"></small></span></button></li>
+        <li data-step="4"><button type="button" class="step-btn"><span class="dot" aria-hidden="true">4</span><span class="label">确认并支付<small class="state"></small></span></button></li>
+      </ol>
+      <div class="step-compact" id="stepCompact">
+        <p><strong id="compactLabel">第 1 步，共 4 步</strong><span id="compactName">日期与人数</span></p>
+        <div class="bar" aria-hidden="true"><i id="compactBar" style="width:25%"></i></div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="layout">
+  <main id="main" class="panel">
+    <form id="bookingForm" novalidate>
+
+      <!-- 第 1 步 -->
+      <section class="step-panel" data-panel="1" aria-labelledby="h-step1">
+        <div class="step-head">
+          <p class="eyebrow">第 1 步 / 共 4 步</p>
+          <h2 id="h-step1" tabindex="-1">选择入住日期与人数</h2>
+          <p>日历中显示的是溪声大床房的每晚价格，其他房型在下一步按差价计算。</p>
+        </div>
+
+        <div class="stay-chips">
+          <div class="chip" id="chipIn"><span>入住</span><strong id="chipInVal">请选择日期</strong></div>
+          <div class="chip" id="chipOut"><span>离店</span><strong id="chipOutVal">—</strong></div>
+          <button type="button" class="btn-text" id="clearDates">清除日期</button>
+        </div>
+
+        <ul class="cal-legend" aria-label="日历图例">
+          <li><span class="swatch sel" aria-hidden="true"></span>入住 / 离店</li>
+          <li><span class="swatch rng" aria-hidden="true"></span>入住期间</li>
+          <li><span class="swatch full" aria-hidden="true"></span>已满房（不可选）</li>
+          <li><span aria-hidden="true" style="color:var(--clay);font-weight:600">¥</span>赭色价格为周末或节假日</li>
+        </ul>
+
+        <div class="cal-shell" id="calShell">
+          <div class="cal-nav">
+            <button type="button" class="icon-btn" id="calPrev" aria-label="上一个月">
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M11 3.5L5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="icon-btn" id="calNext" aria-label="下一个月">
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7 3.5L12.5 9 7 14.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="cal-months" id="calMonths"></div>
+        </div>
+        <p class="cal-status" id="calStatus" aria-live="polite"></p>
+        <p class="cal-help" id="calHelp">键盘操作：<kbd>←</kbd><kbd>→</kbd> 切换日期，<kbd>↑</kbd><kbd>↓</kbd> 切换星期，<kbd>PgUp</kbd><kbd>PgDn</kbd> 切换月份，<kbd>Home</kbd><kbd>End</kbd> 跳到本周首尾，<kbd>Enter</kbd> 或 <kbd>空格</kbd> 选择。</p>
+        <p class="group-error" id="dateError" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+
+        <h3 class="section-title" id="guestsTitle">入住人数</h3>
+        <div class="guests" role="group" aria-labelledby="guestsTitle">
+          <div class="counter">
+            <div class="meta"><strong id="adultLbl">成人</strong><span>13 岁及以上</span></div>
+            <div class="ctrl">
+              <button type="button" class="round" data-count="adults" data-delta="-1" aria-label="减少一位成人">−</button>
+              <output id="adultsOut" class="num" aria-live="polite">2</output>
+              <button type="button" class="round" data-count="adults" data-delta="1" aria-label="增加一位成人">+</button>
+            </div>
+          </div>
+          <div class="counter">
+            <div class="meta"><strong id="childLbl">儿童</strong><span>2–12 岁，可加床</span></div>
+            <div class="ctrl">
+              <button type="button" class="round" data-count="children" data-delta="-1" aria-label="减少一位儿童">−</button>
+              <output id="childrenOut" class="num" aria-live="polite">0</output>
+              <button type="button" class="round" data-count="children" data-delta="1" aria-label="增加一位儿童">+</button>
+            </div>
+          </div>
+        </div>
+        <p class="hint">单笔订单最多 4 位成人、2 位儿童；人数会影响可选房型和早餐费用。</p>
+      </section>
+
+      <!-- 第 2 步 -->
+      <section class="step-panel" data-panel="2" aria-labelledby="h-step2" hidden>
+        <div class="step-head">
+          <p class="eyebrow">第 2 步 / 共 4 步</p>
+          <h2 id="h-step2" tabindex="-1">选择房型与附加服务</h2>
+          <p id="roomsIntro">价格已按您选择的入住晚数计算，含服务费与税费。</p>
+        </div>
+
+        <fieldset class="rooms" id="roomsGroup" aria-describedby="roomError">
+          <legend>房型（单选）</legend>
+          <div id="roomList" style="display:grid;gap:12px"></div>
+        </fieldset>
+        <p class="group-error" id="roomError" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+
+        <fieldset class="addons" id="addonList">
+          <legend>附加服务（可多选）</legend>
+        </fieldset>
+      </section>
+
+      <!-- 第 3 步 -->
+      <section class="step-panel" data-panel="3" aria-labelledby="h-step3" hidden>
+        <div class="step-head">
+          <p class="eyebrow">第 3 步 / 共 4 步</p>
+          <h2 id="h-step3" tabindex="-1">填写入住人信息</h2>
+          <p>请填写实际到店入住人的信息，前台将凭姓名与手机号办理入住。</p>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="gName">入住人姓名<span class="req">必填</span></label>
+            <input class="input" id="gName" name="name" type="text" autocomplete="name" maxlength="20" required aria-describedby="gNameErr">
+            <p class="field-error" id="gNameErr" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+          </div>
+          <div class="field">
+            <label for="gPhone">手机号<span class="req">必填</span></label>
+            <input class="input num" id="gPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="13" placeholder="例：138 0000 0000" required aria-describedby="gPhoneHint gPhoneErr">
+            <p class="hint" id="gPhoneHint">中国大陆 11 位手机号，用于接收入住确认短信。</p>
+            <p class="field-error" id="gPhoneErr" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+          </div>
+          <div class="field">
+            <label for="gEmail">电子邮箱<span class="req">必填</span></label>
+            <input class="input" id="gEmail" name="email" type="email" autocomplete="email" maxlength="60" required aria-describedby="gEmailHint gEmailErr">
+            <p class="hint" id="gEmailHint">电子发票与订单凭证将发送至此邮箱。</p>
+            <p class="field-error" id="gEmailErr" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+          </div>
+          <div class="field">
+            <label for="gArrive">预计到店时间<span class="opt">选填</span></label>
+            <select class="input" id="gArrive" name="arrive">
+              <option value="">暂不确定</option>
+              <option>14:00 – 16:00</option>
+              <option>16:00 – 18:00</option>
+              <option>18:00 – 20:00</option>
+              <option>20:00 以后（晚到）</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="gNote">特殊需求<span class="opt">选填</span></label>
+            <textarea class="input" id="gNote" name="note" maxlength="200" aria-describedby="gNoteHint gNoteCount" placeholder="例：同行朋友对羽绒过敏，希望把枕头换成荞麦枕"></textarea>
+            <p class="hint" id="gNoteHint">我们会尽量安排，但无法保证每项需求都能满足。</p>
+            <p class="counter-text num" id="gNoteCount">0 / 200 字</p>
+          </div>
+        </div>
+        <div class="form-note">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false" style="flex:none;margin-top:1px"><rect x="3" y="8" width="12" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 8V6a3 3 0 016 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span>您的联系方式仅用于本次入住沟通，不会用于营销推送。</span>
+        </div>
+      </section>
+
+      <!-- 第 4 步 -->
+      <section class="step-panel" data-panel="4" aria-labelledby="h-step4" hidden>
+        <div id="confirmView">
+          <div class="step-head">
+            <p class="eyebrow">第 4 步 / 共 4 步</p>
+            <h2 id="h-step4" tabindex="-1">确认订单并支付</h2>
+            <p>请核对以下信息，支付成功后房间将为您保留。</p>
+          </div>
+          <div id="orderSummary"></div>
+
+          <fieldset class="pay-methods">
+            <legend>支付方式</legend>
+            <label class="pay"><input type="radio" name="pay" value="微信支付" checked>
+              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><rect width="28" height="28" rx="7" fill="#2E8B57"/><ellipse cx="12" cy="12.5" rx="6.5" ry="5.2" fill="#fff"/><ellipse cx="17" cy="16.5" rx="5.5" ry="4.4" fill="#fff" stroke="#2E8B57" stroke-width="1.2"/></svg>
+              <span>微信支付</span></label>
+            <label class="pay"><input type="radio" name="pay" value="支付宝">
+              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><rect width="28" height="28" rx="7" fill="#1E6FD9"/><path d="M8 9h12M14 6.5V9M10 12.5h8c-1 4.5-4.5 8-9.5 9.5M12 14.5c2.5 2.8 5.5 4.6 9 5.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span>支付宝</span></label>
+            <label class="pay"><input type="radio" name="pay" value="银联卡">
+              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><rect width="28" height="28" rx="7" fill="#3B4252"/><rect x="5" y="8.5" width="18" height="11" rx="2" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M5 12h18" stroke="#fff" stroke-width="1.6"/></svg>
+              <span>银联卡</span></label>
+          </fieldset>
+
+          <div class="policy">
+            <p><strong>取消政策：</strong><span id="policyText">入住日前 7 天（含）免费取消；之后取消将收取首晚房费。</span></p>
+          </div>
+          <label class="agree"><input type="checkbox" id="agree" aria-describedby="agreeErr"><span>我已阅读并同意《栖溪山居预订须知》与上述取消政策</span></label>
+          <p class="field-error" id="agreeErr" hidden><svg width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg><span></span></p>
+
+          <div class="demo-switch">
+            <label for="demoResult">演示环境 · 模拟支付结果</label>
+            <select id="demoResult">
+              <option value="random">随机（约 70% 成功）</option>
+              <option value="success">始终成功</option>
+              <option value="fail">始终失败</option>
+            </select>
+          </div>
+
+          <div class="pay-result fail" id="payFail" tabindex="-1" hidden>
+            <h3>支付未完成</h3>
+            <p id="payFailMsg"></p>
+            <p>本次未产生任何扣款，订单信息已为您保留，可直接重新支付。</p>
+          </div>
+        </div>
+
+        <div id="successView" class="success" hidden>
+          <svg class="seal" viewBox="0 0 84 84" aria-hidden="true" focusable="false"><circle cx="42" cy="42" r="40" fill="#E2EBDF"/><circle cx="42" cy="42" r="30" fill="#2F5D46"/><path d="M29 43l9 9 17-19" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h2 id="h-success" tabindex="-1">预订成功，山里见</h2>
+          <p class="order-no">订单号 <strong class="num" id="orderNo"></strong></p>
+          <dl class="kv" id="successKv"></dl>
+          <p class="tips" id="successTips"></p>
+          <p style="margin-top:20px"><button type="button" class="btn btn-ghost" id="newBooking">再订一间</button></p>
+        </div>
+      </section>
+
+      <div class="actions" id="actions">
+        <button type="button" class="btn btn-ghost" id="backBtn" hidden>上一步</button>
+        <div class="bar-total" aria-hidden="true"><span>订单总价</span><strong class="num" id="barTotal">¥0</strong></div>
+        <span class="spacer"></span>
+        <button type="submit" class="btn btn-primary" id="nextBtn"><span id="nextLabel">下一步：选择房型</span></button>
+      </div>
+    </form>
+  </main>
+
+  <aside class="aside panel" aria-labelledby="asideTitle">
+    <h2 id="asideTitle">您的行程</h2>
+    <ul class="trip">
+      <li><span>入住</span><span id="sumIn">未选择</span></li>
+      <li><span>离店</span><span id="sumOut">未选择</span></li>
+      <li><span>晚数</span><span id="sumNights" class="num">—</span></li>
+      <li><span>人数</span><span id="sumGuests">2 位成人</span></li>
+      <li><span>房型</span><span id="sumRoom">未选择</span></li>
+      <li><span>附加服务</span><span id="sumAddons">无</span></li>
+    </ul>
+    <ul class="lines" id="sumLines"></ul>
+    <div class="total-row"><span>订单总价</span><strong class="num" id="asideTotal">¥0</strong></div>
+    <p class="fine">价格含服务费与税费，以人民币结算。</p>
+  </aside>
+</div>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="totalLive"></div>
+<div class="sr-only" aria-live="assertive" aria-atomic="true" id="assertLive"></div>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 工具 ---------- */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+  var keyOf = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  var fromKey = function (k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); };
+  var addDays = function (d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); };
+  var addMonths = function (d, n) {
+    var t = new Date(d.getFullYear(), d.getMonth() + n, 1);
+    var last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
+    return new Date(t.getFullYear(), t.getMonth(), Math.min(d.getDate(), last));
+  };
+  var monthStart = function (d) { return new Date(d.getFullYear(), d.getMonth(), 1); };
+  var sameDay = function (a, b) { return !!a && !!b && a.getTime() === b.getTime(); };
+  var diffDays = function (a, b) { return Math.round((b - a) / 86400000); };
+  var money = function (n) { return '¥' + Math.round(n).toLocaleString('en-US'); };
+  var yuan = function (n) { return Math.round(n).toLocaleString('zh-CN') + ' 元'; };
+  var fmtShort = function (d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日 周' + WEEK[d.getDay()]; };
+  var fmtLong = function (d) { return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日（周' + WEEK[d.getDay()] + '）'; };
+
+  /* ---------- 数据 ---------- */
+  var now = new Date();
+  var TODAY = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var MAX_DATE = addDays(TODAY, 365);
+  var MIN_VIEW = monthStart(TODAY);
+  var MAX_VIEW = monthStart(addMonths(monthStart(MAX_DATE), -1));
+  var MAX_NIGHTS = 14;
+  var HOLIDAYS = ['01-01', '01-02', '01-03', '05-01', '05-02', '05-03', '05-04', '05-05',
+    '10-01', '10-02', '10-03', '10-04', '10-05', '10-06', '10-07', '12-31'];
+
+  function isHoliday(d) { return HOLIDAYS.indexOf(pad(d.getMonth() + 1) + '-' + pad(d.getDate())) > -1; }
+  function priceOf(d) {
+    if (isHoliday(d)) return 1280;
+    if (d.getDay() === 5) return 860;
+    if (d.getDay() === 6) return 960;
+    return 680;
+  }
+  function isHot(d) { return isHoliday(d) || d.getDay() === 5 || d.getDay() === 6; }
+  function isFull(d) {
+    var n = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    var h = (Math.imul(n ^ 0x5bd1e995, 2654435761) >>> 0) % 100;
+    if (isHoliday(d)) return h < 45;
+    if (d.getDay() === 6) return h < 22;
+    return h < 9;
+  }
+  function isPast(d) { return d < TODAY; }
+  function isBeyond(d) { return d > MAX_DATE; }
+  function isBlocked(d) { return isPast(d) || isBeyond(d) || isFull(d); }
+  function rangeBlocked(a, b) {
+    for (var d = a; d <= b; d = addDays(d, 1)) { if (isBlocked(d)) return true; }
+    return false;
+  }
+
+  var ROOMS = [
+    { id: 'stream', name: '溪声大床房', facts: '28㎡ · 1.8 米大床 · 临溪窗台', add: 0, maxAdults: 2, maxTotal: 3,
+      tags: ['溪景', '可加儿童床'], colors: ['#DCE8E4', '#7FA08B', '#2F5D46'] },
+    { id: 'bamboo', name: '竹影双床房', facts: '32㎡ · 两张 1.35 米床 · 竹林露台', add: 120, maxAdults: 3, maxTotal: 4,
+      tags: ['适合好友同行', '私享露台'], colors: ['#E6EBD8', '#6E8F4E', '#4A6A33'] },
+    { id: 'cloud', name: '云栖汤池套房', facts: '56㎡ · 2 米大床 + 沙发床 · 独立露天汤池', add: 520, maxAdults: 4, maxTotal: 6,
+      tags: ['私汤', '观景客厅', '家庭友好'], colors: ['#EFE3D6', '#A98467', '#A4472B'] }
+  ];
+  var ADDONS = [
+    { id: 'breakfast', name: '山居手作早餐', desc: '当季食材现做，溪畔餐厅 7:30–10:00 供应', unit: '¥68 / 人 / 晚',
+      calc: function (c) { return 68 * c.persons * c.nights; } },
+    { id: 'pickup', name: '杭州东站专车接站', desc: '七座商务车，车程约 70 分钟，含行李协助', unit: '¥260 / 单程',
+      calc: function () { return 260; } },
+    { id: 'tea', name: '茶园晨采与炒茶体验', desc: '随茶农上山采青，亲手炒一份带回家', unit: '¥158 / 人',
+      calc: function (c) { return 158 * c.persons; } },
+    { id: 'late', name: '延迟退房至 15:00', desc: '视当日房态安排，前台会提前一天确认', unit: '¥200 / 次',
+      calc: function () { return 200; } }
+  ];
+  var STEP_NAMES = ['日期与人数', '房型与服务', '入住人信息', '确认并支付'];
+  var STEP_TITLES = ['选择日期与人数', '选择房型与服务', '填写入住人信息', '确认并支付'];
+  var NEXT_LABELS = ['下一步：选择房型', '下一步：填写入住人', '下一步：确认订单'];
+
+  var state = {
+    step: 1, checkIn: null, checkOut: null, adults: 2, children: 0,
+    room: null, addons: [], paying: false, paid: false
+  };
+
+  /* ---------- 日历 ---------- */
+  var calMonths = $('#calMonths');
+  var calStatus = $('#calStatus');
+  var viewMonth = MIN_VIEW;
+  var focusDate = firstOpenFrom(TODAY);
+  var previewEnd = null;
+
+  function firstOpenFrom(d) {
+    for (var i = 0; i < 60; i++) { var t = addDays(d, i); if (!isBlocked(t)) return t; }
+    return d;
+  }
+  function isVisible(d) {
+    var s = viewMonth, e = monthStart(addMonths(viewMonth, 2));
+    return d >= s && d < e;
+  }
+  function setStatus(msg) {
+    calStatus.textContent = '';
+    window.setTimeout(function () { calStatus.textContent = msg; }, 30);
+  }
+
+  function renderCalendar() {
+    calMonths.textContent = '';
+    for (var i = 0; i < 2; i++) {
+      var m = addMonths(viewMonth, i);
+      var titleId = 'calTitle' + i;
+      var wrap = document.createElement('div');
+      wrap.className = 'cal-month';
+      var h = document.createElement('h3');
+      h.id = titleId;
+      h.textContent = m.getFullYear() + '年' + (m.getMonth() + 1) + '月';
+      wrap.appendChild(h);
+
+      var table = document.createElement('table');
+      table.className = 'cal';
+      table.setAttribute('role', 'grid');
+      table.setAttribute('aria-labelledby', titleId);
+      table.setAttribute('aria-describedby', 'calHelp dateError');
+
+      var thead = document.createElement('thead');
+      var hr = document.createElement('tr');
+      hr.setAttribute('role', 'row');
+      ['一', '二', '三', '四', '五', '六', '日'].forEach(function (w) {
+        var th = document.createElement('th');
+        th.setAttribute('role', 'columnheader');
+        th.setAttribute('scope', 'col');
+        th.setAttribute('abbr', '星期' + w);
+        th.innerHTML = '<span aria-hidden="true">' + w + '</span><span class="sr-only">星期' + w + '</span>';
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      var offset = (m.getDay() + 6) % 7;
+      var days = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+      var cellsCount = Math.ceil((offset + days) / 7) * 7;
+      var tr = null;
+      for (var c = 0; c < cellsCount; c++) {
+        if (c % 7 === 0) { tr = document.createElement('tr'); tr.setAttribute('role', 'row'); tbody.appendChild(tr); }
+        var td = document.createElement('td');
+        td.setAttribute('role', 'gridcell');
+        var dayNum = c - offset + 1;
+        if (dayNum < 1 || dayNum > days) {
+          td.className = 'empty';
+        } else {
+          var d = new Date(m.getFullYear(), m.getMonth(), dayNum);
+          td.dataset.date = keyOf(d);
+          td.tabIndex = -1;
+          var full = isFull(d) && !isPast(d) && !isBeyond(d);
+          var priceText = isPast(d) ? '' : isBeyond(d) ? '未开放' : full ? '满房' : '¥' + priceOf(d);
+          td.innerHTML = '<span class="cell" aria-hidden="true"><span class="d">' + dayNum + '</span><span class="p' +
+            (!full && isHot(d) && !isPast(d) && !isBeyond(d) ? ' hot' : '') + '">' + (priceText || '&nbsp;') + '</span></span>';
+        }
+        tr.appendChild(td);
+      }
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      calMonths.appendChild(wrap);
+    }
+    $('#calPrev').disabled = viewMonth <= MIN_VIEW;
+    $('#calNext').disabled = viewMonth >= MAX_VIEW;
+    paintCells();
+  }
+
+  function cellLabel(d) {
+    var parts = [fmtShort(d)];
+    if (sameDay(d, TODAY)) parts.push('今天');
+    if (isPast(d)) parts.push('已过去，不可选');
+    else if (isBeyond(d)) parts.push('暂未开放预订');
+    else if (isFull(d)) parts.push('已满房，不可选');
+    else parts.push('每晚 ' + priceOf(d) + ' 元' + (isHoliday(d) ? '，节假日价' : ''));
+    if (sameDay(d, state.checkIn)) parts.push('已选为入住日');
+    if (sameDay(d, state.checkOut)) parts.push('已选为离店日');
+    return parts.join('，');
+  }
+
+  function paintCells() {
+    var start = state.checkIn, end = state.checkOut;
+    var pEnd = (start && !end && previewEnd && previewEnd > start && !rangeBlocked(start, previewEnd)) ? previewEnd : null;
+    var tabTarget = isVisible(focusDate) ? focusDate : null;
+    var cells = $$('td[data-date]', calMonths);
+    if (!tabTarget) {
+      var firstOpen = cells.filter(function (td) { return !isBlocked(fromKey(td.dataset.date)); })[0] || cells[0];
+      tabTarget = fromKey(firstOpen.dataset.date);
+      focusDate = tabTarget;
+    }
+    cells.forEach(function (td) {
+      var d = fromKey(td.dataset.date);
+      var blocked = isBlocked(d);
+      var isS = sameDay(d, start), isE = sameDay(d, end);
+      var inR = start && end && d > start && d < end;
+      var inP = pEnd && d > start && d <= pEnd;
+      td.className = [
+        blocked ? 'is-disabled' : '', isPast(d) ? 'is-past' : '',
+        (!isPast(d) && !isBeyond(d) && isFull(d)) ? 'is-full' : '',
+        sameDay(d, TODAY) ? 'is-today' : '', isS ? 'is-start' : '', isE ? 'is-end' : '',
+        (isS && !end && !pEnd) ? 'is-only' : '', inR ? 'in-range' : '', inP ? 'in-preview' : ''
+      ].join(' ').trim();
+      td.setAttribute('aria-selected', (isS || isE || inR) ? 'true' : 'false');
+      if (blocked) td.setAttribute('aria-disabled', 'true'); else td.removeAttribute('aria-disabled');
+      td.setAttribute('aria-label', cellLabel(d));
+      td.tabIndex = sameDay(d, tabTarget) ? 0 : -1;
+    });
+  }
+
+  function focusCell(d) {
+    var td = calMonths.querySelector('td[data-date="' + keyOf(d) + '"]');
+    if (td) td.focus();
+  }
+
+  function moveFocus(d) {
+    var min = MIN_VIEW, max = MAX_DATE;
+    if (d < min) d = min;
+    if (d > max) d = max;
+    focusDate = d;
+    if (!isVisible(d)) {
+      viewMonth = d < viewMonth ? monthStart(d) : monthStart(addMonths(monthStart(d), -1));
+      if (viewMonth < MIN_VIEW) viewMonth = MIN_VIEW;
+      if (viewMonth > MAX_VIEW) viewMonth = MAX_VIEW;
+      renderCalendar();
+    }
+    if (state.checkIn && !state.checkOut) previewEnd = d;
+    paintCells();
+    focusCell(d);
+  }
+
+  function selectDate(d) {
+    var label = fmtShort(d);
+    if (isBlocked(d)) {
+      setStatus(label + (isFull(d) && !isPast(d) ? ' 已满房' : ' 不可预订') + '，请选择其他日期。');
+      return;
+    }
+    if (!state.checkIn || state.checkOut || d <= state.checkIn) {
+      state.checkIn = d; state.checkOut = null; previewEnd = null;
+      setStatus('已选择入住日期 ' + label + '，请继续选择离店日期。');
+    } else {
+      var nights = diffDays(state.checkIn, d);
+      if (rangeBlocked(state.checkIn, d)) {
+        state.checkIn = d; state.checkOut = null; previewEnd = null;
+        setStatus('所选区间内有满房日期，已改为从 ' + label + ' 入住，请重新选择离店日期。');
+      } else if (nights > MAX_NIGHTS) {
+        setStatus('单笔订单最多连住 ' + MAX_NIGHTS + ' 晚，请选择更早的离店日期。');
+        return;
+      } else {
+        state.checkOut = d; previewEnd = null;
+        setStatus('已选择 ' + fmtShort(state.checkIn) + ' 入住，' + label + ' 离店，共 ' + nights + ' 晚。');
+        clearGroupError('dateError');
+      }
+    }
+    paintCells();
+    updateAll();
+  }
+
+  calMonths.addEventListener('keydown', function (e) {
+    var td = e.target.closest('td[data-date]');
+    if (!td) return;
+    var d = fromKey(td.dataset.date);
+    var dow = (d.getDay() + 6) % 7;
+    var next = null;
+    switch (e.key) {
+      case 'ArrowLeft': next = addDays(d, -1); break;
+      case 'ArrowRight': next = addDays(d, 1); break;
+      case 'ArrowUp': next = addDays(d, -7); break;
+      case 'ArrowDown': next = addDays(d, 7); break;
+      case 'Home': next = addDays(d, -dow); break;
+      case 'End': next = addDays(d, 6 - dow); break;
+      case 'PageUp': next = addMonths(d, e.shiftKey ? -12 : -1); break;
+      case 'PageDown': next = addMonths(d, e.shiftKey ? 12 : 1); break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        selectDate(d);
+        return;
+      default: return;
+    }
+    e.preventDefault();
+    moveFocus(next);
+  });
+
+  calMonths.addEventListener('click', function (e) {
+    var td = e.target.closest('td[data-date]');
+    if (!td) return;
+    var d = fromKey(td.dataset.date);
+    focusDate = d;
+    selectDate(d);
+    focusCell(d);
+  });
+  calMonths.addEventListener('mouseover', function (e) {
+    var td = e.target.closest('td[data-date]');
+    if (!td || !state.checkIn || state.checkOut) return;
+    var d = fromKey(td.dataset.date);
+    if (!sameDay(d, previewEnd)) { previewEnd = d; paintCells(); }
+  });
+  calMonths.addEventListener('mouseleave', function () {
+    if (previewEnd) { previewEnd = null; paintCells(); }
+  });
+
+  function shiftView(n) {
+    var v = monthStart(addMonths(viewMonth, n));
+    if (v < MIN_VIEW || v > MAX_VIEW) return;
+    viewMonth = v;
+    if (!isVisible(focusDate)) {
+      var cand = viewMonth < TODAY ? TODAY : viewMonth;
+      focusDate = isVisible(firstOpenFrom(cand)) ? firstOpenFrom(cand) : cand;
+    }
+    renderCalendar();
+    setStatus('当前显示 ' + viewMonth.getFullYear() + '年' + (viewMonth.getMonth() + 1) + '月 至 ' +
+      (addMonths(viewMonth, 1).getMonth() + 1) + '月。');
+  }
+  $('#calPrev').addEventListener('click', function () { shiftView(-1); });
+  $('#calNext').addEventListener('click', function () { shiftView(1); });
+  $('#clearDates').addEventListener('click', function () {
+    state.checkIn = null; state.checkOut = null; previewEnd = null;
+    paintCells(); updateAll();
+    setStatus('已清除日期，请重新选择入住日期。');
+    var td = calMonths.querySelector('td[tabindex="0"]');
+    if (td) td.focus();
+  });
+
+  /* ---------- 错误提示 ---------- */
+  function showGroupError(id, msg) {
+    var el = $('#' + id);
+    el.querySelector('span').textContent = msg;
+    el.hidden = false;
+  }
+  function clearGroupError(id) {
+    var el = $('#' + id);
+    el.querySelector('span').textContent = '';
+    el.hidden = true;
+  }
+
+  /* ---------- 人数 ---------- */
+  var LIMITS = { adults: [1, 4], children: [0, 2] };
+  var COUNT_NAMES = { adults: '成人', children: '儿童' };
+  function fits(room) { return state.adults <= room.maxAdults && state.adults + state.children <= room.maxTotal; }
+  function paintCounters() {
+    ['adults', 'children'].forEach(function (k) {
+      $('#' + k + 'Out').innerHTML = '<span class="sr-only">' + COUNT_NAMES[k] + ' </span>' + state[k] +
+        '<span class="sr-only"> 位</span>';
+      $$('[data-count="' + k + '"]').forEach(function (b) {
+        var delta = +b.dataset.delta;
+        var lim = delta < 0 ? state[k] <= LIMITS[k][0] : state[k] >= LIMITS[k][1];
+        b.setAttribute('aria-disabled', lim ? 'true' : 'false');
+      });
+    });
+  }
+  $$('[data-count]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.getAttribute('aria-disabled') === 'true') return;
+      var k = b.dataset.count;
+      state[k] = Math.min(LIMITS[k][1], Math.max(LIMITS[k][0], state[k] + (+b.dataset.delta)));
+      if (state.room) {
+        var r = ROOMS.filter(function (x) { return x.id === state.room; })[0];
+        if (!fits(r)) {
+          state.room = null;
+          showGroupError('roomError', '入住人数已调整，原先选择的' + r.name + '容纳不下，请重新选择房型。');
+        }
+      }
+      paintCounters();
+      updateAll();
+    });
+  });
+
+  /* ---------- 房型与附加服务 ---------- */
+  function roomArt(c) {
+    return '<svg class="room-art" viewBox="0 0 120 84" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">' +
+      '<rect width="120" height="84" fill="' + c[0] + '"/><circle cx="96" cy="18" r="7" fill="#F2C9A0"/>' +
+      '<path d="M0 58L28 30l20 18 18-14 54 30v20H0z" fill="' + c[1] + '"/>' +
+      '<rect x="40" y="46" width="34" height="24" fill="#FFFDF8"/><path d="M36 48l21-14 21 14z" fill="' + c[2] + '"/>' +
+      '<rect x="52" y="56" width="10" height="14" fill="' + c[2] + '"/>' +
+      '<path d="M0 74c15-5 25 5 40 0s25 5 40 0 25 5 40 0v10H0z" fill="#A9C6CB"/></svg>';
+  }
+  function roomCost(room) {
+    var c = 0, n = 0;
+    if (!state.checkIn || !state.checkOut) return { total: 0, nights: 0 };
+    for (var d = state.checkIn; d < state.checkOut; d = addDays(d, 1)) { c += priceOf(d) + room.add; n++; }
+    return { total: c, nights: n };
+  }
+  function renderRooms() {
+    var list = $('#roomList');
+    list.innerHTML = ROOMS.map(function (r) {
+      var cost = roomCost(r);
+      var ok = fits(r);
+      var avg = cost.nights ? Math.round(cost.total / cost.nights) : 0;
+      return '<label class="room"><input type="radio" name="room" value="' + r.id + '"' +
+        (state.room === r.id ? ' checked' : '') + (ok ? '' : ' disabled') +
+        ' aria-labelledby="rn-' + r.id + '" aria-describedby="rf-' + r.id + ' rp-' + r.id + (ok ? '' : ' rx-' + r.id) + '">' +
+        roomArt(r.colors) +
+        '<span><strong class="rname" id="rn-' + r.id + '">' + r.name + '</strong>' +
+        '<span class="facts" id="rf-' + r.id + '">' + r.facts + '，最多 ' + r.maxAdults + ' 位成人、共 ' + r.maxTotal + ' 人</span>' +
+        '<span class="tags">' + r.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</span>' +
+        (ok ? '' : '<span class="note" id="rx-' + r.id + '">当前 ' + (state.adults + state.children) + ' 人超出本房型可住人数，不可选</span>') +
+        '</span>' +
+        '<span class="price" id="rp-' + r.id + '"><strong class="num">' + money(cost.total) + '</strong><span>' +
+        cost.nights + ' 晚房费，均价 ' + money(avg) + ' / 晚</span></span>' +
+        '<span class="radio-mark" aria-hidden="true"></span></label>';
+    }).join('');
+  }
+  $('#roomList').addEventListener('change', function (e) {
+    if (e.target.name !== 'room') return;
+    state.room = e.target.value;
+    clearGroupError('roomError');
+    updateAll();
+  });
+
+  function renderAddons() {
+    var box = $('#addonList');
+    ADDONS.forEach(function (a) {
+      var lab = document.createElement('label');
+      lab.className = 'addon';
+      lab.innerHTML = '<input type="checkbox" value="' + a.id + '" aria-labelledby="an-' + a.id + '" aria-describedby="ad-' + a.id + ' ac-' + a.id + '">' +
+        '<span class="check-mark" aria-hidden="true"><svg width="14" height="14" style="color:#fff"><use href="#i-check"/></svg></span>' +
+        '<span><strong id="an-' + a.id + '">' + a.name + '</strong><span class="desc" id="ad-' + a.id + '">' + a.desc + '</span>' +
+        '<span class="cost" id="ac-' + a.id + '">' + a.unit + '<span data-addon-total="' + a.id + '"></span></span></span>';
+      box.appendChild(lab);
+    });
+    box.addEventListener('change', function (e) {
+      if (e.target.type !== 'checkbox') return;
+      state.addons = $$('input[type=checkbox]:checked', box).map(function (i) { return i.value; });
+      updateAll();
+    });
+  }
+
+  /* ---------- 价格计算与总价播报 ---------- */
+  function compute() {
+    var nights = state.checkIn && state.checkOut ? diffDays(state.checkIn, state.checkOut) : 0;
+    var room = ROOMS.filter(function (r) { return r.id === (state.room || 'stream'); })[0];
+    var rc = roomCost(room).total;
+    var ctx = { nights: nights, persons: state.adults + state.children };
+    var items = ADDONS.map(function (a) {
+      return { id: a.id, name: a.name, cost: nights ? a.calc(ctx) : 0, on: state.addons.indexOf(a.id) > -1 };
+    });
+    var addonTotal = items.reduce(function (s, i) { return s + (i.on ? i.cost : 0); }, 0);
+    return { nights: nights, room: room, roomTotal: rc, items: items, addonTotal: addonTotal, total: rc + addonTotal };
+  }
+
+  var shown = 0, raf = 0, liveTimer = 0, lastSpoken = null;
+  function paintTotal(v) {
+    var t = money(v);
+    $('#asideTotal').textContent = t;
+    $('#barTotal').textContent = t;
+  }
+  function animateTotal(target) {
+    cancelAnimationFrame(raf);
+    var from = shown;
+    if (from === target) { paintTotal(target); return; }
+    var big = $('#asideTotal');
+    if (reduceMotion.matches) { shown = target; paintTotal(target); return; }
+    big.classList.remove('bump'); void big.offsetWidth; big.classList.add('bump');
+    var t0 = performance.now(), dur = 480;
+    (function step(t) {
+      var p = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      shown = Math.round(from + (target - from) * e);
+      paintTotal(shown);
+      if (p < 1) raf = requestAnimationFrame(step); else shown = target;
+    })(t0);
+  }
+  function announceTotal(c) {
+    if (lastSpoken === c.total) return;
+    var first = lastSpoken === null;
+    lastSpoken = c.total;
+    if (first) return;
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () {
+      $('#totalLive').textContent = c.total
+        ? '订单总价已更新为 ' + yuan(c.total) + '，共 ' + c.nights + ' 晚。'
+        : '日期未选完整，暂无订单总价。';
+    }, 600);
+  }
+
+  function guestsText() {
+    return state.adults + ' 位成人' + (state.children ? '、' + state.children + ' 位儿童' : '');
+  }
+
+  function updateAll() {
+    var c = compute();
+    $('#chipInVal').textContent = state.checkIn ? fmtShort(state.checkIn) : '请选择日期';
+    $('#chipOutVal').textContent = state.checkOut ? fmtShort(state.checkOut) : (state.checkIn ? '请选择日期' : '—');
+    $('#chipIn').classList.toggle('is-active', !state.checkIn);
+    $('#chipOut').classList.toggle('is-active', !!state.checkIn && !state.checkOut);
+
+    $('#sumIn').textContent = state.checkIn ? fmtShort(state.checkIn) : '未选择';
+    $('#sumOut').textContent = state.checkOut ? fmtShort(state.checkOut) : '未选择';
+    $('#sumNights').textContent = c.nights ? c.nights + ' 晚' : '—';
+    $('#sumGuests').textContent = guestsText();
+    $('#sumRoom').textContent = state.room ? c.room.name : '未选择';
+    var on = c.items.filter(function (i) { return i.on; });
+    $('#sumAddons').textContent = on.length ? on.map(function (i) { return i.name; }).join('、') : '无';
+    var lines = [];
+    if (c.nights) lines.push('<li><span>' + (state.room ? '' : '起价 · ') + '房费 × ' + c.nights + ' 晚</span><span class="num">' + money(c.roomTotal) + '</span></li>');
+    on.forEach(function (i) { lines.push('<li><span>' + i.name + '</span><span class="num">' + money(i.cost) + '</span></li>'); });
+    $('#sumLines').innerHTML = lines.join('');
+
+    c.items.forEach(function (i) {
+      var el = document.querySelector('[data-addon-total="' + i.id + '"]');
+      if (el) el.textContent = c.nights ? '，本单合计 ' + money(i.cost) : '';
+    });
+    if (state.step === 2) {
+      ROOMS.forEach(function (r) {
+        var p = $('#rp-' + r.id);
+        if (p) { var rc = roomCost(r); p.querySelector('strong').textContent = money(rc.total); }
+      });
+    }
+    if (state.step === 4) { $('#nextLabel').textContent = '确认支付 ' + money(c.total); }
+    animateTotal(c.total);
+    announceTotal(c);
+  }
+
+  /* ---------- 步骤切换 ---------- */
+  var nextBtn = $('#nextBtn'), backBtn = $('#backBtn');
+  function paintStepper() {
+    $$('#stepper li').forEach(function (li, i) {
+      var n = i + 1, btn = li.querySelector('button'), st = li.querySelector('.state');
+      var done = state.paid || n < state.step, cur = !state.paid && n === state.step;
+      li.className = done ? 'is-done' : cur ? 'is-current' : '';
+      st.textContent = done ? '已完成' : cur ? '进行中' : '未开始';
+      btn.disabled = state.paid || (!done && !cur);
+      if (cur) { btn.setAttribute('aria-current', 'step'); btn.setAttribute('aria-disabled', 'true'); }
+      else { btn.removeAttribute('aria-current'); btn.removeAttribute('aria-disabled'); }
+      btn.setAttribute('aria-label', '第 ' + n + ' 步：' + STEP_NAMES[i] + '，' +
+        (done ? (state.paid ? '已完成' : '已完成，可返回修改') : cur ? '当前步骤' : '尚未开始'));
+    });
+    $('#compactLabel').textContent = state.paid ? '预订完成' : '第 ' + state.step + ' 步，共 4 步';
+    $('#compactName').textContent = state.paid ? '已支付' : STEP_NAMES[state.step - 1];
+    $('#compactBar').style.width = (state.paid ? 100 : state.step * 25) + '%';
+  }
+  function paintActions() {
+    backBtn.hidden = state.step === 1;
+    backBtn.textContent = state.step > 1 ? '上一步' : '';
+    if (state.step < 4) $('#nextLabel').textContent = NEXT_LABELS[state.step - 1];
+    else $('#nextLabel').textContent = '确认支付 ' + money(compute().total);
+    $('#actions').hidden = state.paid;
+  }
+  function goTo(n, focus) {
+    if (state.paying) return;
+    state.step = n;
+    $$('.step-panel').forEach(function (p) { p.hidden = +p.dataset.panel !== n; });
+    if (n === 2) renderRooms();
+    if (n === 4) renderOrder();
+    paintStepper();
+    paintActions();
+    updateAll();
+    document.title = STEP_TITLES[n - 1] + ' · 栖溪山居 在线预订';
+    if (focus !== false) {
+      window.scrollTo(0, 0);
+      $('#h-step' + n).focus({ preventScroll: true });
+    }
+  }
+  $('#stepper').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn || btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+    var n = +btn.parentNode.dataset.step;
+    if (n < state.step && !state.paid) goTo(n);
+  });
+  backBtn.addEventListener('click', function () { if (state.step > 1) goTo(state.step - 1); });
+
+  $('#bookingForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (state.paying || state.paid) return;
+    if (state.step === 1) {
+      if (!state.checkIn || !state.checkOut) {
+        showGroupError('dateError', !state.checkIn ? '请先在日历中选择入住日期。' : '请再选择离店日期，至少需要住 1 晚。');
+        var td = calMonths.querySelector('td[tabindex="0"]');
+        if (td) td.focus();
+        return;
+      }
+      goTo(2);
+    } else if (state.step === 2) {
+      if (!state.room) {
+        showGroupError('roomError', '请选择一个房型后再继续。');
+        var r = $('#roomList input:not(:disabled)');
+        if (r) r.focus();
+        return;
+      }
+      goTo(3);
+    } else if (state.step === 3) {
+      if (validateForm()) goTo(4);
+    } else {
+      pay();
+    }
+  });
+
+  /* ---------- 入住人表单 ---------- */
+  var RULES = {
+    gName: function (v) {
+      v = v.trim();
+      if (!v) return '请填写入住人姓名。';
+      if (v.length < 2) return '姓名至少需要 2 个字。';
+      if (!/^[一-龥·•A-Za-z\s.]+$/.test(v)) return '姓名只能包含中文、英文字母、空格或间隔号“·”。';
+      return '';
+    },
+    gPhone: function (v) {
+      var d = v.replace(/\D/g, '');
+      if (!d) return '请填写手机号。';
+      if (d.length < 11) return '手机号应为 11 位数字，目前填写了 ' + d.length + ' 位。';
+      if (!/^1[3-9]\d{9}$/.test(d)) return '手机号格式不正确，请以 13 至 19 开头。';
+      return '';
+    },
+    gEmail: function (v) {
+      v = v.trim();
+      if (!v) return '请填写电子邮箱。';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return '邮箱格式不正确，示例：lin.xiao@example.com。';
+      return '';
+    }
+  };
+  function setFieldError(input, msg) {
+    var err = $('#' + input.id + 'Err');
+    err.querySelector('span').textContent = msg;
+    err.hidden = !msg;
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  function validateField(input) {
+    var msg = RULES[input.id](input.value);
+    setFieldError(input, msg);
+    return !msg;
+  }
+  function validateForm() {
+    var first = null;
+    Object.keys(RULES).forEach(function (id) {
+      var el = $('#' + id);
+      el.dataset.dirty = '1';
+      if (!validateField(el) && !first) first = el;
+    });
+    if (first) { first.focus(); return false; }
+    return true;
+  }
+  Object.keys(RULES).forEach(function (id) {
+    var el = $('#' + id);
+    el.addEventListener('input', function () {
+      el.dataset.dirty = '1';
+      if (el.getAttribute('aria-invalid') === 'true') validateField(el);
+    });
+    el.addEventListener('blur', function () {
+      if (el.dataset.dirty) validateField(el);
+    });
+  });
+
+  function formatPhone(d) {
+    if (d.length <= 3) return d;
+    if (d.length <= 7) return d.slice(0, 3) + ' ' + d.slice(3);
+    return d.slice(0, 3) + ' ' + d.slice(3, 7) + ' ' + d.slice(7, 11);
+  }
+  var phone = $('#gPhone');
+  function applyPhone(raw, digitsBefore) {
+    var d = raw.replace(/\D/g, '');
+    if (d.length > 11 && d.indexOf('86') === 0) d = d.slice(2);
+    d = d.slice(0, 11);
+    var f = formatPhone(d);
+    phone.value = f;
+    var p = 0, c = 0;
+    while (p < f.length && c < digitsBefore) { if (/\d/.test(f[p])) c++; p++; }
+    if (document.activeElement === phone) phone.setSelectionRange(p, p);
+  }
+  phone.addEventListener('input', function () {
+    var pos = phone.selectionStart || 0;
+    var before = phone.value.slice(0, pos).replace(/\D/g, '').length;
+    applyPhone(phone.value, before);
+  });
+  phone.addEventListener('keydown', function (e) {
+    var s = phone.selectionStart, en = phone.selectionEnd;
+    if (e.key === 'Backspace' && s === en && s > 1 && phone.value[s - 1] === ' ') {
+      e.preventDefault();
+      var v = phone.value.slice(0, s - 2) + phone.value.slice(s);
+      applyPhone(v, v.slice(0, s - 2).replace(/\D/g, '').length);
+      phone.dataset.dirty = '1';
+      if (phone.getAttribute('aria-invalid') === 'true') validateField(phone);
+    }
+  });
+  var note = $('#gNote');
+  note.addEventListener('input', function () { $('#gNoteCount').textContent = note.value.length + ' / 200 字'; });
+
+  /* ---------- 订单确认 ---------- */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+  function block(title, step, rows) {
+    return '<section class="summary-block" aria-labelledby="sb-' + step + '"><header><h3 id="sb-' + step + '">' + title + '</h3>' +
+      '<button type="button" class="btn-text" data-edit="' + step + '" aria-label="修改' + title + '">修改</button></header>' +
+      '<dl class="kv">' + rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl></section>';
+  }
+  function renderOrder() {
+    var c = compute();
+    var on = c.items.filter(function (i) { return i.on; });
+    var html = block('入住安排', 1, [
+      ['入住', fmtLong(state.checkIn) + ' 14:00 后'],
+      ['离店', fmtLong(state.checkOut) + ' 12:00 前'],
+      ['晚数', c.nights + ' 晚'],
+      ['人数', guestsText()]
+    ]) + block('房型与服务', 2, [
+      ['房型', c.room.name + '，' + money(c.roomTotal)],
+      ['附加服务', on.length ? on.map(function (i) { return i.name + ' ' + money(i.cost); }).join('<br>') : '未选择']
+    ]) + block('入住人信息', 3, [
+      ['姓名', esc($('#gName').value.trim())],
+      ['手机号', esc(phone.value)],
+      ['邮箱', esc($('#gEmail').value.trim())],
+      ['预计到店', esc($('#gArrive').value || '暂不确定')],
+      ['特殊需求', note.value.trim() ? esc(note.value.trim()) : '无']
+    ]) + '<section class="summary-block" aria-labelledby="sb-fee"><header><h3 id="sb-fee">费用明细</h3></header><dl class="kv">' +
+      '<dt>房费</dt><dd class="num">' + money(c.roomTotal) + '</dd>' +
+      '<dt>附加服务</dt><dd class="num">' + money(c.addonTotal) + '</dd>' +
+      '<dt><strong>应付总额</strong></dt><dd><strong class="num">' + money(c.total) + '</strong></dd></dl></section>';
+    $('#orderSummary').innerHTML = html;
+
+    var deadline = addDays(state.checkIn, -7);
+    var firstNight = priceOf(state.checkIn) + c.room.add;
+    $('#policyText').textContent = deadline < TODAY
+      ? '距离入住已不足 7 天，本订单支付后不可免费取消；如需取消，将收取首晚房费 ' + money(firstNight) + '。'
+      : fmtLong(deadline) + ' 23:59 前可免费取消；之后取消将收取首晚房费 ' + money(firstNight) + '。';
+  }
+  $('#orderSummary').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-edit]');
+    if (b) goTo(+b.dataset.edit);
+  });
+
+  /* ---------- 模拟支付 ---------- */
+  var agree = $('#agree');
+  agree.addEventListener('change', function () {
+    if (agree.checked) { clearAgree(); }
+  });
+  function clearAgree() {
+    var err = $('#agreeErr');
+    err.querySelector('span').textContent = '';
+    err.hidden = true;
+    agree.removeAttribute('aria-invalid');
+  }
+  function setPaying(on) {
+    state.paying = on;
+    if (on) {
+      nextBtn.setAttribute('aria-disabled', 'true');
+      nextBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span><span id="nextLabel">正在支付…</span>';
+      backBtn.setAttribute('aria-disabled', 'true');
+    } else {
+      nextBtn.removeAttribute('aria-disabled');
+      nextBtn.innerHTML = '<span id="nextLabel"></span>';
+      backBtn.removeAttribute('aria-disabled');
+    }
+    $$('#stepper button').forEach(function (b) { if (on) b.disabled = true; });
+    if (!on) paintStepper();
+  }
+  function pay() {
+    if (!agree.checked) {
+      var err = $('#agreeErr');
+      err.querySelector('span').textContent = '请先勾选同意预订须知与取消政策，再进行支付。';
+      err.hidden = false;
+      agree.setAttribute('aria-invalid', 'true');
+      agree.focus();
+      return;
+    }
+    var method = ($('input[name=pay]:checked') || {}).value || '微信支付';
+    $('#payFail').hidden = true;
+    setPaying(true);
+    $('#assertLive').textContent = '';
+    $('#totalLive').textContent = '正在通过' + method + '支付 ' + yuan(compute().total) + '，请稍候，不要关闭页面。';
+    var mode = $('#demoResult').value;
+    var ok = mode === 'success' || (mode === 'random' && Math.random() < 0.7);
+    setTimeout(function () { ok ? paySuccess(method) : payFailure(method); }, 2200);
+  }
+  function payFailure(method) {
+    setPaying(false);
+    $('#nextLabel').textContent = '重新支付 ' + money(compute().total);
+    $('#payFailMsg').textContent = method === '银联卡'
+      ? '发卡银行拒绝了本次扣款（余额不足或超出单笔限额），请更换银行卡或改用其他支付方式。'
+      : method + '响应超时（错误码 PAY_TIMEOUT），可能是网络波动所致，请稍后重试。';
+    var box = $('#payFail');
+    box.hidden = false;
+    box.focus();
+  }
+  function paySuccess(method) {
+    var c = compute();
+    setPaying(false);
+    state.paid = true;
+    var d = new Date();
+    var no = 'QX' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + String(Math.floor(1000 + Math.random() * 9000));
+    $('#orderNo').textContent = no;
+    $('#successKv').innerHTML = [
+      ['入住', fmtLong(state.checkIn) + ' 14:00 后'],
+      ['离店', fmtLong(state.checkOut) + ' 12:00 前'],
+      ['房型', c.room.name + ' · ' + c.nights + ' 晚 · ' + guestsText()],
+      ['入住人', esc($('#gName').value.trim())],
+      ['实付金额', money(c.total) + '（' + method + '）']
+    ].map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
+    var digits = phone.value.replace(/\D/g, '');
+    $('#successTips').textContent = '确认短信已发送至 ' + digits.slice(0, 3) + ' **** ' + digits.slice(7) +
+      '，电子凭证已发送至 ' + $('#gEmail').value.trim() + '。入住前一天，管家会致电确认到店时间；自驾请导航至“栖溪山居停车场”。';
+    $('#confirmView').hidden = true;
+    $('#successView').hidden = false;
+    paintStepper();
+    paintActions();
+    document.title = '预订成功 · 栖溪山居 在线预订';
+    window.scrollTo(0, 0);
+    $('#h-success').focus({ preventScroll: true });
+  }
+  $('#newBooking').addEventListener('click', function () {
+    state.checkIn = null; state.checkOut = null; state.room = null; state.addons = [];
+    state.adults = 2; state.children = 0; state.paid = false; previewEnd = null;
+    $('#bookingForm').reset();
+    agree.checked = false; clearAgree();
+    Object.keys(RULES).forEach(function (id) { var el = $('#' + id); delete el.dataset.dirty; setFieldError(el, ''); el.removeAttribute('aria-invalid'); });
+    $$('#addonList input').forEach(function (i) { i.checked = false; });
+    $('#gNoteCount').textContent = '0 / 200 字';
+    clearGroupError('dateError'); clearGroupError('roomError');
+    $('#payFail').hidden = true;
+    $('#confirmView').hidden = false;
+    $('#successView').hidden = true;
+    focusDate = firstOpenFrom(TODAY);
+    viewMonth = MIN_VIEW;
+    renderCalendar();
+    paintCounters();
+    calStatus.textContent = '';
+    goTo(1);
+  });
+
+  /* ---------- 固定底栏高度（避免遮挡焦点） ---------- */
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(function (entries) {
+      var el = entries[0].target;
+      var fixed = getComputedStyle(el).position === 'fixed';
+      document.documentElement.style.setProperty('--bar-h', fixed ? el.offsetHeight + 'px' : '0px');
+      document.body.style.paddingBottom = fixed ? (el.offsetHeight + 16) + 'px' : '';
+    }).observe($('#actions'));
+  }
+
+  /* ---------- 初始化 ---------- */
+  renderAddons();
+  renderCalendar();
+  paintCounters();
+  Object.keys(RULES).forEach(function (id) { $('#' + id).setAttribute('aria-invalid', 'false'); });
+  goTo(1, false);
+})();
+</script>
+</body>
+</html>

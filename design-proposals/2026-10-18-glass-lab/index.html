@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="bronze">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>知因 CodeLab · 让每一次提交都有证据可循</title>
+    <meta name="description" content="面向 Vue 模板实训的证据驱动验收与反馈平台" />
+    <link rel="stylesheet" href="shared/theme.css" />
+    <link rel="stylesheet" href="landing.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ================= 导航 ================= -->
+    <header class="nav glass" id="nav">
+      <a class="brand" href="#top" aria-label="知因 CodeLab 首页">
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
+        <span>知因 <b>CodeLab</b></span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a href="#flow">工作方式</a>
+        <a href="#report">证据报告</a>
+        <a href="#features">能力</a>
+        <a href="#roles">师生</a>
+      </nav>
+      <a class="btn btn-primary nav-cta" href="login.html" data-magnetic="0.25">登录工作台 <span class="arrow">→</span></a>
+      <span class="nav-progress" aria-hidden="true"></span>
+    </header>
+
+    <main id="top">
+      <!-- ================= 首屏：代码粒子 → 检查核心 → 证据 ================= -->
+      <section class="hero" id="hero">
+        <canvas class="hero-liquid" aria-hidden="true"></canvas>
+        <div class="hero-shade" aria-hidden="true"></div>
+        <canvas class="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow hero-eyebrow">Vue 实训 · 证据驱动验收平台</p>
+            <h1 class="hero-title" id="heroTitle">让每一次提交<br />都有<em>证据</em>可循</h1>
+            <p class="hero-en serif">Evidence, not guesses.</p>
+            <p class="hero-lede">
+              教师定义检查要求，学生提交 ZIP；执行侧在隔离环境里构建、驱动真实浏览器并留下证据，Agent
+              整理成可追溯到源码行的反馈，教师逐条复核后发布——再看清下一次提交进步在哪里。
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="login.html" data-magnetic>进入工作台 <span class="arrow">→</span></a>
+              <a class="btn btn-ghost" href="#flow" data-magnetic>看它如何工作</a>
+            </div>
+            <ul class="hero-meta">
+              <li><b>8</b><span>独立检查案例</span></li>
+              <li><b>5</b><span>项核心要求</span></li>
+              <li><b>0</b><span>条自动发布</span></li>
+            </ul>
+          </div>
+
+          <div class="hero-visual" aria-label="检查核心实时运行示意">
+            <div class="core-anchor" id="coreAnchor" aria-hidden="true"></div>
+            <div class="core-label mono" aria-hidden="true">
+              <span class="dot"></span> RUNNING · <span id="coreCount">case 01/08</span>
+            </div>
+            <article class="ev-card glass ev-a" data-slot="0">
+              <header><span class="chip pass">通过</span><span class="mono id">E-01</span></header>
+              <h3>路由跳转</h3>
+              <code>expect(url).toBe("/list")</code>
+            </article>
+            <article class="ev-card glass ev-b" data-slot="1">
+              <header><span class="chip warn">需关注</span><span class="mono id">E-04</span></header>
+              <h3>空列表状态</h3>
+              <code>screenshot · 1280×800</code>
+            </article>
+            <article class="ev-card glass ev-c" data-slot="2">
+              <header><span class="chip pass">通过</span><span class="mono id">E-06</span></header>
+              <h3>表单校验</h3>
+              <code>src/views/Form.vue:42</code>
+            </article>
+          </div>
+        </div>
+        <a class="scroll-hint" href="#flow" aria-label="向下滚动">
+          <span class="mono">SCROLL</span><i></i>
+        </a>
+      </section>
+
+      <!-- ================= 流程：证据树随滚动生长 ================= -->
+      <section class="flow" id="flow">
+        <div class="flow-sticky">
+          <div class="flow-copy">
+            <p class="eyebrow">How it works</p>
+            <h2 class="section-title">一次提交，<br />长成一棵<span class="serif accent-text">证据树</span></h2>
+            <ol class="steps" id="steps">
+              <li data-step="0">
+                <span class="mono num">01</span>
+                <div>
+                  <h3>提交 <small class="serif">Submit</small></h3>
+                  <p>学生上传 ZIP，或从片段、文件夹、Gitee、GitHub 固定一次成果快照。提交即留档，不依赖模型。</p>
+                </div>
+              </li>
+              <li data-step="1">
+                <span class="mono num">02</span>
+                <div>
+                  <h3>执行 <small class="serif">Execute</small></h3>
+                  <p>Docker 隔离环境里构建、启动、驱动真实浏览器，八个独立案例逐一留下截图与日志。</p>
+                </div>
+              </li>
+              <li data-step="2">
+                <span class="mono num">03</span>
+                <div>
+                  <h3>整理 <small class="serif">Agent</small></h3>
+                  <p>受限 Agent 只用六种工具阅读证据，把发现整理成能定位到源码行的反馈候选。</p>
+                </div>
+              </li>
+              <li data-step="3">
+                <span class="mono num">04</span>
+                <div>
+                  <h3>复核 <small class="serif">Review</small></h3>
+                  <p>教师逐条采用、修改或驳回。模型只给候选，发布权始终在教师手里。</p>
+                </div>
+              </li>
+              <li data-step="4">
+                <span class="mono num">05</span>
+                <div>
+                  <h3>复提 <small class="serif">Compare</small></h3>
+                  <p>学生按反馈修改后再次提交，两次证据并排比较，每一处进步都看得见。</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="flow-visual">
+            <svg class="tree" id="tree" viewBox="0 0 600 720" role="img" aria-label="证据树：提交、执行、整理、复核、复提五个阶段依次生长">
+              <defs>
+                <linearGradient id="trunkGrad" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0" stop-color="var(--c1)" stop-opacity="0.4" />
+                  <stop offset="0.3" stop-color="var(--c5)" />
+                  <stop offset="0.55" stop-color="var(--c2)" />
+                  <stop offset="0.8" stop-color="var(--c4)" />
+                  <stop offset="1" stop-color="var(--c1)" />
+                </linearGradient>
+                <radialGradient id="bloomGrad">
+                  <stop offset="0" stop-color="var(--c1)" stop-opacity="0.7" />
+                  <stop offset="1" stop-color="var(--c1)" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <g id="treeGround"></g>
+              <path id="trunkShadow" class="trunk-shadow" />
+              <path id="trunk" class="trunk" />
+              <g id="branches"></g>
+              <g id="sparkles"></g>
+            </svg>
+            <div class="flow-progress mono" aria-hidden="true"><span id="flowPct">00</span>%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 证据报告：空间浮层视差 ================= -->
+      <section class="report" id="report">
+        <div class="report-head reveal">
+          <p class="eyebrow">Evidence report</p>
+          <h2 class="section-title">一份报告，<span class="serif accent-text">三层</span>视角</h2>
+          <p class="section-lede">源码、证据与复核结论叠在同一空间里。移动鼠标，从不同角度读懂一次提交。</p>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="stage-inner" id="stageInner">
+            <!-- 背层：源码引用 -->
+            <div class="layer layer-code glass" style="--z: -110px">
+              <div class="win-bar"><i></i><i></i><i></i><span class="mono">src/views/List.vue</span></div>
+              <pre class="code mono"><span class="ln">38</span><span class="kw">const</span> items = <span class="fn">ref</span>([])
+<span class="ln">39</span><span class="kw">onMounted</span>(<span class="kw">async</span> () =&gt; {
+<span class="ln hl">40</span>  items.value = <span class="kw">await</span> <span class="fn">fetchList</span>()
+<span class="ln hl">41</span>  <span class="cm">// 缺少空数据兜底</span>
+<span class="ln">42</span>})
+<span class="ln">43</span>
+<span class="ln">44</span>&lt;<span class="tg">li</span> <span class="at">v-for</span>=<span class="st">"it in items"</span> <span class="at">:key</span>=<span class="st">"it.id"</span>&gt;</pre>
+            </div>
+
+            <!-- 中层：学生证据报告 -->
+            <div class="layer layer-main glass" style="--z: 0px">
+              <div class="rep-top">
+                <div>
+                  <p class="mono tiny">REPORT · 第 2 次提交</p>
+                  <h3>待办清单 · 王同学</h3>
+                </div>
+                <div class="ring" style="--p: 0.84">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">
+                    <circle cx="60" cy="60" r="50" class="ring-bg" />
+                    <circle cx="60" cy="60" r="50" class="ring-fg" pathLength="1" />
+                  </svg>
+                  <b><span data-count="7">0</span><small>/8</small></b>
+                </div>
+              </div>
+              <ul class="reqs">
+                <li style="--v: 1"><span>页面路由与导航</span><i></i><em class="ok">✓</em></li>
+                <li style="--v: 1"><span>列表渲染与 key</span><i></i><em class="ok">✓</em></li>
+                <li style="--v: 0.62"><span>空状态与加载态</span><i></i><em class="warn">!</em></li>
+                <li style="--v: 1"><span>表单校验与提示</span><i></i><em class="ok">✓</em></li>
+                <li style="--v: 0.9"><span>组件拆分与通信</span><i></i><em class="ok">✓</em></li>
+              </ul>
+            </div>
+
+            <!-- 前层：浮动结论 -->
+            <div class="layer layer-chip glass chip-review" style="--z: 120px">
+              <span class="avatar">李</span>
+              <div><b>教师已复核</b><small>采用 4 条 · 修改 1 条</small></div>
+            </div>
+            <div class="layer layer-chip glass chip-compare" style="--z: 160px">
+              <div><small class="mono">对比上次</small><b class="up">+3 项通过</b></div>
+              <svg viewBox="0 0 90 32" class="spark" aria-hidden="true"><path d="M2 28 L18 24 L32 26 L46 16 L60 18 L74 8 L88 4" /></svg>
+            </div>
+            <div class="layer layer-chip glass chip-shot" style="--z: 70px">
+              <div class="shot"><i></i><i></i><i></i></div>
+              <small class="mono">E-04 · 截图证据</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 能力 Bento ================= -->
+      <section class="features" id="features">
+        <div class="feat-head reveal">
+          <p class="eyebrow">Capabilities</p>
+          <h2 class="section-title">认真对待<span class="serif accent-text">每一行</span>代码</h2>
+        </div>
+        <div class="bento">
+          <article class="card card-hero reveal" data-tilt="6">
+            <span class="card-kicker mono">01 · TEACHER FIRST</span>
+            <h3>发布权，<br />永远在教师手里</h3>
+            <p>模型结果只是可选择采用的候选。教师逐项复核、修改、发布，不会出现一条自动推送给学生的结论。</p>
+            <div class="big-zero mono" aria-hidden="true">0<small>auto-publish</small></div>
+          </article>
+          <article class="card reveal" style="--d: 0.08s" data-tilt>
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7" /><circle cx="18" cy="16" r="3" /></svg>
+            </span>
+            <h3>固定成果快照</h3>
+            <p>片段、文件、文件夹、ZIP、Gitee、GitHub，确认后成为不可变版本。</p>
+          </article>
+          <article class="card reveal" style="--d: 0.14s" data-tilt>
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="3" /><path d="M7 21h10M9 9l3 3 4-4" /></svg>
+            </span>
+            <h3>真实浏览器证据</h3>
+            <p>隔离容器里真实构建与点击，截图和日志就是结论的依据。</p>
+          </article>
+          <article class="card card-key reveal" style="--d: 0.16s" data-tilt>
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="4" /><path d="M12 12h9M18 12v3M21 12v2" /></svg>
+            </span>
+            <h3>个人模型，个人计费</h3>
+            <p>每个账号保存自己的 API Key，平台不回退共享密钥；不配置也能完成基础检查。</p>
+          </article>
+          <article class="card reveal" style="--d: 0.2s" data-tilt>
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+            </span>
+            <h3>任务化版本</h3>
+            <p>独立或连续任务、团队拆分，截止时间统一按北京时间解释。</p>
+          </article>
+          <article class="card card-wide reveal" style="--d: 0.12s" data-tilt="4">
+            <div class="wide-text"><span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6" /></svg>
+            </span>
+            <h3>源码行并排引用</h3>
+            <p>报告里的每条反馈都能定位到固定版本的源码行：桌面端并排阅读，手机端弹窗查看。</p></div>
+            <div class="lines mono" aria-hidden="true">
+              <span>40 │ items.value = await fetchList()</span>
+              <span class="hl">41 │ // 缺少空数据兜底 ← 反馈 #3</span>
+              <span>42 │ })</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= 数字 ================= -->
+      <section class="stats">
+        <div class="stat reveal"><b data-count="917">0</b><span>项自动化测试通过</span></div>
+        <div class="stat reveal" style="--d: 0.08s"><b data-count="74">0</b><span>项 PostgreSQL 专项</span></div>
+        <div class="stat reveal" style="--d: 0.16s"><b data-count="8">0</b><span>个独立检查案例</span></div>
+        <div class="stat reveal" style="--d: 0.24s"><b data-count="6">0</b><span>种受限 Agent 工具</span></div>
+      </section>
+
+      <!-- ================= 师生 ================= -->
+      <section class="roles" id="roles">
+        <article class="role role-t reveal" data-tilt="4">
+          <p class="eyebrow">For teachers</p>
+          <h3>少一些重复批改，<br />多一些<span class="serif">真正的指导</span></h3>
+          <ul>
+            <li>拆分任务与团队，预览学生看到的说明</li>
+            <li>证据先行，候选反馈逐条采用或改写</li>
+            <li>一屏看清全班进度与待交截止</li>
+          </ul>
+          <span class="role-blob" aria-hidden="true"></span>
+        </article>
+        <article class="role role-s reveal" style="--d: 0.1s" data-tilt="4">
+          <p class="eyebrow">For students</p>
+          <h3>知道错在哪，<br />更知道<span class="serif">怎么变好</span></h3>
+          <ul>
+            <li>提交前可用个人模型私下自查</li>
+            <li>每条反馈附截图与源码行，不靠猜</li>
+            <li>复提后自动对比，进步清清楚楚</li>
+          </ul>
+          <span class="role-blob" aria-hidden="true"></span>
+        </article>
+      </section>
+
+      <!-- ================= 收尾 ================= -->
+      <section class="outro">
+        <div class="marquee serif" aria-hidden="true">
+          <div class="track">
+            <span>Evidence</span><i>✦</i><span>证据</span><i>✦</i><span>Review</span><i>✦</i><span>复核</span><i>✦</i><span>Feedback</span><i>✦</i><span>反馈</span><i>✦</i><span>Progress</span><i>✦</i><span>进步</span><i>✦</i>
+            <span>Evidence</span><i>✦</i><span>证据</span><i>✦</i><span>Review</span><i>✦</i><span>复核</span><i>✦</i><span>Feedback</span><i>✦</i><span>反馈</span><i>✦</i><span>Progress</span><i>✦</i><span>进步</span><i>✦</i>
+          </div>
+        </div>
+        <div class="outro-card glass reveal">
+          <h2>把下一次提交，<br />变成<span class="gradient-text">看得见的进步</span></h2>
+          <a class="btn btn-primary btn-lg" href="login.html" data-magnetic>登录工作台 <span class="arrow">→</span></a>
+        </div>
+        <footer class="foot mono">
+          <span>知因 CodeLab · Glass Lab 视觉原型 · 2026-10-18</span>
+          <span>本页为设计测试稿，不连接业务数据</span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="shared/core.js"></script>
+    <script src="shared/liquid.js"></script>
+    <script src="shared/scene.js"></script>
+    <script src="landing.js"></script>
+  </body>
+</html>

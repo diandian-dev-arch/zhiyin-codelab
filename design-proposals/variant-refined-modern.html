@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab | Agent-Powered Intelligence</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --border: #e5e5e5;
+      --text: #171717;
+      --text-secondary: #737373;
+      --text-tertiary: #a3a3a3;
+      --accent: #2563eb;
+      --accent-light: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --shadow: 0 1px 3px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.04);
+      --shadow-lg: 0 2px 8px rgba(0,0,0,0.04), 0 16px 48px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: 'cv11', 'ss01';
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      background: rgba(250, 250, 250, 0.8);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    nav.scrolled {
+      border-bottom-color: var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-icon::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border: 2px solid white;
+      border-radius: 3px;
+      transform: rotate(45deg);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 120px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      max-width: 800px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin-bottom: 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    /* Workflow */
+    .workflow {
+      padding: 100px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-label {
+      display: inline-block;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .workflow-steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+      background: linear-gradient(90deg,
+        var(--accent) 0%,
+        var(--accent) 25%,
+        var(--border) 25%,
+        var(--border) 50%,
+        var(--accent) 50%,
+        var(--accent) 75%,
+        var(--border) 75%
+      );
+      z-index: 0;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .step-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .step-icon::before {
+      content: attr(data-number);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* Features */
+    .features {
+      padding: 100px 0;
+      background: var(--surface);
+      border-radius: 24px;
+      margin: 0 -48px;
+      padding: 100px 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: white;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .feature-content h3 {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-content p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* CTA */
+    .cta {
+      padding: 120px 0;
+      text-align: center;
+    }
+
+    .cta-content {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 64px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .cta h2 {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    @media (max-width: 1024px) {
+      .workflow-steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 40px;
+      }
+
+      .workflow-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Nav -->
+    <nav>
+      <a href="#" class="nav-logo">
+        <div class="logo-icon"></div>
+        知因 CodeLab
+      </a>
+      <div class="nav-links">
+        <a href="#workflow" class="nav-link">工作流</a>
+        <a href="#features" class="nav-link">核心能力</a>
+        <a href="http://127.0.0.1:5174/" class="nav-link">工作台</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge">
+        <div class="badge-dot"></div>
+        <span>Agent-Powered Intelligence</span>
+      </div>
+
+      <h1>
+        证据驱动的<br/>
+        <span class="gradient-text">智能验收平台</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        基于 LangGraph 的 Agent 架构，Docker 隔离执行，多维度证据收集。为教学实训设计的代码质量验收系统，让 AI 辅助教师高效复核。
+      </p>
+
+      <div class="hero-actions">
+        <a href="http://127.0.0.1:5174/" class="btn btn-primary">
+          进入工作台
+          <span>→</span>
+        </a>
+        <a href="#" class="btn btn-secondary">
+          查看文档
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">8</div>
+          <div class="stat-label">测试样本</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">5</div>
+          <div class="stat-label">核心要求</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">执行成功率</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow -->
+    <section class="workflow" id="workflow">
+      <div class="section-header">
+        <div class="section-label">工作流程</div>
+        <h2 class="section-title">从提交到反馈，全程 Agent 辅助</h2>
+        <p class="section-desc">四步完成智能验收，人机协作提升效率</p>
+      </div>
+
+      <div class="workflow-steps">
+        <div class="step-card">
+          <div class="step-icon" data-number="1"></div>
+          <h3 class="step-title">代码提交</h3>
+          <p class="step-desc">学生上传代码包，系统接收并排队处理</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon" data-number="2"></div>
+          <h3 class="step-title">隔离执行</h3>
+          <p class="step-desc">Docker 容器中自动化检查，生成多维度证据</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon" data-number="3"></div>
+          <h3 class="step-title">Agent 分析</h3>
+          <p class="step-desc">LLM 推理分析，生成候选反馈报告</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon" data-number="4"></div>
+          <h3 class="step-title">教师复核</h3>
+          <p class="step-desc">人工审核确认，一键发布最终报告</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+      <div class="section-header">
+        <div class="section-label">核心能力</div>
+        <h2 class="section-title">Agent 驱动 · 证据为本 · 人机协作</h2>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>智能推理引擎</h3>
+              <p>基于 LangGraph 的 Agent 架构，支持多轮推理、状态持久化和动态工具调用，让 AI 真正理解代码质量。</p>
+              <div class="feature-tags">
+                <span class="tag">LangGraph</span>
+                <span class="tag">Checkpoints</span>
+                <span class="tag">Tools</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>隔离执行环境</h3>
+              <p>Docker 容器沙箱 + 独立 Chromium，真实浏览器截图证据，防止恶意代码执行，保障平台安全。</p>
+              <div class="feature-tags">
+                <span class="tag">Docker</span>
+                <span class="tag">Playwright</span>
+                <span class="tag">Reaper</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>证据驱动反馈</h3>
+              <p>构建日志、浏览器截图、DOM 结构、行为测试，多维度证据链条，让反馈有据可查，学生信服。</p>
+              <div class="feature-tags">
+                <span class="tag">Build Logs</span>
+                <span class="tag">Screenshots</span>
+                <span class="tag">Tests</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>高效复核工作流</h3>
+              <p>教师仅需审核 AI 候选，逐项确认或修改后一键发布。支持历史提交对比，快速定位新旧变化。</p>
+              <div class="feature-tags">
+                <span class="tag">Review UI</span>
+                <span class="tag">Diff</span>
+                <span class="tag">Publish</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>固定模板实训</h3>
+              <p>针对 Vue 看板项目的专项训练，依赖锁定、行为接口固定，避免题库泄露，专注实现质量。</p>
+              <div class="feature-tags">
+                <span class="tag">Vue 3</span>
+                <span class="tag">Locked Deps</span>
+                <span class="tag">Fixed API</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-header">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="feature-content">
+              <h3>持久化与恢复</h3>
+              <p>PostgreSQL 存储、任务队列持久、检查点恢复，系统重启不丢失工作进度，可靠性优先。</p>
+              <div class="feature-tags">
+                <span class="tag">PostgreSQL</span>
+                <span class="tag">Queue</span>
+                <span class="tag">Recovery</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+      <div class="cta-content">
+        <h2>开启智能验收新时代</h2>
+        <p>Agent 驱动 · 证据为本 · 人机协作</p>
+        <div class="hero-actions">
+          <a href="http://127.0.0.1:5174/" class="btn btn-primary">
+            进入工作台
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div>© 2026 知因 CodeLab. Agent-Powered Intelligence.</div>
+        <div>Built with LangGraph · Docker · PostgreSQL</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // 滚动时导航栏样式
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 10) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  </script>
+</body>
+</html>

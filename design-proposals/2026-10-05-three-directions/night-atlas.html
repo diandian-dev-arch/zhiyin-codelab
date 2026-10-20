@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>校园食堂订餐系统 · AI 项目分析 · 知因 CodeLab</title>
+<link rel="icon" href="data:,">
+<style>
+/* =====================================================================
+   知因 CodeLab · 方向 A「夜航星图 · Night Atlas」
+   WCAG 2.x 对比度（前景 / 背景 → 比值），用 python 按相对亮度公式计算
+   ---------------------------------------------------------------------
+   正文与小字（要求 ≥ 4.5:1）
+     --ink    #E8E2D4  / bg0 #0B1119 14.67 · bg1 #111A24 13.58 · bg2 #17222E 12.46 · bg3 #1E2B39 11.14
+     --ink-2  #AFA898  / bg0 8.01 · bg1 7.42 · bg2 6.80 · bg3 6.08
+     --ink-3  #8E8A80  / bg0 5.50 · bg1 5.09 · bg2 4.67   （不在 bg3 上使用）
+     --jade   #86CDB6  / bg0 10.30 · bg1 9.54 · bg2 8.75
+     --amber  #E9B872  / bg0 10.43 · bg1 9.66 · bg2 8.86
+     --rose   #E7958A  / bg0 8.18 · bg1 7.57 · bg2 6.95
+     主按钮文字 #0B1119 / 琥珀 #E9B872 10.43 · 青瓷 #86CDB6 10.30
+     风险标签  #E7958A / 玫瑰底 #2B2930 6.20 · #E9B872 / 琥珀底 #2B2D2D 7.63
+   源码查看器（代码底 #0B1119，引用高亮行底 #262524）
+     普通代码 #D9D3C5 12.70 · 关键字 #D7C49E 11.08 / 高亮行 8.95
+     注解     #B9C4CE 10.69 · 字符串 #9FD3BF 11.32 / 高亮行 9.14
+     注释     #8F9AA6 6.62 / 高亮行 5.35 · 行号 #7D8590 5.08
+     高亮行文字 #F2E3C4 12.07 · 高亮行号 #E9B872 8.43
+   大字与界面描边 / 图形（要求 ≥ 3:1）
+     按钮描边 --stroke #5F6E7C / bg0 3.62 · bg1 3.35 · bg2 3.07
+     未读星点 #5A6878 / 星图底 #0B1119 3.33 · #101A25 3.08
+     焦点环 --amber 对所有底色 ≥ 7.9
+   装饰性发丝线（--line / --line-2）不承载信息，不计入
+   ===================================================================== */
+:root{
+  --bg0:#0B1119; --bg1:#111A24; --bg2:#17222E; --bg3:#1E2B39;
+  --ink:#E8E2D4; --ink-2:#AFA898; --ink-3:#8E8A80;
+  --jade:#86CDB6; --amber:#E9B872; --rose:#E7958A;
+  --dim-star:#5A6878; --stroke:#5F6E7C;
+  --line:rgba(232,226,212,.09); --line-2:rgba(232,226,212,.16);
+  --f-sans:"PingFang SC","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+  --f-mono:ui-monospace,"JetBrains Mono","SF Mono",Consolas,monospace;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+  --ease-soft:cubic-bezier(.33,.0,.2,1);
+  --top:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--top) + 24px)}
+body{
+  margin:0;min-height:100vh;color:var(--ink);font-family:var(--f-sans);
+  font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-color:var(--bg0);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='%23E8E2D4'%3E%3Ccircle cx='23' cy='41' r='.6' opacity='.35'/%3E%3Ccircle cx='97' cy='12' r='.5' opacity='.25'/%3E%3Ccircle cx='151' cy='88' r='.7' opacity='.3'/%3E%3Ccircle cx='211' cy='37' r='.45' opacity='.25'/%3E%3Ccircle cx='62' cy='143' r='.5' opacity='.22'/%3E%3Ccircle cx='183' cy='171' r='.6' opacity='.3'/%3E%3Ccircle cx='121' cy='223' r='.45' opacity='.2'/%3E%3Ccircle cx='241' cy='233' r='.55' opacity='.28'/%3E%3Ccircle cx='9' cy='207' r='.4' opacity='.2'/%3E%3Ccircle cx='137' cy='147' r='.35' opacity='.25'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(1200px 700px at 78% -10%, rgba(134,205,182,.06), transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, rgba(233,184,114,.035), transparent 60%);
+  background-attachment:scroll;
+}
+::selection{background:rgba(233,184,114,.28);color:var(--ink)}
+a{color:inherit}
+button{font:inherit;color:inherit}
+code,.mono{font-family:var(--f-mono);font-size:.92em}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:16px;top:-60px;z-index:100;background:var(--amber);color:var(--bg0);padding:10px 16px;border-radius:4px;text-decoration:none;font-weight:600}
+.skip:focus{top:12px}
+
+/* lamp — follows pointer, sits beneath content */
+.lamp{position:fixed;left:0;top:0;width:880px;height:880px;margin:-440px 0 0 -440px;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side, rgba(233,184,114,.075), rgba(233,184,114,.03) 45%, transparent 72%);
+  opacity:0;transition:opacity 1.2s var(--ease-soft);will-change:transform}
+.lamp.on{opacity:1}
+
+.latin{font-family:var(--f-sans);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-2)}
+.shell{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 40px}
+
+/* ---------------- top bar ---------------- */
+.topbar{position:sticky;top:0;z-index:40;height:var(--top);background:#0B1119;border-bottom:1px solid var(--line)}
+.topbar .shell{display:flex;align-items:center;height:100%;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-height:44px}
+.brand svg{width:22px;height:22px;color:var(--amber)}
+.brand b{font-family:var(--f-serif);font-weight:600;font-size:18px;letter-spacing:.06em}
+.brand span{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.nav{display:flex;gap:4px;margin-left:12px}
+.nav a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;text-decoration:none;color:var(--ink-2);border-radius:4px;position:relative}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current="page"]{color:var(--ink)}
+.nav a[aria-current="page"]::after{content:"";position:absolute;left:14px;right:14px;bottom:-11px;height:1px;background:var(--amber)}
+.nav .cnt{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.user{display:flex;align-items:center;gap:10px;min-height:44px}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-serif);font-size:15px;color:var(--bg0);background:var(--jade)}
+.user .nm{font-size:14px;line-height:1.2}
+.user .rl{font-size:12px;color:var(--ink-3);line-height:1.2}
+.icon-btn{display:inline-grid;place-items:center;width:44px;height:44px;border:1px solid transparent;border-radius:4px;background:transparent;cursor:pointer;color:var(--ink-2)}
+.icon-btn:hover{color:var(--ink);border-color:var(--line-2)}
+.icon-btn svg{width:20px;height:20px}
+.menu-btn{display:none}
+.mnav{display:none}
+
+/* ---------------- project head ---------------- */
+.head{padding:14px 0 0}
+.crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--ink-3)}
+.crumbs a{color:var(--ink-2);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.crumbs a:hover{color:var(--ink)}
+.crumbs .sep{opacity:.6}
+.proto{margin-left:auto;font-size:12px;color:var(--ink-3);letter-spacing:.08em;border:1px solid var(--line-2);border-radius:999px;padding:3px 12px}
+.head-main{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;margin-top:2px}
+.head h1{font-family:var(--f-serif);font-weight:600;font-size:42px;line-height:1.15;letter-spacing:.04em;margin:0 0 10px}
+.head .meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;color:var(--ink-2);font-size:14px}
+.head .meta code{color:var(--ink)}
+.chips{display:inline-flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none;vertical-align:middle}
+.chips li{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:3px;padding:3px 10px}
+.run-meta{text-align:right;font-size:13px;color:var(--ink-3);line-height:1.9}
+.run-meta b{font-weight:500;color:var(--ink-2)}
+.stats{display:grid;grid-template-columns:repeat(8,1fr);margin:22px 0 0;padding:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat{padding:12px 16px 12px;border-left:1px solid var(--line);margin:0}
+.stat:first-child{border-left:0;padding-left:0}
+.stat dt{font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.stat dd{margin:2px 0 0;font-size:26px;font-weight:300;line-height:1.25;font-variant-numeric:tabular-nums lining-nums;color:var(--ink)}
+.stat dd small{font-size:13px;color:var(--ink-2);margin-left:3px;font-weight:400}
+.stat .note{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;line-height:1.4}
+.stat.ok dd{color:var(--jade)}
+
+/* ---------------- voyage (analysis) ---------------- */
+.voyage{padding:34px 0 24px}
+.v-head{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:18px}
+.v-title h2{font-family:var(--f-serif);font-weight:600;font-size:28px;letter-spacing:.05em;margin:2px 0 2px;line-height:1.25}
+.v-title p{margin:0;color:var(--ink-2);font-size:14px}
+.v-actions{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);min-height:44px;margin:0 6px 0 0}
+.status .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);position:relative}
+.status .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--amber);opacity:0}
+.status.playing .dot::after{animation:ping 1.6s var(--ease-out) infinite}
+.status.done .dot{background:var(--jade)}
+@keyframes ping{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.btn{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 18px;border-radius:4px;border:1px solid var(--stroke);background:transparent;color:var(--ink);cursor:pointer;font-size:14px;letter-spacing:.02em;transition:transform .2s var(--ease-out)}
+.btn:hover{border-color:var(--ink-2)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:17px;height:17px}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:var(--bg0);font-weight:600}
+.btn.primary:hover{border-color:#F3CF97;background:#F0C589}
+.btn[disabled]{opacity:.42;cursor:not-allowed}
+
+.v-grid{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:28px;align-items:stretch}
+.atlas-wrap{min-width:0}
+.atlas{position:relative;aspect-ratio:1000/600;border:1px solid var(--line);border-radius:6px;overflow:hidden;
+  background:radial-gradient(ellipse 70% 80% at 56% 52%, #13202C 0%, #0F1822 45%, #0B1119 100%)}
+.atlas svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.atlas .corner{position:absolute;top:14px;left:16px;pointer-events:none}
+.atlas .corner .latin{font-size:10px;color:var(--ink-3)}
+.atlas .corner b{display:block;font-family:var(--f-serif);font-weight:500;font-size:14px;color:var(--ink-2);letter-spacing:.08em}
+.mlabels{position:absolute;inset:0;pointer-events:none}
+.mlabel{position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);transform:translate(-50%,-50%);pointer-events:auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:4px 10px;border:0;border-radius:4px;background:transparent;cursor:pointer;line-height:1.25;color:var(--ink-2)}
+.mlabel .l{font-size:9.5px;letter-spacing:.24em;font-weight:600;color:var(--ink-3)}
+.mlabel .z{font-family:var(--f-serif);font-size:13.5px;letter-spacing:.06em}
+.mlabel .l,.mlabel .z{text-shadow:0 0 4px #0F1822,0 0 8px #0F1822,0 0 12px #0F1822}
+.mlabel:hover .z,.mlabel[aria-pressed="true"] .z{color:var(--jade)}
+.mlabel[aria-pressed="true"] .l{color:var(--ink-2)}
+.atlas-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin-top:14px;font-size:12.5px;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:0;list-style:none}
+.legend li{display:inline-flex;align-items:center;gap:7px}
+.legend svg{width:16px;height:12px;overflow:visible}
+.atlas-foot .count{margin-left:auto;color:var(--ink-3)}
+.atlas-cap{margin:10px 0 0;font-size:13px;color:var(--ink-2);min-height:22px}
+.atlas-cap b{font-weight:500;color:var(--jade)}
+.mod-chips{display:none}
+
+/* svg atlas elements */
+.grat circle,.grat line{fill:none;stroke:rgba(232,226,212,.06);stroke-width:1;vector-effect:non-scaling-stroke}
+.grat .dash{stroke-dasharray:1 7}
+.mod{transition:opacity .45s var(--ease-soft)}
+svg.has-focus .mod{opacity:.22}
+svg.has-focus .mod.is-focus{opacity:1}
+.fig{fill:none;stroke:rgba(232,226,212,.13);stroke-width:1;vector-effect:non-scaling-stroke}
+.fig-hi{fill:none;stroke:var(--jade);stroke-width:1.2;vector-effect:non-scaling-stroke;opacity:0;transition:opacity .45s var(--ease-soft)}
+.mod.is-focus .fig-hi{opacity:.75}
+.star{cursor:default}
+.star .halo{opacity:0;transform:scale(.25);transform-box:fill-box;transform-origin:center;transition:opacity .9s var(--ease-soft),transform 1.1s var(--ease-out)}
+.star .c-dim{fill:var(--dim-star)}
+.star:not(.is-read) .c-dim{animation:twinkle var(--tw,4s) ease-in-out var(--td,0s) infinite}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.5}}
+.star .c-read{fill:var(--jade);opacity:0;transition:opacity .6s var(--ease-soft)}
+.star .c-now{fill:var(--amber);opacity:0;transition:opacity .4s var(--ease-soft)}
+.star .core{transform-box:fill-box;transform-origin:center;transition:transform .35s var(--ease-out)}
+.star.is-read .c-read{opacity:1}
+.star.is-trail .halo{opacity:.32;transform:scale(.55)}
+.star.is-now .c-now,.star.is-lit .c-now{opacity:1}
+.star.is-now .halo,.star.is-lit .halo{opacity:1;transform:scale(1)}
+.star.is-hover .core{transform:scale(1.6)}
+.star.is-lit .core{transform:scale(1.9)}
+.star .hit{fill:transparent;cursor:pointer}
+.seg{fill:none;stroke:var(--amber);stroke-width:1.3;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1 1;stroke-dashoffset:1;opacity:.8;transition:stroke-dashoffset .7s var(--ease-io)}
+.seg.on{stroke-dashoffset:0}
+.mark{fill:none;stroke-width:1.2;vector-effect:non-scaling-stroke;stroke-dasharray:2 3;opacity:0;transform:scale(.6);transform-box:fill-box;transform-origin:center;transition:opacity .6s var(--ease-soft),transform .8s var(--ease-out)}
+.mark.high{stroke:var(--rose)} .mark.medium{stroke:var(--amber)}
+svg.marks-on .mark{opacity:.95;transform:scale(1)}
+.sonar{fill:none;stroke:var(--jade);stroke-width:1.2;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center;opacity:0;animation:sonar 1.5s var(--ease-out) forwards}
+.sonar.s2{animation-delay:.25s}
+@keyframes sonar{0%{opacity:.9;transform:scale(.15)}100%{opacity:0;transform:scale(1)}}
+.ship{transition:transform .7s var(--ease-io),opacity .5s var(--ease-soft);opacity:0}
+.ship.on{opacity:1}
+.ship circle{fill:none;stroke:var(--amber);stroke-width:1;vector-effect:non-scaling-stroke}
+svg.no-tr *{transition:none!important}
+.svg-label{font-family:var(--f-serif);fill:var(--ink-2);font-size:36px;letter-spacing:.06em;text-anchor:middle}
+
+.tip{position:absolute;left:0;top:0;z-index:5;pointer-events:none;min-width:180px;max-width:280px;padding:10px 12px;border-radius:4px;background:var(--bg2);border:1px solid var(--line-2);box-shadow:0 12px 30px rgba(0,0,0,.35);
+  opacity:0;transition:opacity .18s var(--ease-soft)}
+.tip.on{opacity:1}
+.tip code{display:block;color:var(--ink);font-size:12.5px;word-break:break-all;line-height:1.5}
+.tip span{display:block;font-size:12px;color:var(--ink-2);margin-top:4px}
+.tip .st-read{color:var(--jade)}
+
+/* log */
+.log{display:flex;flex-direction:column;min-height:0;border:1px solid var(--line);border-radius:6px;background:rgba(17,26,36,.72)}
+.log-head{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.log-head h3{margin:0;font-family:var(--f-serif);font-weight:600;font-size:17px;letter-spacing:.08em}
+.log-head .latin{font-size:10px;display:block;color:var(--ink-3)}
+.clock{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);text-align:right}
+.clock small{display:block;font-family:var(--f-sans);font-size:11px;color:var(--ink-3)}
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0;padding:12px 18px 14px;list-style:none;border-bottom:1px solid var(--line)}
+.phase{position:relative;padding-top:12px;font-size:12px;line-height:1.45;color:var(--ink-3)}
+.phase::before{content:"";position:absolute;left:0;right:6px;top:0;height:2px;background:var(--line-2)}
+.phase::after{content:"";position:absolute;left:0;right:6px;top:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-out)}
+.phase .n{font-family:var(--f-serif);font-size:13px;color:var(--ink-3);margin-right:4px}
+.phase.active{color:var(--ink)} .phase.active::after{transform:scaleX(1)}
+.phase.active .n{color:var(--amber)}
+.phase.done{color:var(--ink-2)} .phase.done::after{transform:scaleX(1);background:var(--jade)}
+.phase.done .n{color:var(--jade)}
+.log-list{flex:1;min-height:0;max-height:420px;overflow:auto;margin:0;padding:8px 0 14px;list-style:none;scrollbar-width:thin;scrollbar-color:#2A3746 transparent}
+.row{display:grid;grid-template-columns:62px 18px minmax(0,1fr);gap:10px;align-items:start;padding:5px 18px;font-size:13px;line-height:1.55;opacity:0;transform:translateY(6px);transition:opacity .45s var(--ease-soft),transform .55s var(--ease-out)}
+.row.on{opacity:1;transform:none}
+.row .t{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);padding-top:1px}
+.row .ic{color:var(--ink-3);padding-top:2px}
+.row .ic svg{width:15px;height:15px;display:block}
+.row .tx{color:var(--ink-2);overflow-wrap:anywhere}
+.row .tx code{color:var(--ink);font-size:12.5px}
+.row .rg{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);margin-left:4px;white-space:nowrap}
+.row.k-read .ic{color:var(--jade)}
+.row.k-search .ic{color:var(--jade)}
+.row.k-verify .ic,.row.k-cite .ic{color:var(--amber)}
+.row.k-done .ic{color:var(--amber)}
+.row.k-done .tx{color:var(--ink)}
+.row.cur .t{color:var(--amber)}
+.row.ph{grid-template-columns:1fr;padding:12px 18px 4px}
+.row.ph .tx{font-size:11px;letter-spacing:.2em;color:var(--ink-3);font-weight:600}
+.row.ph .tx b{font-family:var(--f-serif);letter-spacing:.06em;font-size:13px;font-weight:500;color:var(--ink-2);margin-left:6px}
+.v-boundary{display:flex;flex-wrap:wrap;gap:6px 24px;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--ink-3)}
+.v-boundary li::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--ink-3);margin-right:9px;vertical-align:middle}
+
+/* ---------------- report ---------------- */
+.pending{margin:40px 0 0;padding:34px;border:1px dashed var(--line-2);border-radius:6px;text-align:center;color:var(--ink-2);font-size:14px}
+.pending p{margin:0 0 14px}
+.report-wrap{display:grid;grid-template-columns:196px minmax(0,1fr) 336px;gap:48px;padding:72px 0 120px;align-items:start}
+.report-wrap[hidden]{display:none}
+.toc{position:sticky;top:calc(var(--top) + 28px)}
+.toc .latin{display:block;font-size:10px;color:var(--ink-3);margin-bottom:12px}
+.toc ol{position:relative;margin:0;padding:0 0 0 16px;list-style:none;border-left:1px solid var(--line-2)}
+.toc a{display:flex;align-items:center;gap:10px;min-height:44px;text-decoration:none;color:var(--ink-3);font-size:13.5px;line-height:1.35;transition:color .25s}
+.toc a .n{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);width:18px}
+.toc a:hover{color:var(--ink)}
+.toc a.active{color:var(--ink)}
+.toc a.active .n{color:var(--amber)}
+.toc .bar{position:absolute;left:-2px;top:0;width:3px;height:44px;border-radius:2px;background:var(--amber);box-shadow:0 0 12px rgba(233,184,114,.5);transform:translateY(0);transition:transform .5s var(--ease-out)}
+
+.report-intro{margin:0 0 56px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.report-intro h2{font-family:var(--f-serif);font-weight:600;font-size:30px;letter-spacing:.05em;margin:6px 0 10px;line-height:1.3}
+.report-intro p{margin:0;color:var(--ink-2);max-width:40em}
+.sec{padding:0 0 76px;opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease-soft),transform 1s var(--ease-out)}
+.sec.in{opacity:1;transform:none}
+.stg{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease-soft),transform .9s var(--ease-out);transition-delay:calc(var(--i,0) * 70ms + 120ms)}
+.sec.in .stg{opacity:1;transform:none}
+.sec-k{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sec-k .num{font-family:var(--f-mono);font-size:12px;color:var(--amber)}
+.sec h2{font-family:var(--f-serif);font-weight:600;font-size:26px;letter-spacing:.05em;margin:0 0 22px;line-height:1.35}
+.sec .lede{color:var(--ink-2);margin:-10px 0 24px;font-size:14px}
+
+.purpose{font-family:var(--f-serif);font-size:21px;line-height:1.95;letter-spacing:.02em;color:var(--ink);margin:0 0 30px}
+.aud{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.aud li{padding:16px 14px 4px 0;border-right:1px solid var(--line);margin-right:14px}
+.aud li:last-child{border-right:0}
+.aud .n{display:block;font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.aud b{font-weight:500;font-size:16px}
+
+.mods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.mcard{position:relative;padding:20px 20px 16px;border:1px solid var(--line);border-radius:6px;background:rgba(17,26,36,.7)}
+.mcard::before{content:"";position:absolute;inset:-1px;border-radius:6px;border:1px solid var(--jade);opacity:0;pointer-events:none;transition:opacity .35s var(--ease-soft)}
+.mcard::after{content:"";position:absolute;left:20px;right:20px;top:-1px;height:2px;background:var(--jade);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease-out)}
+.mcard.is-linked::before{opacity:.7}
+.mcard.is-linked::after{transform:scaleX(1)}
+.mcard header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.mcard .latin{font-size:10px;color:var(--ink-3)}
+.mcard h3{font-family:var(--f-serif);font-weight:600;font-size:18px;letter-spacing:.05em;margin:2px 0 8px}
+.mcard p{margin:0 0 14px;color:var(--ink-2);font-size:14px;line-height:1.75}
+.locate{flex:none;display:inline-grid;place-items:center;width:44px;height:44px;margin:-10px -12px 0 0;border:0;background:transparent;border-radius:4px;cursor:pointer;color:var(--ink-3)}
+.locate:hover,.locate[aria-pressed="true"]{color:var(--jade)}
+.locate svg{width:18px;height:18px}
+.mm{display:flex;gap:18px;margin:0 0 10px;font-size:12px;color:var(--ink-3)}
+.mm div{margin:0}
+.mm dd{margin:0;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.readbar{position:relative;height:2px;background:var(--line-2);border-radius:2px;overflow:hidden;margin:2px 0 14px}
+.readbar i{position:absolute;inset:0;background:var(--jade);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease-out) .35s}
+.sec.in .readbar i{transform:scaleX(var(--k))}
+.paths{margin:0;padding:0;list-style:none}
+.paths li{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);line-height:1.9;word-break:break-all}
+
+.course-t{font-family:var(--f-serif);font-size:18px;margin:-8px 0 24px;color:var(--ink)}
+.course-t .latin{font-size:10px;margin-right:12px}
+.course{position:relative;margin:0;padding:0;list-style:none}
+.course::before{content:"";position:absolute;left:15px;top:14px;bottom:30px;width:2px;
+  background-image:radial-gradient(circle, rgba(233,184,114,.75) 1px, transparent 1.4px);background-size:2px 9px;background-repeat:repeat-y;
+  transform:scaleY(0);transform-origin:top;transition:transform 1.6s var(--ease-io) .2s}
+.sec.in .course::before{transform:scaleY(1)}
+.wp{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:18px;padding:0 0 12px}
+.wp .pin{position:relative;width:32px;height:32px;display:grid;place-items:center}
+.wp .pin::before{content:"";width:11px;height:11px;border-radius:50%;border:1.5px solid var(--amber);background:var(--bg0);transition:transform .3s var(--ease-out)}
+.wp .pin::after{content:"";position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(closest-side,rgba(233,184,114,.45),transparent);opacity:0;transition:opacity .3s}
+.wp:hover .pin::before,.wp:focus-within .pin::before{transform:scale(1.25)}
+.wp:hover .pin::after,.wp:focus-within .pin::after{opacity:1}
+.wp .body{padding:2px 0 8px;border-bottom:1px solid var(--line)}
+.wp:last-child .body{border-bottom:0}
+.wp .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wp .k{font-family:var(--f-mono);font-size:11px;color:var(--amber);letter-spacing:.08em}
+.wp h3{margin:0;font-family:var(--f-serif);font-weight:600;font-size:17px;letter-spacing:.04em}
+.wp .modtag{font-size:12px;color:var(--ink-3)}
+.wp p{margin:6px 0 8px;color:var(--ink-2);font-size:14px}
+.ref{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-height:44px;padding:0 12px;margin-left:-12px;border:0;border-radius:4px;background:transparent;text-align:left;font-size:12.5px;color:var(--ink-2)}
+.ref code{color:var(--ink);word-break:break-all}
+.ref .rg{font-family:var(--f-mono);color:var(--amber);font-size:12px}
+button.ref{cursor:pointer}
+button.ref:hover{background:rgba(233,184,114,.06)}
+button.ref .go{display:inline-flex;align-items:center;gap:4px;color:var(--ink-3);font-size:12px}
+button.ref .go svg{width:14px;height:14px;transition:transform .25s var(--ease-out)}
+button.ref:hover .go{color:var(--amber)}
+button.ref:hover .go svg{transform:translateX(3px)}
+.ref .na{font-size:12px;color:var(--ink-3)}
+
+.routes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.route{padding:22px 22px 18px 0;border-bottom:1px solid var(--line)}
+.route:nth-child(odd){border-right:1px solid var(--line)}
+.route:nth-child(even){padding-left:22px;padding-right:0}
+.route .cn{font-family:var(--f-serif);font-size:34px;line-height:1;color:var(--amber);opacity:.9}
+.route h3{font-family:var(--f-serif);font-weight:600;font-size:17px;margin:12px 0 6px;letter-spacing:.04em}
+.route p{margin:0 0 6px;color:var(--ink-2);font-size:14px}
+
+.findings{display:grid;gap:18px}
+.finding{position:relative;padding:22px 24px 18px;border:1px solid var(--line);border-radius:6px;background:rgba(17,26,36,.72);overflow:hidden}
+.finding::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:2px;background:var(--rose)}
+.finding.medium::before{background:var(--amber)}
+.f-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.lv{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 10px 2px 8px;border-radius:3px;color:var(--rose);background:#2B2930}
+.finding.medium .lv{color:var(--amber);background:#2B2D2D}
+.lv svg{width:13px;height:13px}
+.fid{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.finding h3{margin:0 0 8px;font-family:var(--f-serif);font-weight:600;font-size:19px;letter-spacing:.04em}
+.finding .sum{margin:0 0 6px;color:var(--ink-2);font-size:14.5px;line-height:1.8}
+.finding .review{display:flex;gap:8px;align-items:flex-start;margin:8px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.finding .review svg{flex:none;width:15px;height:15px;color:var(--jade);margin-top:3px}
+
+.counter{display:grid;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.counter li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--line);font-size:14px}
+.counter .tag{font-size:12px;color:var(--jade);padding-top:2px}
+.counter .tag.wd{color:var(--ink-3)}
+.counter b{font-weight:500;display:block}
+.counter .wdt b{text-decoration:line-through;text-decoration-color:var(--ink-3);color:var(--ink-2)}
+.counter span.r{color:var(--ink-2);font-size:13.5px}
+.counter-sum{font-size:14px;color:var(--ink-2);margin:-8px 0 18px}
+.counter-sum b{color:var(--ink);font-weight:500}
+
+.bounds{margin:0;padding:0;list-style:none;display:grid;gap:0;border-top:1px solid var(--line)}
+.bounds li{display:grid;grid-template-columns:40px minmax(0,1fr);padding:16px 0;border-bottom:1px solid var(--line);font-size:15px}
+.bounds .n{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);padding-top:4px}
+.bounds li:first-child{font-family:var(--f-serif);font-size:17px}
+
+/* chart desk */
+.desk{position:sticky;top:calc(var(--top) + 28px)}
+.desk .latin{display:block;font-size:10px;color:var(--ink-3)}
+.desk h2{font-family:var(--f-serif);font-weight:600;font-size:16px;letter-spacing:.08em;margin:2px 0 12px}
+.desk .atlas{border-radius:5px}
+.desk-cap{margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);min-height:88px;line-height:1.7}
+.desk-cap code{color:var(--ink);word-break:break-all}
+.desk-cap .rg{font-family:var(--f-mono);color:var(--amber);font-size:12px;margin-left:6px}
+.desk-cap b{font-family:var(--f-serif);font-weight:600;color:var(--ink);font-size:14px;display:block}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:26px 0 40px;font-size:12.5px;color:var(--ink-3)}
+footer .shell{display:flex;flex-wrap:wrap;gap:8px 24px}
+
+/* ---------------- dialog ---------------- */
+dialog.viewer{padding:0;border:1px solid var(--line-2);border-radius:8px;background:var(--bg1);color:var(--ink);width:min(1040px, calc(100vw - 32px));max-height:min(88vh, 860px);overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.55);
+  opacity:0;transform:translateY(14px) scale(.985);transition:opacity .32s var(--ease-soft),transform .45s var(--ease-out)}
+dialog.viewer.open{opacity:1;transform:none}
+dialog.viewer::backdrop{background:rgba(4,7,11,.72)}
+.vw{display:flex;flex-direction:column;max-height:min(88vh, 860px)}
+.vw-head{display:flex;gap:16px;align-items:flex-start;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.vw-head .latin{font-size:10px;color:var(--ink-3)}
+.vw-head h2{margin:2px 0 6px;font-family:var(--f-serif);font-weight:600;font-size:21px;letter-spacing:.04em;line-height:1.4}
+.vw-path{font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 12px}
+.vw-path code{color:var(--ink);word-break:break-all}
+.vw-path .rg{font-family:var(--f-mono);color:var(--amber);font-size:12.5px}
+.vw-head .icon-btn{margin-left:auto;flex:none}
+.vw-body{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);min-height:0;overflow:auto}
+.code{margin:0;padding:14px 0;background:var(--bg0);overflow:auto;font-family:var(--f-mono);font-size:13px;line-height:22px;color:#D9D3C5;tab-size:4;border-right:1px solid var(--line)}
+.code code{display:block;min-width:max-content;font-size:13px}
+.ln{display:grid;grid-template-columns:52px auto;position:relative;padding-right:22px}
+.ln .no{color:#7D8590;text-align:right;padding-right:16px;user-select:none;position:relative}
+.ln .cd{white-space:pre}
+.ln.hl{background:#262524}
+.ln.hl .no{color:var(--amber)}
+.ln.hl .no::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);box-shadow:0 0 10px rgba(233,184,114,.8)}
+.ln.hl .cd{color:#F2E3C4;text-shadow:0 0 14px rgba(233,184,114,.42)}
+.ln.hl-first{box-shadow:inset 0 1px 0 rgba(233,184,114,.25)}
+.ln.hl-last{box-shadow:inset 0 -1px 0 rgba(233,184,114,.25)}
+.tk-kw{color:#D7C49E}
+.tk-an{color:#B9C4CE}
+.tk-st{color:#9FD3BF}
+.tk-cm{color:#8F9AA6;font-style:italic}
+.ln.hl .tk-kw{color:#D7C49E}.ln.hl .tk-st{color:#9FD3BF}.ln.hl .tk-cm{color:#8F9AA6}
+.vw-side{padding:20px 22px;display:grid;gap:18px;align-content:start}
+.vw-side h3{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--ink-2)}
+.vw-side h3 .latin{font-size:10px;margin-left:8px;color:var(--ink-3);letter-spacing:.2em}
+.vw-side p{margin:0;font-size:14px;line-height:1.8;color:var(--ink)}
+.vw-side .fix{font-family:var(--f-sans)}
+.vw-side .fix code{font-size:12.5px;color:var(--jade);word-break:break-all}
+.vw-side .rv{color:var(--ink-2);font-size:13.5px}
+.vw-foot{padding:12px 22px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 1240px){
+  .report-wrap{grid-template-columns:192px minmax(0,1fr);gap:44px}
+  .desk{display:none}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .stat:nth-child(5){border-left:0;padding-left:0}
+  .stat:nth-child(n+5){border-top:1px solid var(--line)}
+}
+@media (max-width: 1080px){
+  .v-grid{grid-template-columns:1fr}
+  .log-list{max-height:360px}
+}
+@media (max-width: 860px){
+  :root{--top:58px}
+  html{scroll-padding-top:calc(var(--top) + 76px)}
+  .shell{padding:0 18px}
+  .nav,.user .who,.top-right .proto-top{display:none}
+  .menu-btn{display:inline-grid}
+  .mnav{display:block;position:absolute;left:0;right:0;top:var(--top);background:var(--bg1);border-bottom:1px solid var(--line-2);padding:8px 18px 14px;transform:translateY(-8px);opacity:0;visibility:hidden;transition:opacity .25s var(--ease-soft),transform .3s var(--ease-out),visibility 0s .3s}
+  .mnav.open{opacity:1;transform:none;visibility:visible;transition:opacity .25s var(--ease-soft),transform .3s var(--ease-out)}
+  .mnav a{display:flex;align-items:center;justify-content:space-between;min-height:48px;text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--line)}
+  .mnav a[aria-current="page"]{color:var(--ink)}
+  .mnav .who{display:flex;gap:10px;align-items:center;padding-top:12px;font-size:13px;color:var(--ink-2)}
+  .head{padding-top:18px}
+  .head-main{grid-template-columns:1fr}
+  .run-meta{text-align:left}
+  .head h1{font-size:32px}
+  .proto{margin-left:0}
+  .stats{margin-top:18px}
+  .stat dt{font-size:11.5px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{padding:14px 12px 12px 0;border-left:0;border-top:1px solid var(--line)}
+  .stat:nth-child(-n+2){border-top:0}
+  .stat:nth-child(even){padding-left:14px;border-left:1px solid var(--line)}
+  .stat dd{font-size:22px}
+  .voyage{padding-top:38px}
+  .v-title h2{font-size:26px}
+  .v-actions{margin-left:0;width:100%}
+  .status{width:100%}
+  .mlabels{display:none}
+  .atlas .corner{display:none}
+  .mod-chips{display:flex;gap:8px;overflow-x:auto;margin:12px -18px 0;padding:0 18px 4px;list-style:none;scrollbar-width:none}
+  .mod-chips button{flex:none;min-height:44px;padding:0 14px;border:1px solid var(--stroke);border-radius:999px;background:transparent;color:var(--ink-2);font-size:13px;cursor:pointer;white-space:nowrap}
+  .mod-chips button[aria-pressed="true"]{color:var(--bg0);background:var(--jade);border-color:var(--jade)}
+  .atlas-foot .count{margin-left:0}
+  .report-wrap{grid-template-columns:minmax(0,1fr);gap:0;padding-top:48px}
+  .toc,.report{min-width:0}
+  .toc{top:var(--top);z-index:20;background:rgba(11,17,25,.96);margin:0 -18px 28px;padding:0 18px;border-bottom:1px solid var(--line)}
+  .toc .latin{display:none}
+  .toc ol{display:flex;gap:2px;overflow-x:auto;border-left:0;padding:0;scrollbar-width:none}
+  .toc li{flex:none}
+  .toc a{padding:0 10px;font-size:13px;white-space:nowrap}
+  .toc a .n{display:none}
+  .toc a.active{box-shadow:inset 0 -2px 0 var(--amber)}
+  .toc .bar{display:none}
+  .purpose{font-size:18px}
+  .aud{grid-template-columns:repeat(2,1fr)}
+  .aud li{border-right:0;margin-right:0;border-bottom:1px solid var(--line)}
+  .mods,.routes{grid-template-columns:1fr}
+  .route,.route:nth-child(even){padding:20px 0 16px;border-right:0}
+  .route:nth-child(odd){border-right:0}
+  .finding{padding:20px 18px 16px}
+  .counter li{grid-template-columns:1fr;gap:4px}
+  .vw-body{display:block}
+  .vw-head{padding:16px 16px 12px}
+  .vw-head h2{font-size:18px}
+  .vw-side{padding:16px}
+  .code{border-right:0;border-bottom:1px solid var(--line);font-size:12px}
+  .code code{font-size:12px}
+  .ln{grid-template-columns:40px auto}
+  .ln .no{padding-right:10px}
+  dialog.viewer{width:calc(100vw - 16px);max-height:92vh}
+  .vw{max-height:92vh}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .sec,.stg,.row{opacity:1!important;transform:none!important}
+  .lamp{display:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#report-anchor">跳到导读</a>
+<div class="lamp" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="shell">
+    <a class="brand" href="#" aria-label="知因 CodeLab 首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="12" cy="12" r="9.2" opacity=".45"/><path d="M12 2.8l1.7 7.5 7.5 1.7-7.5 1.7L12 21.2l-1.7-7.5L2.8 12l7.5-1.7z" fill="currentColor" stroke="none"/></svg>
+      <b>知因</b><span>CodeLab</span>
+    </a>
+    <nav class="nav" aria-label="主导航" id="nav"></nav>
+    <div class="top-right">
+      <div class="user" id="user"></div>
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="打开导航菜单" aria-expanded="false" aria-controls="mnav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mnav" id="mnav"></div>
+</header>
+
+<main id="main">
+  <div class="shell">
+    <section class="head" aria-labelledby="ptitle">
+      <div class="crumbs">
+        <a href="#">我的项目</a><span class="sep" aria-hidden="true">/</span>
+        <span id="crumbName"></span><span class="sep" aria-hidden="true">/</span>
+        <span>AI 项目分析</span>
+        <span class="proto">设计原型 · 示例数据</span>
+      </div>
+      <div class="head-main">
+        <div>
+          <h1 id="ptitle"></h1>
+          <div class="meta"><span id="pmeta" style="display:contents"></span><ul class="chips" id="pstack" aria-label="技术栈"></ul></div>
+        </div>
+        <div class="run-meta" id="runMeta"></div>
+      </div>
+      <dl class="stats" id="stats"></dl>
+    </section>
+
+    <section class="voyage" aria-labelledby="vtitle">
+      <div class="v-head">
+        <div class="v-title">
+          <span class="latin">Reading Atlas · 阅读星图</span>
+          <h2 id="vtitle">AI 项目分析</h2>
+          <p>静态源码分析 · 未执行项目或测试。每颗星是一个源文件，星的大小对应行数；亮起的是本次读过的文件，琥珀色航线是读取顺序。</p>
+        </div>
+        <div class="v-actions">
+          <p class="status" id="status" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="statusText">准备回放</span></p>
+          <button class="btn" id="skipBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l7 6-7 6z"/><path d="M17 6v12"/></svg>跳过
+          </button>
+          <button class="btn primary" id="replayBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>重新播放分析
+          </button>
+        </div>
+      </div>
+
+      <div class="v-grid">
+        <div class="atlas-wrap">
+          <figure class="atlas" id="atlasMain" style="margin:0">
+            <div class="corner" aria-hidden="true"><span class="latin">Canteen-Order</span><b>夜读航线</b></div>
+            <svg viewBox="0 0 1000 600" role="img" aria-labelledby="atlasDesc"><title id="atlasDesc">阅读星图：按模块分组的源文件，亮起的为本次读过的文件</title></svg>
+            <div class="mlabels" id="mlabels"></div>
+            <div class="tip" role="tooltip" aria-hidden="true"></div>
+          </figure>
+          <ul class="mod-chips" id="modChips" aria-label="按模块高亮星座"></ul>
+          <div class="atlas-foot">
+            <ul class="legend" aria-label="图例">
+              <li><svg viewBox="0 0 16 12" aria-hidden="true"><circle cx="8" cy="6" r="4" fill="#E9B872"/></svg>正在读取</li>
+              <li><svg viewBox="0 0 16 12" aria-hidden="true"><circle cx="8" cy="6" r="3.5" fill="#86CDB6"/></svg>已读</li>
+              <li><svg viewBox="0 0 16 12" aria-hidden="true"><circle cx="8" cy="6" r="3" fill="#5A6878"/></svg>未读</li>
+              <li><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 9 Q8 1 15 6" fill="none" stroke="#E9B872" stroke-width="1.3"/></svg>读取航线</li>
+              <li><svg viewBox="0 0 16 12" aria-hidden="true"><circle cx="8" cy="6" r="5" fill="none" stroke="#E7958A" stroke-width="1.2" stroke-dasharray="2 2"/></svg>问题线索</li>
+            </ul>
+            <span class="count" id="atlasCount"></span>
+          </div>
+          <p class="atlas-cap" id="atlasCap" aria-live="polite"></p>
+        </div>
+
+        <aside class="log" aria-labelledby="logTitle">
+          <div class="log-head">
+            <div><span class="latin">Ship's Log</span><h3 id="logTitle">航海日志</h3></div>
+            <div class="clock"><small>回放计时</small><span id="clock">00:00.00</span></div>
+          </div>
+          <ol class="phases" id="phases" aria-label="分析阶段"></ol>
+          <ol class="log-list" id="logList" aria-label="分析事件"></ol>
+        </aside>
+      </div>
+      <ul class="v-boundary" id="vBoundary" aria-label="分析边界"></ul>
+
+      <div class="pending" id="pending">
+        <p>导读会在分析回放结束后展开。</p>
+        <button class="btn" type="button" id="skipBtn2">直接查看导读</button>
+      </div>
+    </section>
+
+    <div id="report-anchor" tabindex="-1"></div>
+    <div class="report-wrap" id="report" hidden>
+      <nav class="toc" aria-label="导读目录">
+        <span class="latin">Index</span>
+        <ol id="toc"><span class="bar" id="tocBar" aria-hidden="true"></span></ol>
+      </nav>
+
+      <article class="report" aria-labelledby="rtitle">
+        <header class="report-intro">
+          <span class="latin">Guided Report · 导读</span>
+          <h2 id="rtitle">校园食堂订餐系统 · 源码导读</h2>
+          <p id="rIntro"></p>
+        </header>
+
+        <section class="sec" id="purpose" aria-labelledby="h-purpose">
+          <div class="sec-k"><span class="num">01</span><span class="latin">Purpose</span></div>
+          <h2 id="h-purpose">这个项目解决什么问题</h2>
+          <p class="purpose stg" id="purposeText"></p>
+          <ul class="aud" id="aud" aria-label="使用者"></ul>
+        </section>
+
+        <section class="sec" id="modules" aria-labelledby="h-modules">
+          <div class="sec-k"><span class="num">02</span><span class="latin">Constellations</span></div>
+          <h2 id="h-modules">模块各自负责什么</h2>
+          <p class="lede">悬停或定位一个模块，右侧星图会点亮对应的星座。</p>
+          <div class="mods" id="mods"></div>
+        </section>
+
+        <section class="sec" id="chain" aria-labelledby="h-chain">
+          <div class="sec-k"><span class="num">03</span><span class="latin">Course</span></div>
+          <h2 id="h-chain">核心业务路径</h2>
+          <p class="course-t" id="chainTitle"></p>
+          <ol class="course" id="course"></ol>
+        </section>
+
+        <section class="sec" id="route" aria-labelledby="h-route">
+          <div class="sec-k"><span class="num">04</span><span class="latin">First Reading</span></div>
+          <h2 id="h-route">第一次从这里开始读</h2>
+          <ol class="routes" id="routes"></ol>
+        </section>
+
+        <section class="sec" id="findings" aria-labelledby="h-findings">
+          <div class="sec-k"><span class="num">05</span><span class="latin">Findings</span></div>
+          <h2 id="h-findings">问题线索</h2>
+          <p class="lede" id="findLede"></p>
+          <div class="findings" id="findList"></div>
+        </section>
+
+        <section class="sec" id="withdrawn" aria-labelledby="h-withdrawn">
+          <div class="sec-k"><span class="num">06</span><span class="latin">Counter-check</span></div>
+          <h2 id="h-withdrawn">反证复核与撤回记录</h2>
+          <p class="counter-sum" id="counterSum"></p>
+          <ul class="counter" id="counter"></ul>
+        </section>
+
+        <section class="sec" id="boundary" aria-labelledby="h-boundary">
+          <div class="sec-k"><span class="num">07</span><span class="latin">Boundary</span></div>
+          <h2 id="h-boundary">本次分析的边界</h2>
+          <ul class="bounds" id="bounds"></ul>
+        </section>
+      </article>
+
+      <aside class="desk" aria-labelledby="deskTitle">
+        <span class="latin">Chart Desk</span>
+        <h2 id="deskTitle">对照星图</h2>
+        <figure class="atlas" id="atlasMini" style="margin:0">
+          <svg viewBox="0 0 1000 600" role="img" aria-label="对照星图：与上方阅读星图相同的最终状态"></svg>
+          <div class="tip" role="tooltip" aria-hidden="true"></div>
+        </figure>
+        <div class="desk-cap" id="deskCap" aria-live="polite"></div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="shell" id="foot"></div>
+</footer>
+
+<dialog class="viewer" id="viewer" aria-labelledby="vwTitle">
+  <div class="vw">
+    <div class="vw-head">
+      <div>
+        <span class="latin" id="vwKicker">Source · 出处</span>
+        <h2 id="vwTitle"></h2>
+        <div class="vw-path" id="vwPath"></div>
+      </div>
+      <button class="icon-btn" type="button" id="vwClose" aria-label="关闭源码查看器">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="vw-body">
+      <pre class="code" id="vwCode" tabindex="0" aria-label="源码片段"></pre>
+      <div class="vw-side" id="vwSide"></div>
+    </div>
+    <div class="vw-foot">引用校验仅确认出处位于实际读过的行段，不代表问题已被运行验证。代码为示例片段。</div>
+  </div>
+</dialog>
+
+<script src="./shared/demo-data.js"></script>
+<script>
+(() => {
+  'use strict';
+  const D = window.ZHIYIN_DEMO;
+  if (!D) return;
+  const P = D.project;
+  const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
+  let reduced = RMQ.matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = n => Number(n).toLocaleString('en-US');
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  /* ---------- icons ---------- */
+  const I = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
+  const ICON = {
+    plan: I('<circle cx="12" cy="12" r="8.5"/><path d="M15.2 8.8l-1.9 4.5-4.5 1.9 1.9-4.5z"/>'),
+    read: I('<path d="M3.5 6c2.8-1 5.6-.9 8.5 1 2.9-1.9 5.7-2 8.5-1v12c-2.8-1-5.6-.9-8.5 1-2.9-1.9-5.7-2-8.5-1z"/><path d="M12 7v12"/>'),
+    search: I('<circle cx="12" cy="12" r="1.6"/><path d="M12 5.5a6.5 6.5 0 1 1-6.5 6.5"/><path d="M12 2.5a9.5 9.5 0 1 1-9.5 9.5" opacity=".55"/>'),
+    verify: I('<path d="M12 3l7 2.8V11c0 4.4-3 7.9-7 9.6C8 18.9 5 15.4 5 11V5.8z"/><path d="M9 11.8l2.1 2.1L15.2 9.8"/>'),
+    cite: I('<circle cx="12" cy="5.5" r="2"/><path d="M12 7.5V20"/><path d="M5.5 13.5a6.5 6.5 0 0 0 13 0"/><path d="M9 10.5h6"/>'),
+    done: I('<path d="M12 3l1.9 6.6L20.5 12l-6.6 1.9L12 21l-1.9-7.1L3.5 12l6.6-2.4z"/>'),
+    arrow: I('<path d="M5 12h14"/><path d="M13.5 6.5L19 12l-5.5 5.5"/>'),
+    check: I('<path d="M5 12.5l4.2 4.2L19 7"/>'),
+    alert: I('<path d="M12 4l9 16H3z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/>'),
+    target: I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'),
+  };
+
+  /* ---------- data helpers ---------- */
+  const MODS = [{ id: 'config', label: '项目配置' }, ...P.modules];
+  const modOf = id => MODS.find(m => m.id === id) || { id, label: id };
+  const fileMap = new Map(D.files.map(f => [f.path, f]));
+  const findingByPath = new Map(P.findings.map(f => [f.path, f]));
+  const parseRange = r => { const m = String(r).split(/[–-]/).map(Number); return { s: m[0], e: m[1] || m[0] }; };
+  const srcEnd = src => src.start + src.code.split('\n').length - 1;
+
+  /* ---------- shell: nav / user ---------- */
+  const navIcon = { projects: '', tasks: '', settings: '' };
+  $('#nav').innerHTML = D.nav.map(n => `<a href="#" data-nav="${n.id}"${n.id === 'projects' ? ' aria-current="page"' : ''}>${esc(n.label)}${n.count != null ? `<span class="cnt">${n.count}</span>` : ''}${navIcon[n.id]}</a>`).join('');
+  $('#user').innerHTML = `<span class="avatar" aria-hidden="true">${esc(D.user.initials)}</span><span class="who"><span class="nm" style="display:block">${esc(D.user.name)}</span><span class="rl" style="display:block">${esc(D.user.role)}</span></span>`;
+  $('#mnav').innerHTML = D.nav.map(n => `<a href="#" data-nav="${n.id}"${n.id === 'projects' ? ' aria-current="page"' : ''}><span>${esc(n.label)}</span>${n.count != null ? `<span class="mono" style="color:var(--ink-3)">${n.count}</span>` : ''}</a>`).join('') +
+    `<div class="who"><span class="avatar" aria-hidden="true">${esc(D.user.initials)}</span>${esc(D.user.name)} · ${esc(D.user.role)}</div>`;
+  $$('a[href="#"]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+  const menuBtn = $('#menuBtn'), mnav = $('#mnav');
+  menuBtn.addEventListener('click', () => {
+    const open = menuBtn.getAttribute('aria-expanded') !== 'true';
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+    mnav.classList.toggle('open', open);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mnav.classList.contains('open')) { mnav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); menuBtn.focus(); }
+  });
+
+  /* ---------- project head ---------- */
+  $('#crumbName').textContent = P.name;
+  $('#ptitle').textContent = P.name;
+  $('#pmeta').innerHTML = `<code>${esc(P.repo)}</code><span>${esc(P.owner)}</span><span>保存于 ${esc(P.savedAt)}</span>`;
+  $('#pstack').innerHTML = P.stack.map(s => `<li>${esc(s)}</li>`).join('');
+  $('#runMeta').innerHTML = `<div>分析模式 <b>${esc(P.mode)}</b></div><div>模型 <b>${esc(P.model)}</b></div>`;
+  const S = P.stats;
+  const statDefs = [
+    { k: '文件', v: S.files },
+    { k: '导入行数', v: S.importedLines },
+    { k: '本次已读', v: S.readLines, unit: '行' },
+    { k: '跳过文件', v: S.skipped },
+    { k: '模型调用', v: S.modelCalls, unit: '次' },
+    { k: '引用校验', v: S.citationsVerified, suffix: ` / ${S.citations}`, note: '仅确认出处位置', cls: 'ok' },
+    { k: '费用', v: S.costCny, dec: 2, prefix: '¥' },
+    { k: '用时', v: S.minutes, dec: 1, unit: '分钟' },
+  ];
+  $('#stats').innerHTML = statDefs.map(s => `<div class="stat ${s.cls || ''}"><dt>${s.k}</dt><dd>${s.prefix || ''}<span data-count="${s.v}" data-dec="${s.dec || 0}">${s.dec ? Number(s.v).toFixed(s.dec) : fmt(s.v)}</span>${s.suffix ? `<small>${esc(s.suffix)}</small>` : ''}${s.unit ? `<small>${s.unit}</small>` : ''}${s.note ? `<span class="note">${s.note}</span>` : ''}</dd></div>`).join('');
+
+  function countUp() {
+    const els = $$('[data-count]');
+    if (reduced) return;
+    const t0 = performance.now(), dur = 1400;
+    const ease = t => 1 - Math.pow(2, -10 * t);
+    els.forEach(el => { el.textContent = el.dataset.dec > 0 ? (0).toFixed(+el.dataset.dec) : '0'; });
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur), k = p === 1 ? 1 : ease(p);
+      els.forEach(el => {
+        const v = +el.dataset.count * k, dec = +el.dataset.dec;
+        el.textContent = dec ? v.toFixed(dec) : fmt(Math.round(v));
+      });
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- atlas layout (deterministic) ---------- */
+  const CENTERS = { config: [118, 120], web: [178, 372], auth: [372, 500], menu: [420, 150], order: [606, 330], kitchen: [830, 150], notify: [858, 460] };
+  const hash = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; };
+  const LAYOUT = (() => {
+    const groups = {}; const pos = new Map();
+    D.files.forEach(f => (groups[f.module] = groups[f.module] || []).push(f));
+    const clusters = Object.keys(groups).map(mod => {
+      const [cx, cy] = CENTERS[mod] || [500, 300];
+      const rot = hash(mod) * Math.PI * 2;
+      const pts = groups[mod].map((f, i) => {
+        const a = rot + i * 2.39996;
+        const rad = i === 0 ? 4 : 25 * Math.sqrt(i) + hash(f.path) * 8;
+        const p = { f, x: +(cx + Math.cos(a) * rad * 1.32).toFixed(1), y: +(cy + Math.sin(a) * rad).toFixed(1), r: +(2.3 + Math.sqrt(f.lines) * 0.3).toFixed(2) };
+        pos.set(f.path, p); return p;
+      });
+      // greedy nearest-neighbour figure line
+      const rest = pts.slice(1), chain = [pts[0]];
+      while (rest.length) {
+        const last = chain[chain.length - 1]; let bi = 0, bd = Infinity;
+        rest.forEach((p, i) => { const d = (p.x - last.x) ** 2 + (p.y - last.y) ** 2; if (d < bd) { bd = d; bi = i; } });
+        chain.push(rest.splice(bi, 1)[0]);
+      }
+      const ys = pts.map(p => p.y);
+      const below = cy < 380;
+      return { mod, cx, cy, pts, chain, lx: cx, ly: below ? Math.max(...ys) + 34 : Math.min(...ys) - 34 };
+    });
+    const trail = D.events.filter(e => e.kind === 'read' && pos.has(e.path)).map(e => e.path);
+    return { pos, clusters, trail };
+  })();
+
+  function curve(a, b, k) {
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1, off = Math.min(60, len * 0.16) * k;
+    return `M${a.x} ${a.y} Q${(mx - dy / len * off).toFixed(1)} ${(my + dx / len * off).toFixed(1)} ${b.x} ${b.y}`;
+  }
+
+  function buildAtlas(fig, prefix, opts = {}) {
+    const svg = $('svg', fig);
+    const tip = $('.tip', fig);
+    let html = `<defs>
+      <radialGradient id="${prefix}-halo"><stop offset="0" stop-color="#E9B872" stop-opacity=".6"/><stop offset=".35" stop-color="#E9B872" stop-opacity=".18"/><stop offset="1" stop-color="#E9B872" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g class="grat" aria-hidden="true">
+      <circle cx="560" cy="320" r="150" class="dash"/><circle cx="560" cy="320" r="290" class="dash"/><circle cx="560" cy="320" r="440"/>
+      <line x1="560" y1="0" x2="560" y2="600" class="dash"/><line x1="0" y1="320" x2="1000" y2="320" class="dash"/>
+    </g>`;
+    LAYOUT.clusters.forEach(c => {
+      const d = c.chain.map((p, i) => `${i ? 'L' : 'M'}${p.x} ${p.y}`).join(' ');
+      html += `<g class="mod" data-module="${c.mod}">`;
+      if (c.chain.length > 1) html += `<path class="fig" d="${d}"/><path class="fig-hi" d="${d}"/>`;
+      c.pts.forEach(p => {
+        const tw = (3 + hash(p.f.path + 'w') * 4).toFixed(2), td = (-hash(p.f.path + 'd') * 6).toFixed(2);
+        html += `<g class="star" data-path="${esc(p.f.path)}" transform="translate(${p.x} ${p.y})" style="--tw:${tw}s;--td:${td}s">
+          <circle class="halo" r="${(p.r * 6).toFixed(1)}" fill="url(#${prefix}-halo)"/>
+          <g class="core"><circle class="c-dim" r="${p.r}"/><circle class="c-read" r="${p.r}"/><circle class="c-now" r="${(p.r + .5).toFixed(2)}"/></g>
+          <circle class="hit" r="${Math.max(p.r + 9, 15).toFixed(1)}"/></g>`;
+      });
+      if (opts.svgLabels) html += `<text class="svg-label" x="${c.lx}" y="${c.ly + 8}">${esc(modOf(c.mod).label)}</text>`;
+      html += `</g>`;
+    });
+    html += `<g class="trail" aria-hidden="true">`;
+    for (let i = 1; i < LAYOUT.trail.length; i++) {
+      const a = LAYOUT.pos.get(LAYOUT.trail[i - 1]), b = LAYOUT.pos.get(LAYOUT.trail[i]);
+      if (a === b) continue;
+      html += `<path class="seg" data-i="${i}" pathLength="1" d="${curve(a, b, i % 2 ? 1 : -1)}"/>`;
+    }
+    html += `</g><g class="marks" aria-hidden="true">`;
+    P.findings.forEach(f => { const p = LAYOUT.pos.get(f.path); if (p) html += `<circle class="mark ${f.level}" cx="${p.x}" cy="${p.y}" r="${(p.r + 7).toFixed(1)}"/>`; });
+    html += `</g><g class="sonars" aria-hidden="true"></g>
+      <g class="ship" aria-hidden="true"><circle r="13"/><circle r="19" opacity=".4"/></g>`;
+    svg.insertAdjacentHTML('beforeend', html);
+
+    const stars = new Map($$('.star', svg).map(g => [g.dataset.path, g]));
+    const segs = new Map($$('.seg', svg).map(s => [+s.dataset.i, s]));
+    const ship = $('.ship', svg), sonars = $('.sonars', svg);
+    let readN = 0, nowStar = null, shipAt = null, litStar = null;
+
+    const api = {
+      svg,
+      reset() {
+        svg.classList.add('no-tr');
+        stars.forEach(g => g.classList.remove('is-read', 'is-trail', 'is-now', 'is-lit'));
+        segs.forEach(s => s.classList.remove('on'));
+        svg.classList.remove('marks-on');
+        ship.classList.remove('on');
+        sonars.textContent = '';
+        readN = 0; nowStar = null; shipAt = null;
+        requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.remove('no-tr')));
+      },
+      read(path) {
+        const g = stars.get(path); if (!g) return;
+        if (nowStar) nowStar.classList.remove('is-now');
+        g.classList.add('is-read', 'is-trail', 'is-now'); nowStar = g;
+        readN++;
+        const seg = segs.get(readN - 1); if (seg) seg.classList.add('on');
+        const p = LAYOUT.pos.get(path); shipAt = p;
+        ship.style.transform = `translate(${p.x}px, ${p.y}px)`;
+        ship.classList.add('on');
+      },
+      sonar() {
+        const p = shipAt || { x: 560, y: 320 };
+        sonars.insertAdjacentHTML('beforeend', `<circle class="sonar" cx="${p.x}" cy="${p.y}" r="90"/><circle class="sonar s2" cx="${p.x}" cy="${p.y}" r="90"/>`);
+        const nodes = $$('circle', sonars);
+        if (nodes.length > 4) nodes.slice(0, nodes.length - 4).forEach(n => n.remove());
+      },
+      marks() { svg.classList.add('marks-on'); },
+      complete() {
+        if (nowStar) nowStar.classList.remove('is-now'); nowStar = null;
+        LAYOUT.trail.forEach(p => stars.get(p) && stars.get(p).classList.add('is-trail', 'is-read'));
+        segs.forEach(s => s.classList.add('on'));
+        D.files.forEach(f => { if (f.read && stars.get(f.path)) stars.get(f.path).classList.add('is-read'); });
+        svg.classList.add('marks-on');
+        ship.classList.remove('on');
+      },
+      focusModule(id) {
+        svg.classList.toggle('has-focus', !!id);
+        $$('.mod', svg).forEach(m => m.classList.toggle('is-focus', m.dataset.module === id));
+      },
+      light(path) {
+        if (litStar) litStar.classList.remove('is-lit');
+        litStar = path ? stars.get(path) || null : null;
+        if (litStar) litStar.classList.add('is-lit');
+        return !!litStar;
+      },
+    };
+
+    // tooltip
+    let hoverG = null;
+    svg.addEventListener('pointerover', e => {
+      const g = e.target.closest('.star'); if (!g || g === hoverG) return;
+      if (hoverG) hoverG.classList.remove('is-hover');
+      hoverG = g; g.classList.add('is-hover');
+      const f = fileMap.get(g.dataset.path);
+      const isRead = g.classList.contains('is-read');
+      const fd = findingByPath.get(f.path);
+      tip.innerHTML = `<code>${esc(f.path)}</code><span>${fmt(f.lines)} 行 · ${esc(modOf(f.module).label)}</span><span class="${isRead ? 'st-read' : ''}">${isRead ? '本次已读' : (f.read ? '本次已读 · 回放尚未到达' : '本次未读')}</span>${fd ? `<span style="color:${fd.level === 'high' ? 'var(--rose)' : 'var(--amber)'}">问题线索：${esc(fd.title)}</span>` : ''}`;
+      const fr = fig.getBoundingClientRect(), sr = g.getBoundingClientRect();
+      let x = sr.left - fr.left + sr.width / 2 + 14, y = sr.top - fr.top + sr.height / 2 + 14;
+      if (x > fr.width - 290) x = sr.left - fr.left - 294 + sr.width / 2 + 280 - Math.min(280, fr.width * .6);
+      if (x < 6) x = 6;
+      if (y > fr.height - 110) y = Math.max(6, sr.top - fr.top - 104);
+      tip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      tip.classList.add('on');
+    });
+    svg.addEventListener('pointerout', e => {
+      const g = e.target.closest('.star');
+      if (g && (!e.relatedTarget || !g.contains(e.relatedTarget))) { g.classList.remove('is-hover'); hoverG = null; tip.classList.remove('on'); }
+    });
+    return api;
+  }
+
+  const atlas = buildAtlas($('#atlasMain'), 'am');
+  const mini = buildAtlas($('#atlasMini'), 'mi', { svgLabels: true });
+  mini.complete();
+  $('#atlasCount').textContent = `星图绘制示例清单中的 ${D.files.length} 个文件 · 项目共 ${S.files} 个`;
+
+  /* module labels (HTML buttons positioned over the svg) */
+  const modsWithStars = LAYOUT.clusters.map(c => c.mod);
+  $('#mlabels').innerHTML = LAYOUT.clusters.map(c => `<button type="button" class="mlabel" data-module="${c.mod}" aria-pressed="false" style="--x:${(c.lx / 10).toFixed(2)};--y:${(c.ly / 6).toFixed(2)}" aria-label="高亮星座：${esc(modOf(c.mod).label)}"><span class="l" aria-hidden="true">${c.mod.toUpperCase()}</span><span class="z" aria-hidden="true">${esc(modOf(c.mod).label)}</span></button>`).join('');
+  $('#modChips').innerHTML = LAYOUT.clusters.map(c => `<li><button type="button" data-module="${c.mod}" aria-pressed="false">${esc(modOf(c.mod).label)}</button></li>`).join('');
+
+  let pinned = null, hovered = null;
+  function applyModule() {
+    const id = hovered || pinned;
+    atlas.focusModule(id); mini.focusModule(id);
+    $$('.mcard').forEach(c => c.classList.toggle('is-linked', c.dataset.module === id));
+    $$('[data-module][aria-pressed]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.module === pinned)));
+    const cap = $('#atlasCap');
+    if (id) {
+      const m = modOf(id), n = D.files.filter(f => f.module === id);
+      const r = n.filter(f => f.read).length;
+      cap.innerHTML = `<b>${esc(m.label)}</b> · 图中 ${n.length} 个文件，本次读过 ${r} 个${m.desc ? ' · ' + esc(m.desc) : ''}`;
+      deskModule(m, n.length, r);
+    } else { cap.textContent = ''; deskIdle(); }
+  }
+  function bindModuleTrigger(el) {
+    el.addEventListener('pointerenter', () => { hovered = el.dataset.module; applyModule(); });
+    el.addEventListener('pointerleave', () => { hovered = null; applyModule(); });
+    el.addEventListener('click', () => { pinned = pinned === el.dataset.module ? null : el.dataset.module; applyModule(); });
+  }
+  $$('#mlabels button, #modChips button').forEach(bindModuleTrigger);
+
+  /* ---------- log + phases ---------- */
+  const ROMAN = ['I', 'II', 'III', 'IV'];
+  $('#phases').innerHTML = D.phases.map((p, i) => `<li class="phase" data-phase="${p.id}"><span class="n">${ROMAN[i]}</span>${esc(p.label)}</li>`).join('');
+  const T0 = 320, STEP = 540;
+  const times = D.events.map((_, i) => T0 + i * STEP);
+  const fmtClock = ms => { const s = ms / 1000, m = Math.floor(s / 60); return `${String(m).padStart(2, '0')}:${(s - m * 60).toFixed(2).padStart(5, '0')}`; };
+  const evText = e => {
+    if (e.kind === 'read') return `读取 <code>${esc(e.path).replace(/\//g, '/<wbr>')}</code><span class="rg">${esc(e.range)}</span>`;
+    return esc(e.label);
+  };
+  let logHTML = '', lastPhase = 0;
+  D.events.forEach((e, i) => {
+    if (e.phase !== lastPhase) {
+      const ph = D.phases.find(p => p.id === e.phase);
+      logHTML += `<li class="row ph" data-ph="${e.phase}"><span class="tx">PHASE ${ROMAN[e.phase - 1]}<b>${esc(ph ? ph.label : '')}</b></span></li>`;
+      lastPhase = e.phase;
+    }
+    logHTML += `<li class="row k-${e.kind}" data-i="${i}"><span class="t">${fmtClock(times[i])}</span><span class="ic">${ICON[e.kind] || ICON.plan}</span><span class="tx">${evText(e)}</span></li>`;
+  });
+  const logList = $('#logList');
+  logList.innerHTML = logHTML;
+  const rows = $$('.row[data-i]', logList);
+  const phRows = new Map($$('.row.ph', logList).map(r => [+r.dataset.ph, r]));
+  let rowTops = null;
+  const cacheRowTops = () => { rowTops = rows.map(r => r.offsetTop); };
+
+  $('#vBoundary').innerHTML = P.boundary.map(b => `<li>${esc(b)}</li>`).join('');
+
+  /* ---------- playback ---------- */
+  const status = $('#status'), statusText = $('#statusText'), clock = $('#clock');
+  const skipBtn = $('#skipBtn'), replayBtn = $('#replayBtn');
+  const play = { running: false, idx: 0, start: 0, raf: 0, lastClock: 0, phase: 0 };
+
+  function setPhase(id) {
+    if (id === play.phase) return;
+    play.phase = id;
+    $$('.phase').forEach(li => {
+      const p = +li.dataset.phase;
+      li.classList.toggle('active', p === id);
+      li.classList.toggle('done', p < id);
+    });
+    const ph = D.phases.find(p => p.id === id);
+    if (ph) statusText.textContent = `正在回放 · 阶段 ${ROMAN[id - 1]} ${ph.label}`;
+  }
+  function applyEvent(i, live) {
+    const e = D.events[i];
+    const ph = phRows.get(e.phase); if (ph) ph.classList.add('on');
+    rows.forEach(r => r.classList.remove('cur'));
+    rows[i].classList.add('on', 'cur');
+    setPhase(e.phase);
+    if (e.kind === 'read') atlas.read(e.path);
+    else if (e.kind === 'search' && live) atlas.sonar();
+    else if (e.kind === 'verify') atlas.marks();
+    if (live) {
+      if (!rowTops) cacheRowTops();
+      const top = Math.max(0, rowTops[i] - logList.clientHeight + 64);
+      if (Math.abs(logList.scrollTop - top) > 2 && top > logList.scrollTop) logList.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
+    }
+  }
+  function tick(now) {
+    if (!play.running) return;
+    const el = now - play.start;
+    while (play.idx < D.events.length && times[play.idx] <= el) { applyEvent(play.idx, true); play.idx++; }
+    if (now - play.lastClock > 60) { clock.textContent = fmtClock(Math.min(el, times[times.length - 1])); play.lastClock = now; }
+    if (play.idx >= D.events.length) { finish(); return; }
+    play.raf = requestAnimationFrame(tick);
+  }
+  function resetPlayback() {
+    cancelAnimationFrame(play.raf);
+    play.running = false; play.idx = 0; play.phase = 0;
+    atlas.reset();
+    rows.forEach(r => r.classList.remove('on', 'cur'));
+    phRows.forEach(r => r.classList.remove('on'));
+    $$('.phase').forEach(li => li.classList.remove('active', 'done'));
+    logList.scrollTop = 0;
+    clock.textContent = fmtClock(0);
+  }
+  function startPlayback() {
+    resetPlayback();
+    if (reduced) { finish(); return; }
+    play.running = true; play.start = performance.now(); play.lastClock = 0;
+    status.classList.add('playing'); status.classList.remove('done');
+    statusText.textContent = '正在回放分析轨迹';
+    skipBtn.disabled = false;
+    play.raf = requestAnimationFrame(tick);
+  }
+  function finish() {
+    cancelAnimationFrame(play.raf);
+    const wasRunning = play.running;
+    play.running = false;
+    while (play.idx < D.events.length) { applyEvent(play.idx, false); play.idx++; }
+    atlas.complete();
+    $$('.phase').forEach(li => { li.classList.remove('active'); li.classList.add('done'); });
+    rows.forEach(r => r.classList.remove('cur'));
+    rows[rows.length - 1].classList.add('cur');
+    clock.textContent = fmtClock(times[times.length - 1]);
+    status.classList.remove('playing'); status.classList.add('done');
+    const done = D.events[D.events.length - 1];
+    statusText.textContent = `${done.label} · 回放 ${D.events.length} 条分析事件`;
+    skipBtn.disabled = true;
+    requestAnimationFrame(() => { logList.scrollTo({ top: logList.scrollHeight, behavior: (wasRunning && !reduced) ? 'smooth' : 'auto' }); });
+    revealReport();
+  }
+  skipBtn.addEventListener('click', () => { finish(); replayBtn.focus(); });
+  $('#skipBtn2').addEventListener('click', () => { finish(); $('#report-anchor').focus({ preventScroll: true }); $('#report').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' }); });
+  replayBtn.addEventListener('click', () => {
+    const v = $('.voyage');
+    if (v.getBoundingClientRect().top < -40) v.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+    startPlayback();
+  });
+
+  /* ---------- report content ---------- */
+  $('#rIntro').textContent = `每一条结论都附带源码出处。本次共 ${S.citations} 处引用，${S.citationsVerified} 处通过引用校验——校验仅确认出处位于实际读过的行段，不代表结论已被运行验证。`;
+  $('#purposeText').textContent = P.purpose;
+  $('#aud').innerHTML = P.audiences.map((a, i) => `<li class="stg" style="--i:${i + 1}"><span class="n">0${i + 1}</span><b>${esc(a)}</b></li>`).join('');
+
+  $('#mods').innerHTML = P.modules.map((m, i) => `<article class="mcard stg" data-module="${m.id}" style="--i:${i}">
+      <header><div><span class="latin">${m.id.toUpperCase()}</span><h3>${esc(m.label)}</h3></div>
+      ${modsWithStars.includes(m.id) ? `<button type="button" class="locate" data-module="${m.id}" aria-pressed="false" aria-label="在星图中定位：${esc(m.label)}">${ICON.target}</button>` : ''}</header>
+      <p>${esc(m.desc)}</p>
+      <dl class="mm"><div><dt>文件</dt><dd>${fmt(m.files)}</dd></div><div><dt>代码行</dt><dd>${fmt(m.lines)}</dd></div><div><dt>本次已读</dt><dd>${fmt(m.read)} 行</dd></div></dl>
+      <div class="readbar" role="img" aria-label="已读 ${fmt(m.read)} / ${fmt(m.lines)} 行"><i style="--k:${(m.read / m.lines).toFixed(4)}"></i></div>
+      <ul class="paths">${m.paths.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+    </article>`).join('');
+  $$('.mcard').forEach(card => {
+    card.addEventListener('pointerenter', () => { hovered = card.dataset.module; applyModule(); });
+    card.addEventListener('pointerleave', () => { hovered = null; applyModule(); });
+  });
+  $$('.locate').forEach(b => b.addEventListener('click', () => { pinned = pinned === b.dataset.module ? null : b.dataset.module; applyModule(); }));
+
+  const refBtn = (path, range, payload) => {
+    const has = !!D.sources[path];
+    const inner = `<code>${esc(path)}</code>${range ? `<span class="rg">${esc(range)}</span>` : ''}`;
+    return has
+      ? `<button type="button" class="ref" data-open='${esc(JSON.stringify(payload))}'>${inner}<span class="go">查看源码${ICON.arrow}</span></button>`
+      : `<span class="ref">${inner}<span class="na">示例未收录该片段</span></span>`;
+  };
+
+  const C = P.chain;
+  $('#chainTitle').innerHTML = `<span class="latin">Route</span>${esc(C.title)}`;
+  $('#course').innerHTML = C.steps.map((s, i) => `<li class="wp stg" data-path="${esc(s.path)}" data-i="${i}" style="--i:${i}">
+      <span class="pin" aria-hidden="true"></span>
+      <div class="body">
+        <div class="top"><span class="k">WP ${String(i + 1).padStart(2, '0')}</span><h3>${esc(s.label)}</h3><span class="modtag">${esc(modOf(s.module).label)}</span></div>
+        <p>${esc(s.note)}</p>
+        ${refBtn(s.path, s.range, { type: 'chain', i })}
+      </div></li>`).join('');
+  $$('.wp').forEach(li => {
+    const on = () => { atlas.light(li.dataset.path); mini.light(li.dataset.path); deskStep(C.steps[+li.dataset.i], +li.dataset.i); };
+    const off = () => { atlas.light(null); mini.light(null); applyModule(); };
+    li.addEventListener('pointerenter', on); li.addEventListener('pointerleave', off);
+    li.addEventListener('focusin', on); li.addEventListener('focusout', off);
+  });
+
+  const CN = ['一', '二', '三', '四', '五', '六'];
+  $('#routes').innerHTML = P.route.map((r, i) => `<li class="route stg" data-path="${esc(r.path)}" style="--i:${i}">
+      <span class="cn" aria-hidden="true">${CN[r.step - 1] || r.step}</span>
+      <h3><span class="vh">第 ${r.step} 步：</span>${esc(r.title)}</h3>
+      <p>${esc(r.why)}</p>
+      ${refBtn(r.path, '', { type: 'route', i })}</li>`).join('');
+  $$('.route').forEach(li => {
+    const on = () => { atlas.light(li.dataset.path); mini.light(li.dataset.path); const f = fileMap.get(li.dataset.path); deskFile(li.dataset.path, f); };
+    const off = () => { atlas.light(null); mini.light(null); applyModule(); };
+    li.addEventListener('pointerenter', on); li.addEventListener('pointerleave', off);
+    li.addEventListener('focusin', on); li.addEventListener('focusout', off);
+  });
+
+  const high = P.findings.filter(f => f.level === 'high').length, med = P.findings.filter(f => f.level === 'medium').length;
+  $('#findLede').textContent = `${P.findings.length} 条线索：高风险 ${high} 条，中风险 ${med} 条。均来自静态阅读，请先按验证方法确认，再动手修改。`;
+  $('#findList').innerHTML = P.findings.map((f, i) => `<article class="finding ${f.level} stg" data-path="${esc(f.path)}" style="--i:${i}">
+      <div class="f-top"><span class="lv">${ICON.alert}风险 · ${esc(f.levelLabel)}</span><span class="fid">${f.id.toUpperCase()}</span></div>
+      <h3>${esc(f.title)}</h3>
+      <p class="sum">${esc(f.summary)}</p>
+      ${refBtn(f.path, `${f.start}–${f.end}`, { type: 'finding', id: f.id })}
+      <p class="review">${ICON.check}<span>${esc(f.review)}</span></p>
+    </article>`).join('');
+  $$('.finding').forEach(el => {
+    const on = () => { atlas.light(el.dataset.path); mini.light(el.dataset.path); const f = P.findings.find(x => x.path === el.dataset.path); deskFinding(f); };
+    const off = () => { atlas.light(null); mini.light(null); applyModule(); };
+    el.addEventListener('pointerenter', on); el.addEventListener('pointerleave', off);
+  });
+
+  const verifyEv = D.events.find(e => e.kind === 'verify');
+  $('#counterSum').innerHTML = `${verifyEv ? esc(verifyEv.label) + '。' : ''}最终保留 <b>${P.findings.length}</b> 条进入问题线索。撤回的线索不会出现在问题清单里，但保留记录，便于师生对照。`;
+  $('#counter').innerHTML =
+    P.findings.map((f, i) => `<li class="stg" style="--i:${i}"><span class="tag">保留 · ${f.id.toUpperCase()}</span><div><b>${esc(f.title)}</b><span class="r">${esc(f.review)}</span></div></li>`).join('') +
+    P.withdrawn.map((w, i) => `<li class="wdt stg" style="--i:${P.findings.length + i}"><span class="tag wd">已撤回</span><div><b>${esc(w.title)}</b><span class="r">${esc(w.reason)}</span></div></li>`).join('');
+
+  $('#bounds').innerHTML = P.boundary.map((b, i) => `<li class="stg" style="--i:${i}"><span class="n">0${i + 1}</span><span>${esc(b)}</span></li>`).join('');
+  $('#foot').innerHTML = `<span>知因 CodeLab</span><span>设计原型 · 示例数据</span><span>${esc(P.mode)} · ${esc(P.model)}</span><span>保存于 ${esc(P.savedAt)}</span>`;
+
+  /* ---------- chart desk captions ---------- */
+  const desk = $('#deskCap');
+  function deskIdle() { desk.innerHTML = `<b>悬停导读中的模块、路径或线索</b>对应的星会在这里点亮。航线为本次读取顺序，虚线圈标出问题线索所在文件。`; }
+  function deskModule(m, n, r) { desk.innerHTML = `<b>${esc(m.label)}</b>图中 ${n} 个文件，本次读过 ${r} 个。${m.desc ? esc(m.desc) : ''}`; }
+  function deskStep(s, i) { desk.innerHTML = `<b>WP ${String(i + 1).padStart(2, '0')} · ${esc(s.label)}</b><code>${esc(s.path)}</code><span class="rg">${esc(s.range)}</span><br>${esc(s.note)}`; }
+  function deskFile(path, f) { desk.innerHTML = `<b>${esc(path.split('/').pop())}</b><code>${esc(path)}</code>${f ? `<br>${fmt(f.lines)} 行 · ${f.read ? '本次已读' : '本次未读'}` : ''}`; }
+  function deskFinding(f) { desk.innerHTML = `<b>${esc(f.id.toUpperCase())} · ${esc(f.title)}</b><code>${esc(f.path)}</code><span class="rg">${f.start}–${f.end}</span>`; }
+  deskIdle();
+
+  /* ---------- source viewer ---------- */
+  const KW = new Set('package import public private protected class enum interface return if else for while new throw throws const let var async await function static final void boolean switch case default this null true false try catch extends implements'.split(' '));
+  function hl(line) {
+    let out = '', buf = '', i = 0;
+    const flush = () => { if (buf) { out += buf.replace(/@?[A-Za-z_][A-Za-z0-9_]*/g, w => w[0] === '@' ? `<span class="tk-an">${w}</span>` : KW.has(w) ? `<span class="tk-kw">${w}</span>` : w); buf = ''; } };
+    while (i < line.length) {
+      const ch = line[i];
+      if (ch === '/' && (line[i + 1] === '/' || line[i + 1] === '*')) { flush(); out += `<span class="tk-cm">${esc(line.slice(i))}</span>`; return out; }
+      if (ch === '"' || ch === "'" || ch === '`') {
+        flush(); let j = i + 1; while (j < line.length && line[j] !== ch) { if (line[j] === '\\') j++; j++; }
+        out += `<span class="tk-st">${esc(line.slice(i, j + 1))}</span>`; i = j + 1; continue;
+      }
+      buf += ch === '<' ? '\u0001' : ch === '>' ? '\u0002' : ch === '&' ? '\u0003' : ch; i++;
+    }
+    flush();
+    return out.replace(/\u0001/g, '&lt;').replace(/\u0002/g, '&gt;').replace(/\u0003/g, '&amp;');
+  }
+  const dlg = $('#viewer');
+  let lastTrigger = null;
+  function openViewer(payload, trigger) {
+    let path, hs, he, title, kicker, side = '', rangeText;
+    if (payload.type === 'finding') {
+      const f = P.findings.find(x => x.id === payload.id);
+      path = f.path; hs = f.start; he = f.end; title = f.title; kicker = `Evidence · ${f.id.toUpperCase()} · 风险 ${f.levelLabel}`;
+      rangeText = `第 ${f.start}–${f.end} 行`;
+      side = `<section><h3>验证方法<span class="latin">Verify</span></h3><p>${esc(f.verify)}</p></section>
+        <section><h3>建议这样改<span class="latin">Fix</span></h3><p class="fix">${esc(f.fix).replace(/(UPDATE[^，]+)/, '<code>$1</code>')}</p></section>
+        <section><h3>反证复核<span class="latin">Review</span></h3><p class="rv">${esc(f.review)}</p></section>`;
+    } else if (payload.type === 'chain') {
+      const s = P.chain.steps[payload.i]; const r = parseRange(s.range);
+      path = s.path; hs = r.s; he = r.e; title = `WP ${String(payload.i + 1).padStart(2, '0')} · ${s.label}`; kicker = 'Course · 核心业务路径';
+      rangeText = `引用第 ${s.range} 行`;
+      side = `<section><h3>这一步在做什么<span class="latin">Note</span></h3><p>${esc(s.note)}</p></section>`;
+    } else {
+      const r = P.route[payload.i];
+      path = r.path; hs = null; he = null; title = `第 ${r.step} 步 · ${r.title}`; kicker = 'First Reading · 阅读起点';
+      rangeText = '';
+      side = `<section><h3>为什么从这里读<span class="latin">Why</span></h3><p>${esc(r.why)}</p></section>`;
+    }
+    const src = D.sources[path]; if (!src) return;
+    const end = srcEnd(src);
+    const lines = src.code.split('\n');
+    let firstHl = -1;
+    $('#vwCode').innerHTML = '<code>' + lines.map((ln, i) => {
+      const n = src.start + i, on = hs != null && n >= hs && n <= he;
+      if (on && firstHl < 0) firstHl = i;
+      return `<span class="ln${on ? ' hl' : ''}${on && n === Math.max(hs, src.start) ? ' hl-first' : ''}${on && n === Math.min(he, end) ? ' hl-last' : ''}"><span class="no">${n}</span><span class="cd">${hl(ln) || ' '}</span></span>`;
+    }).join('') + '</code>';
+    $('#vwKicker').textContent = kicker;
+    $('#vwTitle').textContent = title;
+    const clipped = hs != null && (hs < src.start || he > end);
+    $('#vwPath').innerHTML = `<code>${esc(path)}</code>${rangeText ? `<span class="rg">${esc(rangeText)}</span>` : ''}<span>示例片段收录第 ${src.start}–${end} 行${clipped ? '，引用范围超出片段的部分未展示' : ''}</span>`;
+    $('#vwSide').innerHTML = side;
+    lastTrigger = trigger;
+    dlg.showModal();
+    const code = $('#vwCode');
+    code.scrollTop = firstHl > 2 ? (firstHl - 2) * 22 : 0;
+    if (reduced) dlg.classList.add('open'); else requestAnimationFrame(() => requestAnimationFrame(() => dlg.classList.add('open')));
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button[data-open]'); if (!b) return;
+    openViewer(JSON.parse(b.dataset.open), b);
+  });
+  $('#vwClose').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', () => { dlg.classList.remove('open'); if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus(); });
+
+  /* ---------- report reveal + toc ---------- */
+  const report = $('#report');
+  const secs = $$('.sec', report);
+  const toc = $('#toc'), tocBar = $('#tocBar');
+  toc.insertAdjacentHTML('beforeend', secs.map((s, i) => `<li><a href="#${s.id}" data-sec="${s.id}"><span class="n">0${i + 1}</span>${esc($('h2', s).textContent)}</a></li>`).join(''));
+  const tocLinks = $$('a', toc);
+  let secTops = [], linkTops = [], activeIdx = -1, revealed = false;
+
+  function measure() {
+    const y = window.scrollY;
+    secTops = secs.map(s => s.getBoundingClientRect().top + y);
+    linkTops = tocLinks.map(a => a.offsetTop);
+  }
+  function setActive(i) {
+    if (i === activeIdx) return;
+    activeIdx = i;
+    tocLinks.forEach((a, k) => { a.classList.toggle('active', k === i); if (k === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+    if (i >= 0) tocBar.style.transform = `translateY(${linkTops[i] || 0}px)`;
+    const ol = toc; if (i >= 0 && ol.scrollWidth > ol.clientWidth + 2) ol.scrollTo({ left: Math.max(0, tocLinks[i].offsetLeft - ol.offsetLeft - 18), behavior: reduced ? 'auto' : 'smooth' });
+  }
+  let scrollQueued = false;
+  function onScroll() {
+    if (scrollQueued || !revealed) return; scrollQueued = true;
+    requestAnimationFrame(() => {
+      scrollQueued = false;
+      const y = window.scrollY + window.innerHeight * 0.32;
+      let i = -1; secTops.forEach((t, k) => { if (t <= y) i = k; });
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) i = secs.length - 1;
+      setActive(Math.max(0, i));
+    });
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  let resizeQueued = false;
+  addEventListener('resize', () => {
+    if (resizeQueued) return; resizeQueued = true;
+    requestAnimationFrame(() => { resizeQueued = false; rowTops = null; if (revealed) { measure(); activeIdx = -1; onScroll(); } });
+  });
+
+  function revealReport() {
+    if (revealed) return;
+    revealed = true;
+    $('#pending').hidden = true;
+    report.hidden = false;
+    if (reduced || !('IntersectionObserver' in window)) secs.forEach(s => s.classList.add('in'));
+    else {
+      const io = new IntersectionObserver(ents => ents.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.04 });
+      secs.forEach(s => io.observe(s));
+    }
+    requestAnimationFrame(() => { measure(); onScroll(); });
+    if ('ResizeObserver' in window) new ResizeObserver(() => { if (!resizeQueued) { resizeQueued = true; requestAnimationFrame(() => { resizeQueued = false; measure(); activeIdx = -1; onScroll(); }); } }).observe(report);
+  }
+
+  /* ---------- lamp light (pointer-following, lerped) ---------- */
+  (() => {
+    const lamp = $('.lamp');
+    const fine = matchMedia('(hover: hover) and (pointer: fine)');
+    let tx = innerWidth / 2, ty = innerHeight / 3, x = tx, y = ty, running = false;
+    const loop = () => {
+      x += (tx - x) * 0.09; y += (ty - y) * 0.09;
+      lamp.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      if (Math.abs(tx - x) + Math.abs(ty - y) > 0.4) requestAnimationFrame(loop); else running = false;
+    };
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse' || reduced || !fine.matches) return;
+      tx = e.clientX; ty = e.clientY;
+      if (!lamp.classList.contains('on')) { x = tx; y = ty; lamp.classList.add('on'); }
+      if (!running) { running = true; requestAnimationFrame(loop); }
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => lamp.classList.remove('on'));
+    RMQ.addEventListener('change', e => { reduced = e.matches; if (reduced) lamp.classList.remove('on'); });
+  })();
+
+  /* ---------- go ---------- */
+  countUp();
+  startPlayback();
+})();
+</script>
+</body>
+</html>

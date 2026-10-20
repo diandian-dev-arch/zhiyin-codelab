@@ -48,8 +48,8 @@ const form = ref({
   description: "",
   requirements: "",
   dueAt: "",
-  allowCode: true,
-  allowedSources: ["snippet", "files", "zip", "gitee", "github"],
+  allowCode: !session.teacherTrial,
+  allowedSources: session.teacherTrial ? ["snippet", "files", "zip"] : ["snippet", "files", "zip", "gitee", "github"],
   requiredPaths: [] as string[],
   scope: [] as string[],
   starter: "",
@@ -174,8 +174,8 @@ onMounted(load);
         >截止时间（北京时间）<input v-model="form.dueAt" type="datetime-local"
       /></label>
       </fieldset>
-      <CourseTaskOptions v-model="form" />
-      <label class="course-check"
+      <CourseTaskOptions v-model="form" :local-only="session.teacherTrial" />
+      <label v-if="!session.teacherTrial" class="course-check"
         ><input
           v-model="form.allowCode"
           type="checkbox"
@@ -206,7 +206,7 @@ onMounted(load);
       </div>
       <aside v-if="preview" class="assignment-preview" aria-label="学生视图预览">
         <p class="course-notice">学生视图预览 · 尚未发布，学生不能访问。</p>
-        <CourseTaskBrief :task="taskInput" heading />
+        <CourseTaskBrief :task="taskInput" :local-only="session.teacherTrial" heading />
       </aside>
     </form>
     <section v-if="!loading && enabled" class="assignment-collection" aria-labelledby="assignment-list-title">

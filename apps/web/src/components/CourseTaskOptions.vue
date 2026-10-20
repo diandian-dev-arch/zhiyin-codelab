@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 const props = defineProps<{
+  localOnly?: boolean;
   modelValue: {
     allowedSources: string[];
     requiredPaths: string[];
@@ -8,13 +10,12 @@ const props = defineProps<{
   };
 }>();
 const emit = defineEmits<{ "update:modelValue": [value: any] }>();
-const sources = {
+const sources = computed(() => ({
   snippet: "代码片段",
   files: "文件 / 多文件",
   zip: "ZIP 压缩包",
-  gitee: "Gitee 仓库",
-  github: "GitHub 仓库",
-};
+  ...(!props.localOnly ? { gitee: "Gitee 仓库", github: "GitHub 仓库" } : {}),
+}));
 function update(key: string, value: unknown) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
@@ -66,7 +67,7 @@ function source(key: string, event: Event) {
           @input="
             update('starter', ($event.target as HTMLTextAreaElement).value)
           "
-          placeholder="起始片段、材料说明或固定仓库提交链接"
+          :placeholder="localOnly ? '起始片段或材料说明' : '起始片段、材料说明或固定仓库提交链接'"
         />
       </label>
     </div>

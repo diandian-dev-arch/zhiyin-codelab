@@ -85,6 +85,7 @@ export const useSession = defineStore("session", () => {
     logoutError = ref(""),
     authenticating = ref(false),
     executionApproved = ref(false),
+    teacherTrial = ref(false),
     businessVersion = ref<1 | 2>(1);
   async function load(requireSession = false) {
     if (loading.value) return;
@@ -98,12 +99,14 @@ export const useSession = defineStore("session", () => {
       user.value = d.user;
       csrf = d.csrf;
       executionApproved.value = d.executionApproved;
+      teacherTrial.value = d.workspace === 'teacher-trial';
       businessVersion.value = d.businessVersion === 2 ? 2 : 1;
       loadError.value = "";
     } catch (e) {
       user.value = null;
       csrf = "";
       executionApproved.value = false;
+      teacherTrial.value = false;
       businessVersion.value = 1;
       if (!requireSession) loadError.value = (e as {status?: number})?.status === 401
         ? ''
@@ -143,11 +146,13 @@ export const useSession = defineStore("session", () => {
       if (user.value !== account) return;
       user.value = null;
       csrf = "";
+      teacherTrial.value = false;
     } catch (error) {
       if (user.value === account) {
         if ((error as { status?: number })?.status === 401) {
           user.value = null;
           csrf = "";
+          teacherTrial.value = false;
         } else {
           logoutError.value = "退出登录未确认，请检查连接后重试。当前页面和未保存内容仍保留。";
         }
@@ -183,6 +188,7 @@ export const useSession = defineStore("session", () => {
     logoutError,
     authenticating,
     executionApproved,
+    teacherTrial,
     businessVersion,
     load,
     login,

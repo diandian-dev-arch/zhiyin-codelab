@@ -9,12 +9,12 @@ import { accountDisplayName } from '../lib/account-display';
 import { usePersonalModelSummary } from '../lib/use-personal-model-summary';
 const session = useSession();
 const modelDialog = ref<InstanceType<typeof PersonalModelDialog>>();
-const { state, loading, error, refresh } = usePersonalModelSummary();
+const { state, loading, error, refresh } = usePersonalModelSummary(!session.teacherTrial);
 const configurationStatus = computed(() => !state.value?.enabled ? '服务未启用'
   : state.value.configured && state.value.settings ? '已配置' : '未配置');
 </script>
 <template>
-  <div class="page-heading"><div><h1>我的设置</h1><p class="muted">管理账号信息与个人 AI 模型。</p></div></div>
+  <div class="page-heading"><div><h1>我的设置</h1><p class="muted">{{ session.teacherTrial ? '账号信息与外观' : '管理账号信息与个人 AI 模型。' }}</p></div></div>
   <div class="settings-layout">
     <section class="settings-section appearance-section" aria-labelledby="appearance-title">
       <h2 id="appearance-title">外观</h2>
@@ -29,7 +29,7 @@ const configurationStatus = computed(() => !state.value?.enabled ? '服务未启
         <div><dt>身份</dt><dd><span class="tag">{{ session.user?.role === 'teacher' ? '教师' : '学生' }}</span></dd></div>
       </dl>
     </section>
-    <section class="settings-section" aria-labelledby="model-title">
+    <section v-if="!session.teacherTrial" class="settings-section" aria-labelledby="model-title">
       <div class="model-heading">
         <h2 id="model-title">个人 AI 模型</h2>
         <button class="primary" @click="modelDialog?.open()"><Settings2 :size="16" aria-hidden="true" />模型设置</button>
@@ -53,7 +53,7 @@ const configurationStatus = computed(() => !state.value?.enabled ? '服务未启
       <p class="muted">调用费用由你的模型账户承担。密钥加密保存，保存后不会回显。</p>
     </section>
   </div>
-  <PersonalModelDialog ref="modelDialog" @changed="refresh" />
+  <PersonalModelDialog v-if="!session.teacherTrial" ref="modelDialog" @changed="refresh" />
 </template>
 <style scoped>
 .settings-layout { display: grid; gap: var(--space-lg); max-width: 56rem; }

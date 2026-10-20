@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { courseTime } from "../coursework-time";
-defineProps<{ task: any; heading?: boolean }>();
+defineProps<{ task: any; heading?: boolean; localOnly?: boolean }>();
 const sources: Record<string, string> = {
   snippet: "代码片段",
   files: "文件 / 文件夹",
@@ -15,7 +15,7 @@ const sources: Record<string, string> = {
       <h2>{{ task.title || "未填写任务名称" }}</h2>
       <p>{{ task.description || "未填写目标与说明" }}</p>
       <p>截止 {{ courseTime(task.dueAt) }}（北京时间）</p>
-      <p>{{ task.allowCode ? "允许主动请求辅助代码" : "辅助代码已关闭" }}</p>
+      <p v-if="!localOnly">{{ task.allowCode ? "允许主动请求辅助代码" : "辅助代码已关闭" }}</p>
     </template>
     <h3>任务要求</h3>
     <ol>
@@ -38,7 +38,7 @@ const sources: Record<string, string> = {
       <pre>{{ task.starter }}</pre>
     </details>
     <p class="muted">
-      成功接受时间必须严格早于截止。导入完成后还需确认正式提交；模型失败不影响已交成果。
+      成功接受时间必须严格早于截止。导入完成后还需确认正式提交<span v-if="!localOnly">；模型失败不影响已交成果</span>。
     </p>
   </section>
 </template>

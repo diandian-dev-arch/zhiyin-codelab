@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="bronze">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glass Lab · 组件画廊</title>
+    <link rel="stylesheet" href="src/styles/glass/tokens.css" />
+    <link rel="stylesheet" href="src/styles/glass/base.css" />
+    <link rel="stylesheet" href="src/styles/glass/motion.css" />
+    <link rel="stylesheet" href="src/styles/glass/components.css" />
+    <style>
+      .g-wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 48px 0 120px; }
+      .g-sec { margin-top: 56px; }
+      .g-sec > h2 { margin: 0 0 18px; font-size: 13px; font-family: var(--gl-font-mono); letter-spacing: .14em; color: var(--gl-muted); font-weight: 500; text-transform: uppercase; }
+      .g-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .g-themes { position: sticky; top: 12px; z-index: 5; display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 10px 12px 10px 20px; border-radius: 999px; }
+      .g-themes .g-row button { min-width: 0; }
+      .gl-dropzone svg.i, .gl-empty__art svg.i { width: 32px; height: 32px; }
+      svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </head>
+  <body data-role="teacher">
+    <div class="gl-ambient gl-ambient--calm" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="gl-grain" aria-hidden="true"></div>
+
+    <div class="g-wrap">
+      <div class="g-themes gl-glass">
+        <span class="gl-eyebrow">Glass Lab · 组件画廊</span>
+        <div class="g-row" role="group" aria-label="配色与身份">
+          <button class="gl-btn gl-btn--subtle gl-btn--sm" data-theme-btn="bronze">石墨·铜金</button>
+          <button class="gl-btn gl-btn--subtle gl-btn--sm" data-theme-btn="celadon">墨色·青瓷</button>
+          <button class="gl-btn gl-btn--subtle gl-btn--sm" data-theme-btn="ochre">炭灰·赭石</button>
+          <button class="gl-btn gl-btn--subtle gl-btn--sm" data-theme-btn="rose">烟墨·灰玫</button>
+          <button class="gl-btn gl-btn--ghost gl-btn--sm" id="roleBtn">切换身份：教师</button>
+        </div>
+      </div>
+
+      <header class="gl-pagehead" style="margin-top: 48px">
+        <div>
+          <p class="gl-eyebrow">Workbench · 工作台</p>
+          <h1 class="gl-h1">实训任务</h1>
+          <p class="gl-muted" style="margin: 6px 0 0">组件层所有组件在当前配色下的样子。切换配色、身份查看变化。</p>
+        </div>
+        <div class="gl-btn-group">
+          <button class="gl-btn gl-btn--ghost">导出记录</button>
+          <button class="gl-btn gl-btn--primary">新建任务 <span class="gl-btn__arrow">→</span></button>
+        </div>
+      </header>
+
+      <section class="g-sec">
+        <h2>按钮 Buttons</h2>
+        <div class="g-row">
+          <button class="gl-btn gl-btn--primary">主操作</button>
+          <button class="gl-btn gl-btn--ghost">次操作</button>
+          <button class="gl-btn gl-btn--subtle">弱操作</button>
+          <button class="gl-btn gl-btn--danger">撤回发布</button>
+          <button class="gl-btn gl-btn--primary is-loading"><span>提交中</span><span class="gl-spinner"></span></button>
+          <button class="gl-btn gl-btn--primary" disabled>不可用</button>
+          <button class="gl-btn gl-btn--ghost gl-btn--icon" aria-label="设置"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+          <button class="gl-btn gl-btn--primary gl-btn--sm">紧凑</button>
+          <button class="gl-btn gl-btn--primary gl-btn--lg">大号按钮 <span class="gl-btn__arrow">→</span></button>
+        </div>
+      </section>
+
+      <section class="g-sec">
+        <h2>状态 Chips · Badges</h2>
+        <div class="g-row">
+          <span class="gl-chip gl-chip--success">通过</span>
+          <span class="gl-chip gl-chip--warning">需关注</span>
+          <span class="gl-chip gl-chip--info gl-chip--live">执行中</span>
+          <span class="gl-chip gl-chip--danger">执行失败</span>
+          <span class="gl-chip gl-chip--accent">待复核</span>
+          <span class="gl-chip">草稿</span>
+          <span class="gl-badge">3</span>
+          <span class="gl-badge gl-badge--muted">12</span>
+          <span class="gl-kbd">⌘</span><span class="gl-kbd">K</span>
+          <span class="gl-avatar">李</span>
+          <span class="gl-avatar gl-avatar--student">王</span>
+        </div>
+      </section>
+
+      <section class="g-sec gl-grid gl-grid--2">
+        <div class="gl-panel gl-glass">
+          <div class="gl-panel__head">
+            <div><h3 class="gl-panel__title">新建实训任务</h3><p class="gl-panel__sub">表单组件</p></div>
+          </div>
+          <label class="gl-field"><span class="gl-label">任务名称</span><input class="gl-input" placeholder="例如：待办清单 v2" /></label>
+          <label class="gl-field"><span class="gl-label">截止时间（北京时间）</span><input class="gl-input" type="datetime-local" /></label>
+          <label class="gl-field"><span class="gl-label">提交方式</span>
+            <select class="gl-select"><option>ZIP 上传</option><option>Gitee</option><option>GitHub</option></select>
+          </label>
+          <label class="gl-field"><span class="gl-label">说明</span><textarea class="gl-textarea" placeholder="学生看到的任务说明"></textarea><span class="gl-hint">支持 Markdown</span></label>
+          <label class="gl-field"><span class="gl-label">邮箱</span><input class="gl-input" aria-invalid="true" value="student@" /><span class="gl-error">邮箱格式不正确</span></label>
+          <div class="g-row">
+            <label class="gl-check"><input type="checkbox" checked /><span class="gl-check__box"></span>允许复提</label>
+            <label class="gl-check"><input type="radio" name="r" checked /><span class="gl-check__box"></span>独立任务</label>
+            <label class="gl-check"><input type="radio" name="r" /><span class="gl-check__box"></span>连续任务</label>
+            <label class="gl-switch"><input type="checkbox" role="switch" checked /><span></span>使用 AI 检查</label>
+          </div>
+        </div>
+
+        <div class="gl-stack">
+          <div class="gl-panel gl-glass">
+            <div class="gl-segmented" style="--n: 2; --i: 0" id="seg">
+              <span class="gl-segmented__pill"></span>
+              <button aria-pressed="true">教师</button>
+              <button aria-pressed="false">学生</button>
+            </div>
+            <div class="gl-tabs" role="tablist" style="margin-top: 20px">
+              <button class="gl-tab" role="tab" aria-selected="true">证据</button>
+              <button class="gl-tab" role="tab" aria-selected="false">反馈<span class="gl-badge gl-badge--muted">5</span></button>
+              <button class="gl-tab" role="tab" aria-selected="false">源码</button>
+              <button class="gl-tab" role="tab" aria-selected="false">历史</button>
+            </div>
+            <label class="gl-float" style="margin-top: 20px"><input class="gl-input" placeholder=" " /><span>浮动标签输入</span></label>
+          </div>
+          <div class="gl-dropzone">
+            <svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+            <b style="color: var(--gl-text)">拖入项目 ZIP</b>
+            <span>或点击选择文件 · 最大 50MB</span>
+          </div>
+          <div class="gl-callout"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div>提交后会在隔离环境中构建，通常需要 2–3 分钟。</div></div>
+          <div class="gl-callout gl-callout--warning"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><div>尚未配置个人模型，只能进行基础检查。</div></div>
+        </div>
+      </section>
+
+      <section class="g-sec">
+        <h2>统计 · 进度</h2>
+        <div class="gl-grid gl-grid--auto">
+          <div class="gl-stat"><span class="gl-stat__value gl-num">36</span><span class="gl-stat__label">已提交</span></div>
+          <div class="gl-stat gl-stat--c5"><span class="gl-stat__value gl-num">12</span><span class="gl-stat__label">执行中</span></div>
+          <div class="gl-stat gl-stat--c2"><span class="gl-stat__value gl-num">28</span><span class="gl-stat__label">已发布</span></div>
+          <div class="gl-stat gl-stat--c4"><span class="gl-stat__value gl-num">4</span><span class="gl-stat__label">待复核</span></div>
+        </div>
+        <div class="gl-panel gl-glass" style="margin-top: 18px; display: flex; gap: 32px; align-items: center; flex-wrap: wrap">
+          <div class="gl-ring" style="--p: 0.84"><svg viewBox="0 0 120 120"><circle class="gl-ring__bg" cx="60" cy="60" r="50"/><circle class="gl-ring__fg" cx="60" cy="60" r="50" pathLength="1"/></svg><b>7<small>/8</small></b></div>
+          <div class="gl-stack" style="flex: 1; min-width: 260px">
+            <div><small class="gl-muted">页面路由与导航</small><div class="gl-progress gl-progress--success" style="--v: 1"></div></div>
+            <div><small class="gl-muted">空状态与加载态</small><div class="gl-progress gl-progress--warning" style="--v: .62"></div></div>
+            <div><small class="gl-muted">组件拆分</small><div class="gl-progress" style="--v: .9"></div></div>
+            <div><small class="gl-muted">正在分析</small><div class="gl-progress gl-progress--indeterminate"></div></div>
+          </div>
+          <ol class="gl-steps" style="flex-basis: 100%">
+            <li class="gl-step gl-step--submit is-done">提交</li>
+            <li class="gl-step gl-step--execute is-done">执行</li>
+            <li class="gl-step gl-step--agent is-current">整理</li>
+            <li class="gl-step gl-step--review">复核</li>
+            <li class="gl-step gl-step--compare">复提</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="g-sec">
+        <h2>表格 · 列表</h2>
+        <div class="gl-table-wrap">
+          <table class="gl-table">
+            <thead><tr><th>学生</th><th>提交</th><th>状态</th><th class="gl-num">通过</th><th>更新</th></tr></thead>
+            <tbody>
+              <tr><td><span class="gl-cluster"><span class="gl-avatar gl-avatar--sm gl-avatar--student">王</span>王同学</span></td><td>第 2 次</td><td><span class="gl-chip gl-chip--accent">待复核</span></td><td class="gl-num">7/8</td><td class="gl-muted">10 分钟前</td></tr>
+              <tr class="is-selected"><td><span class="gl-cluster"><span class="gl-avatar gl-avatar--sm gl-avatar--student">陈</span>陈同学</span></td><td>第 1 次</td><td><span class="gl-chip gl-chip--info gl-chip--live">执行中</span></td><td class="gl-num">—</td><td class="gl-muted">刚刚</td></tr>
+              <tr><td><span class="gl-cluster"><span class="gl-avatar gl-avatar--sm gl-avatar--student">赵</span>赵同学</span></td><td>第 3 次</td><td><span class="gl-chip gl-chip--success">已发布</span></td><td class="gl-num">8/8</td><td class="gl-muted">昨天</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="gl-panel gl-glass" style="margin-top: 18px; padding: 8px">
+          <ul class="gl-list">
+            <li class="gl-row gl-row--link"><span class="gl-chip gl-chip--success gl-chip--plain">通过</span><div class="gl-row__main"><p class="gl-row__title">E-01 路由跳转</p><p class="gl-row__meta gl-mono">expect(url).toBe("/list")</p></div><span class="gl-muted">→</span></li>
+            <li class="gl-row gl-row--link"><span class="gl-chip gl-chip--warning gl-chip--plain">需关注</span><div class="gl-row__main"><p class="gl-row__title">E-04 空列表状态</p><p class="gl-row__meta gl-mono">screenshot · 1280×800</p></div><span class="gl-muted">→</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="g-sec gl-split-view">
+        <div class="gl-stack">
+          <h2 style="margin: 0; font-size: 13px; font-family: var(--gl-font-mono); letter-spacing: .14em; color: var(--gl-muted); font-weight: 500">卡片 · 时间线</h2>
+          <article class="gl-card gl-card--interactive" id="spotCard"><span class="gl-chip gl-chip--accent">待复核</span><h3 class="gl-h3" style="margin-top: 14px">待办清单 v2</h3><p class="gl-muted" style="margin: 6px 0 0">36 份提交 · 截止 10 月 25 日 23:59</p></article>
+          <article class="gl-card gl-card--tone" style="--tone: var(--gl-c5-rgb)"><h3 class="gl-h3">带色调的卡片</h3><p class="gl-muted" style="margin: 6px 0 0">--tone 取 c1 / c2 / c4 / c5</p></article>
+          <ol class="gl-timeline">
+            <li style="--tone: var(--gl-c1-rgb)"><time>10-18 14:02</time>学生提交第 2 次</li>
+            <li style="--tone: var(--gl-c5-rgb)"><time>10-18 14:05</time>执行完成 · 8 个案例</li>
+            <li style="--tone: var(--gl-c4-rgb)"><time>10-18 15:30</time>教师复核并发布</li>
+          </ol>
+        </div>
+        <div class="gl-stack">
+          <figure class="gl-code" style="margin: 0">
+            <div class="gl-code__bar"><i></i><i></i><i></i><span class="gl-mono" style="margin-left: 8px">src/views/List.vue</span></div>
+            <div class="gl-code__body"><span class="gl-code__line"><span class="gl-code__ln">38</span><span class="gl-tok-kw">const</span> items = <span class="gl-tok-fn">ref</span>([])</span><span class="gl-code__line"><span class="gl-code__ln">39</span><span class="gl-tok-fn">onMounted</span>(<span class="gl-tok-kw">async</span> () =&gt; {</span><span class="gl-code__line is-hl"><span class="gl-code__ln">40</span>  items.value = <span class="gl-tok-kw">await</span> <span class="gl-tok-fn">fetchList</span>()</span><span class="gl-code__line is-hl"><span class="gl-code__ln">41</span>  <span class="gl-tok-cm">// 缺少空数据兜底</span></span><span class="gl-code__line is-add"><span class="gl-code__ln">42</span>  <span class="gl-tok-kw">if</span> (!items.value.length) empty.value = <span class="gl-tok-num">true</span></span><span class="gl-code__line is-del"><span class="gl-code__ln">43</span>  <span class="gl-tok-cm">// TODO</span></span><span class="gl-code__line"><span class="gl-code__ln">44</span>})</span></div>
+          </figure>
+          <div class="gl-panel gl-glass gl-empty">
+            <div class="gl-empty__art"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg></div>
+            <h3>还没有提交</h3>
+            <p>学生提交 ZIP 后，这里会出现执行证据与反馈候选。</p>
+            <button class="gl-btn gl-btn--ghost gl-btn--sm">复制任务链接</button>
+          </div>
+          <div class="gl-panel gl-glass"><div class="gl-skeleton gl-skeleton--title"></div><div class="gl-skeleton gl-skeleton--line"></div><div class="gl-skeleton gl-skeleton--line" style="width: 80%"></div></div>
+        </div>
+      </section>
+
+      <section class="g-sec">
+        <h2>浮层 · Toast · 菜单</h2>
+        <div class="g-row" style="align-items: flex-start">
+          <div class="gl-menu" style="position: static"><button class="gl-menu__item">查看报告</button><button class="gl-menu__item">重新分析</button><div class="gl-menu__sep"></div><button class="gl-menu__item" style="color: var(--gl-danger)">撤回发布</button></div>
+          <div class="gl-toast gl-toast--success" style="position: static"><div><b>已发布给学生</b><p>王同学会收到通知</p></div></div>
+          <div class="gl-toast gl-toast--danger" style="position: static"><div><b>执行失败</b><p>构建超时，请检查依赖</p></div></div>
+          <button class="gl-btn gl-btn--ghost" onclick="document.getElementById('dlg').showModal()">打开对话框</button>
+        </div>
+        <dialog class="gl-dialog" id="dlg">
+          <h2 class="gl-dialog__title">确认发布？</h2>
+          <p class="gl-muted">发布后学生即可查看 5 条反馈。发布前请确认每条反馈都已复核。</p>
+          <div class="gl-dialog__foot"><button class="gl-btn gl-btn--ghost" onclick="dlg.close()">取消</button><button class="gl-btn gl-btn--primary" onclick="dlg.close()">发布</button></div>
+        </dialog>
+      </section>
+    </div>
+
+    <script>
+      document.querySelectorAll("[data-theme-btn]").forEach((b) =>
+        b.addEventListener("click", () => (document.documentElement.dataset.theme = b.dataset.themeBtn))
+      );
+      const roleBtn = document.getElementById("roleBtn");
+      roleBtn.addEventListener("click", () => {
+        const s = document.body.dataset.role === "teacher" ? "student" : "teacher";
+        document.body.dataset.role = s;
+        roleBtn.textContent = "切换身份：" + (s === "teacher" ? "教师" : "学生");
+      });
+      const seg = document.getElementById("seg");
+      seg.querySelectorAll("button").forEach((b, i) =>
+        b.addEventListener("click", () => {
+          seg.style.setProperty("--i", i);
+          seg.querySelectorAll("button").forEach((x, j) => x.setAttribute("aria-pressed", String(i === j)));
+        })
+      );
+      document.querySelectorAll(".gl-tab").forEach((t) =>
+        t.addEventListener("click", () => document.querySelectorAll(".gl-tab").forEach((x) => x.setAttribute("aria-selected", String(x === t))))
+      );
+      const card = document.getElementById("spotCard");
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--sx", ((e.clientX - r.left) / r.width) * 100 + "%");
+        card.style.setProperty("--sy", ((e.clientY - r.top) / r.height) * 100 + "%");
+      });
+    </script>
+  </body>
+</html>

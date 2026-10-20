@@ -32,8 +32,8 @@ const taskForm = ref({
   requirements: "",
   dueAt: "",
   predecessorTaskId: "",
-  allowCode: true,
-  allowedSources: ["snippet", "files", "zip", "gitee", "github"],
+  allowCode: !session.teacherTrial,
+  allowedSources: session.teacherTrial ? ["snippet", "files", "zip"] : ["snippet", "files", "zip", "gitee", "github"],
   requiredPaths: [] as string[],
   scope: [] as string[],
   starter: "",
@@ -192,7 +192,7 @@ onMounted(load);
             >截止时间（北京时间）<input
               v-model="taskForm.dueAt"
               type="datetime-local" /></label
-          ><CourseTaskOptions v-model="taskForm" /><label class="course-check"
+          ><CourseTaskOptions v-model="taskForm" :local-only="session.teacherTrial" /><label v-if="!session.teacherTrial" class="course-check"
             ><input
               v-model="taskForm.allowCode"
               type="checkbox"

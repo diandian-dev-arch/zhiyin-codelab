@@ -11,3 +11,16 @@ coverage/
 *.tsbuildinfo
 tmp/
 artifacts/
+
+# Local outputs and private development evidence are not source deliverables.
+/output/
+/test-output/
+*.log
+/docs/evidence/
+/docs/screenshots/
+/docs/verification/
+/.claude/
+/.hallmark/
+/.impeccable/
+/.planning/
+**/.impeccable/

@@ -1,0 +1,77 @@
+{
+  "slides": [
+    {
+      "name": "a-cover",
+      "width": 1920,
+      "height": 1080,
+      "images": [],
+      "overflow": []
+    },
+    {
+      "name": "a-evidence",
+      "width": 1920,
+      "height": 1080,
+      "images": [
+        {
+          "complete": true,
+          "width": 1440
+        }
+      ],
+      "overflow": []
+    },
+    {
+      "name": "b-cover",
+      "width": 1920,
+      "height": 1080,
+      "images": [],
+      "overflow": []
+    },
+    {
+      "name": "b-evidence",
+      "width": 1920,
+      "height": 1080,
+      "images": [
+        {
+          "complete": true,
+          "width": 1440
+        }
+      ],
+      "overflow": []
+    },
+    {
+      "name": "c-cover",
+      "width": 1920,
+      "height": 1080,
+      "images": [],
+      "overflow": []
+    },
+    {
+      "name": "c-evidence",
+      "width": 1920,
+      "height": 1080,
+      "images": [
+        {
+          "complete": true,
+          "width": 1440
+        }
+      ],
+      "overflow": []
+    }
+  ],
+  "interactions": [
+    "slides/a-cover.html",
+    "slides/a-evidence.html",
+    "slides/b-cover.html",
+    "slides/b-evidence.html",
+    "slides/c-cover.html",
+    "slides/c-evidence.html",
+    "fullscreen enter and exit passed",
+    "preference, keyboard, reload passed",
+    "overview enter, next, escape passed"
+  ],
+  "errors": [],
+  "mobile": {
+    "width": 390,
+    "scrollWidth": 390
+  }
+}

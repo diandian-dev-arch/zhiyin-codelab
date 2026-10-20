@@ -7,6 +7,29 @@ const account = { id: 'teacher', role: 'teacher', name: 'Teacher', email: 'teach
 const response = (data: unknown) => ({ ok: true, json: async () => data });
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
+it('uses only the authenticated session response for trial presentation and resets it across accounts and failures', async () => {
+  const session = useSession(createPinia());
+  const fetch = vi.fn(async () => response({ user: account, csrf: 'test-csrf', businessVersion: 2, workspace: 'teacher-trial' }));
+  vi.stubGlobal('fetch', fetch);
+  await session.load();
+  expect(session.teacherTrial).toBe(true);
+  fetch.mockImplementation(async () => response({ user: account, csrf: 'test-csrf', businessVersion: 2 } as any));
+  await session.load();
+  expect(session.teacherTrial).toBe(false);
+  fetch.mockImplementation(async () => response({ user: account, csrf: 'test-csrf', businessVersion: 2, workspace: 'teacher-trial' }));
+  await session.load();
+  await session.logout();
+  // An unconfirmed logout must not change the mounted account's presentation.
+  expect(session.teacherTrial).toBe(true);
+  fetch.mockImplementation(async () => response({ ok: true } as any));
+  await session.logout();
+  expect(session.teacherTrial).toBe(false);
+  session.teacherTrial = true;
+  fetch.mockImplementation(async () => { throw new TypeError('fixture offline'); });
+  await session.load();
+  expect(session.teacherTrial).toBe(false);
+});
+
 it('does not issue either authentication write while logout is pending', async () => {
   const session = useSession(createPinia());
   session.user = { ...account };

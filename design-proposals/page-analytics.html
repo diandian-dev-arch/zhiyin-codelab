@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据分析 | 知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #fdfbf7;
+      --bg-card: #fffcf5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-tertiary: #6a6a6a;
+      --accent-gold: #daa520;
+      --accent-blue: #4682b4;
+      --accent-green: #4caf50;
+      --accent-red: #e53935;
+      --accent-purple: #9c27b0;
+      --fold-blue: #b8d9f0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* 背景 */
+    .paper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+        radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+      background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      z-index: 0;
+    }
+
+    /* 导航栏 */
+    nav {
+      position: relative;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 8px 0;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-gold);
+      transition: width 0.3s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--text-primary);
+    }
+
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-blue), #5a92c4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    /* 主内容 */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    .time-filter {
+      display: flex;
+      gap: 8px;
+      padding: 4px;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+    }
+
+    .time-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .time-btn:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    .time-btn.active {
+      background: var(--text-primary);
+      color: white;
+    }
+
+    /* 统计卡片网格 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 28px;
+      border-radius: 12px;
+      position: relative;
+      overflow: visible;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      transition: all 0.4s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    /* 不同颜色折角 */
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 56px 56px 0;
+      filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+
+    .stat-card:nth-child(1)::before {
+      border-color: transparent var(--fold-blue) transparent transparent;
+    }
+
+    .stat-card:nth-child(2)::before {
+      border-color: transparent #c8e6c9 transparent transparent;
+    }
+
+    .stat-card:nth-child(3)::before {
+      border-color: transparent #ffe0b2 transparent transparent;
+    }
+
+    .stat-card:nth-child(4)::before {
+      border-color: transparent #f8bbd0 transparent transparent;
+    }
+
+    .stat-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-change {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-change.positive {
+      color: var(--accent-green);
+    }
+
+    .stat-change.negative {
+      color: var(--accent-red);
+    }
+
+    /* 图表网格 */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .chart-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .chart-header {
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .chart-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .chart-placeholder {
+      width: 100%;
+      height: 300px;
+      background: rgba(0,0,0,0.02);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: rgba(0,0,0,0.1);
+    }
+
+    /* 排行榜 */
+    .leaderboard {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .leaderboard-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateX(4px);
+    }
+
+    .rank-badge {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-gold), #e5b53d);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .rank-badge.silver {
+      background: linear-gradient(135deg, #c0c0c0, #d4d4d4);
+    }
+
+    .rank-badge.bronze {
+      background: linear-gradient(135deg, #cd7f32, #e09350);
+    }
+
+    .rank-badge.normal {
+      background: rgba(0,0,0,0.08);
+      color: var(--text-secondary);
+    }
+
+    .student-info-rank {
+      flex: 1;
+    }
+
+    .student-name-rank {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .student-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .score-badge {
+      padding: 8px 16px;
+      background: rgba(76, 175, 80, 0.1);
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent-green);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* 响应式 */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-bg" id="paperBg"></div>
+
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="logo">
+          <div class="logo-icon">知</div>
+          <span class="logo-text">知因 CodeLab</span>
+        </a>
+        <div class="nav-links">
+          <a href="/teacher/tasks" class="nav-link">我的课程</a>
+          <a href="/teacher/students" class="nav-link">学生管理</a>
+          <a href="/teacher/analytics" class="nav-link active">数据分析</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <div class="user-info">
+          <div class="user-avatar">王</div>
+          <span class="user-name">王老师</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">数据分析</h1>
+        <p class="page-subtitle">跟踪教学成效与学生表现</p>
+      </div>
+      <div class="time-filter">
+        <button class="time-btn">7天</button>
+        <button class="time-btn active">30天</button>
+        <button class="time-btn">本学期</button>
+        <button class="time-btn">全部</button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-label">总提交数</div>
+        <div class="stat-value">487</div>
+        <div class="stat-change positive">
+          <span>↑</span>
+          <span>+12.5% vs 上月</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">✅</span>
+        <div class="stat-label">通过率</div>
+        <div class="stat-value">86%</div>
+        <div class="stat-change positive">
+          <span>↑</span>
+          <span>+3.2% vs 上月</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">⏱️</span>
+        <div class="stat-label">平均评审时长</div>
+        <div class="stat-value">2.4h</div>
+        <div class="stat-change negative">
+          <span>↓</span>
+          <span>-0.5h vs 上月</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <div class="stat-label">活跃学生数</div>
+        <div class="stat-value">42</div>
+        <div class="stat-change positive">
+          <span>↑</span>
+          <span>+5 vs 上月</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图表 -->
+    <div class="charts-grid">
+      <!-- 提交趋势 -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <div class="chart-title">提交趋势</div>
+          <div class="chart-subtitle">过去 30 天的每日提交量</div>
+        </div>
+        <div class="chart-placeholder">📈</div>
+      </div>
+
+      <!-- 分数分布 -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">分数分布</div>
+          <div class="chart-subtitle">所有作业的分数区间统计</div>
+        </div>
+        <div class="chart-placeholder">📊</div>
+      </div>
+
+      <!-- 课程完成率 -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">课程完成率</div>
+          <div class="chart-subtitle">各课程的平均完成进度</div>
+        </div>
+        <div class="chart-placeholder">🥧</div>
+      </div>
+
+      <!-- 学生排行榜 -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <div class="chart-title">学生排行榜</div>
+          <div class="chart-subtitle">按综合表现排名前 10</div>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard-item">
+            <div class="rank-badge">1</div>
+            <div class="student-info-rank">
+              <div class="student-name-rank">陈同学</div>
+              <div class="student-meta">5 门课程 · 48 次提交 · 93.8% 通过率</div>
+            </div>
+            <div class="score-badge">92</div>
+          </div>
+
+          <div class="leaderboard-item">
+            <div class="rank-badge silver">2</div>
+            <div class="student-info-rank">
+              <div class="student-name-rank">张同学</div>
+              <div class="student-meta">5 门课程 · 42 次提交 · 90.5% 通过率</div>
+            </div>
+            <div class="score-badge">88</div>
+          </div>
+
+          <div class="leaderboard-item">
+            <div class="rank-badge bronze">3</div>
+            <div class="student-info-rank">
+              <div class="student-name-rank">李同学</div>
+              <div class="student-meta">5 门课程 · 38 次提交 · 86.8% 通过率</div>
+            </div>
+            <div class="score-badge">85</div>
+          </div>
+
+          <div class="leaderboard-item">
+            <div class="rank-badge normal">4</div>
+            <div class="student-info-rank">
+              <div class="student-name-rank">王同学</div>
+              <div class="student-meta">4 门课程 · 28 次提交 · 82.1% 通过率</div>
+            </div>
+            <div class="score-badge">82</div>
+          </div>
+
+          <div class="leaderboard-item">
+            <div class="rank-badge normal">5</div>
+            <div class="student-info-rank">
+              <div class="student-name-rank">赵同学</div>
+              <div class="student-meta">4 门课程 · 32 次提交 · 81.3% 通过率</div>
+            </div>
+            <div class="score-badge">80</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 背景鼠标交互
+    const paperBg = document.getElementById('paperBg');
+    let mouseX = 50, mouseY = 50, targetX = 50, targetY = 50;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth) * 100;
+      targetY = (e.clientY / window.innerHeight) * 100;
+      const offsetX = (e.clientX / window.innerWidth - 0.5) * 60;
+      const offsetY = (e.clientY / window.innerHeight - 0.5) * 60;
+      paperBg.style.backgroundPosition = `
+        ${offsetX * 1.2}px ${offsetY * 1.2}px,
+        ${-offsetX * 1.2}px ${-offsetY * 1.2}px,
+        ${offsetX * 0.3}px ${offsetY * 0.3}px,
+        ${-offsetX * 0.3}px ${-offsetY * 0.3}px,
+        0 0, 0 0, 0 0
+      `;
+    });
+
+    function updateBackground() {
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
+      paperBg.style.setProperty('--mouse-x', `${mouseX}%`);
+      paperBg.style.setProperty('--mouse-y', `${mouseY}%`);
+      requestAnimationFrame(updateBackground);
+    }
+    updateBackground();
+
+    // 统计数字动画
+    setTimeout(() => {
+      document.querySelectorAll('.stat-value').forEach((stat, index) => {
+        setTimeout(() => {
+          const text = stat.textContent;
+          const hasPercent = text.includes('%');
+          const hasH = text.includes('h');
+          const target = parseFloat(text);
+
+          let current = 0;
+          const increment = target / 40;
+
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              stat.textContent = text;
+              clearInterval(timer);
+            } else {
+              if (hasPercent) {
+                stat.textContent = Math.floor(current) + '%';
+              } else if (hasH) {
+                stat.textContent = current.toFixed(1) + 'h';
+              } else {
+                stat.textContent = Math.floor(current);
+              }
+            }
+          }, 30);
+        }, index * 100);
+      });
+    }, 300);
+
+    // 时间筛选
+    document.querySelectorAll('.time-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>评审报告 | 知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #fdfbf7;
+      --bg-card: #fffcf5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-tertiary: #6a6a6a;
+      --accent-gold: #daa520;
+      --accent-blue: #4682b4;
+      --accent-green: #4caf50;
+      --accent-red: #e53935;
+      --fold-pink: #f8bbd0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* 背景 */
+    .paper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+        radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+      background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      z-index: 0;
+    }
+
+    /* 导航栏 */
+    nav {
+      position: relative;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    /* 主内容 */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+
+    /* 报告卡片 */
+    .report-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #fdfbf3 100%);
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 48px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      overflow: visible;
+      margin-bottom: 32px;
+    }
+
+    /* 折角 */
+    .report-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 88px 88px 0;
+      border-color: transparent var(--fold-pink) transparent transparent;
+      filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+
+    .report-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 88px;
+      height: 88px;
+      background: linear-gradient(135deg, transparent 50%, rgba(248, 187, 208, 0.12) 50%);
+      z-index: 1;
+    }
+
+    /* 报告头部 */
+    .report-header {
+      margin-bottom: 40px;
+    }
+
+    .report-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .report-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .meta-label {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .meta-value {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    /* 评分卡片 */
+    .score-card {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      padding: 32px;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+    }
+
+    .score-label {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .score-value {
+      font-size: 72px;
+      font-weight: 900;
+      color: white;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .score-total {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+    }
+
+    .score-status {
+      margin-top: 16px;
+      padding: 8px 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      display: inline-block;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* 维度评分 */
+    .dimensions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .dimension-item {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      transition: all 0.3s;
+    }
+
+    .dimension-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .dimension-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .dimension-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .dimension-score {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--accent-green);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .dimension-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 反馈区域 */
+    .feedback-section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(0,0,0,0.08);
+    }
+
+    .feedback-content {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .feedback-content p {
+      margin-bottom: 16px;
+    }
+
+    .feedback-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 优点/问题列表 */
+    .points-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .point-item {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--accent-green);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .point-item.issue {
+      border-left-color: var(--accent-red);
+    }
+
+    .point-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .point-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 证据区域 */
+    .evidence-section {
+      margin-bottom: 40px;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .evidence-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .evidence-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+    }
+
+    .evidence-type {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .evidence-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .evidence-preview {
+      width: 100%;
+      height: 180px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .evidence-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .evidence-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* 建议区域 */
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .suggestion-item {
+      background: rgba(218, 165, 32, 0.08);
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--accent-gold);
+    }
+
+    .suggestion-text {
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+
+    /* 响应式 */
+    @media (max-width: 968px) {
+      .dimensions-grid,
+      .evidence-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .report-card {
+        padding: 32px 24px;
+      }
+
+      .report-meta {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-bg" id="paperBg"></div>
+
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="logo">
+          <div class="logo-icon">知</div>
+          <span class="logo-text">知因 CodeLab</span>
+        </a>
+      </div>
+      <a href="/student/courses" class="back-btn">
+        <span>←</span>
+        <span>返回课程</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <div class="report-card">
+      <!-- 报告头部 -->
+      <div class="report-header">
+        <h1 class="report-title">评审报告</h1>
+        <div class="report-meta">
+          <div class="meta-item">
+            <span class="meta-label">课程：</span>
+            <span class="meta-value">前端基础 - Vue3 实战</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">作业：</span>
+            <span class="meta-value">实现一个待办事项应用</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">提交时间：</span>
+            <span class="meta-value">2024-03-20 15:30</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">评审时间：</span>
+            <span class="meta-value">2024-03-21 10:15</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 总分 -->
+      <div class="score-card">
+        <div class="score-label">综合评分</div>
+        <div class="score-value">88</div>
+        <div class="score-total">/ 100</div>
+        <div class="score-status">✓ 通过</div>
+      </div>
+
+      <!-- 维度评分 -->
+      <div class="dimensions-grid">
+        <div class="dimension-item">
+          <div class="dimension-header">
+            <span class="dimension-name">功能完整性</span>
+            <span class="dimension-score">92</span>
+          </div>
+          <div class="dimension-desc">所有核心功能均已实现，交互逻辑清晰流畅</div>
+        </div>
+
+        <div class="dimension-item">
+          <div class="dimension-header">
+            <span class="dimension-name">代码质量</span>
+            <span class="dimension-score">85</span>
+          </div>
+          <div class="dimension-desc">代码结构合理，组件拆分清晰，部分命名可优化</div>
+        </div>
+
+        <div class="dimension-item">
+          <div class="dimension-header">
+            <span class="dimension-name">用户体验</span>
+            <span class="dimension-score">88</span>
+          </div>
+          <div class="dimension-desc">界面美观，交互反馈及时，响应式适配良好</div>
+        </div>
+
+        <div class="dimension-item">
+          <div class="dimension-header">
+            <span class="dimension-name">技术规范</span>
+            <span class="dimension-score">82</span>
+          </div>
+          <div class="dimension-desc">基本遵循 Vue3 最佳实践，错误处理需加强</div>
+        </div>
+      </div>
+
+      <!-- 总体评价 -->
+      <div class="feedback-section">
+        <h2 class="section-title">总体评价</h2>
+        <div class="feedback-content">
+          <p>这是一份完成度很高的作业。你成功实现了待办事项应用的所有核心功能，包括任务的增删改查、状态切换、优先级标记等。代码整体结构清晰，组件化思想运用得当。</p>
+          <p>特别值得称赞的是你对 Vue3 Composition API 的熟练使用，响应式数据管理合理，组件通信采用了 props 和 emit 的标准模式。界面设计简洁美观，用户体验流畅。</p>
+          <p>不过也存在一些可以改进的地方：部分变量命名不够语义化，错误边界处理不完善，建议补充单元测试覆盖关键逻辑。总体来说，这是一份优秀的作业。</p>
+        </div>
+      </div>
+
+      <!-- 优点 -->
+      <div class="feedback-section">
+        <h2 class="section-title">突出优点</h2>
+        <div class="points-list">
+          <div class="point-item">
+            <div class="point-title">
+              <span>✓</span>
+              <span>组件结构设计合理</span>
+            </div>
+            <div class="point-desc">将任务列表、任务项、过滤器等拆分成独立组件，职责单一，复用性强</div>
+          </div>
+
+          <div class="point-item">
+            <div class="point-title">
+              <span>✓</span>
+              <span>状态管理清晰</span>
+            </div>
+            <div class="point-desc">使用 Pinia 进行全局状态管理，actions 和 getters 定义完整，数据流向清晰</div>
+          </div>
+
+          <div class="point-item">
+            <div class="point-title">
+              <span>✓</span>
+              <span>交互体验优秀</span>
+            </div>
+            <div class="point-desc">添加了过渡动画，操作有即时反馈，支持键盘快捷键，用户体验流畅</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 需要改进 -->
+      <div class="feedback-section">
+        <h2 class="section-title">需要改进</h2>
+        <div class="points-list">
+          <div class="point-item issue">
+            <div class="point-title">
+              <span>⚠</span>
+              <span>缺少输入验证</span>
+            </div>
+            <div class="point-desc">添加任务时未对空字符串和特殊字符进行校验，可能导致无效数据存入</div>
+          </div>
+
+          <div class="point-item issue">
+            <div class="point-title">
+              <span>⚠</span>
+              <span>错误处理不完善</span>
+            </div>
+            <div class="point-desc">本地存储操作未使用 try-catch 包裹，localStorage 满载时会抛出异常导致应用崩溃</div>
+          </div>
+
+          <div class="point-item issue">
+            <div class="point-title">
+              <span>⚠</span>
+              <span>命名不够语义化</span>
+            </div>
+            <div class="point-desc">部分变量命名如 "arr"、"tmp" 等过于简略，建议使用更具描述性的名称</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 证据材料 -->
+      <div class="evidence-section">
+        <h2 class="section-title">证据材料</h2>
+        <div class="evidence-grid">
+          <div class="evidence-card">
+            <div class="evidence-type">Screenshot</div>
+            <div class="evidence-title">主界面截图</div>
+            <div class="evidence-preview">🖼️</div>
+            <div class="evidence-label">点击查看大图</div>
+          </div>
+
+          <div class="evidence-card">
+            <div class="evidence-type">Build Log</div>
+            <div class="evidence-title">构建日志</div>
+            <div class="evidence-preview">📋</div>
+            <div class="evidence-label">查看完整日志</div>
+          </div>
+
+          <div class="evidence-card">
+            <div class="evidence-type">Code Review</div>
+            <div class="evidence-title">代码审查记录</div>
+            <div class="evidence-preview">💻</div>
+            <div class="evidence-label">查看详细分析</div>
+          </div>
+
+          <div class="evidence-card">
+            <div class="evidence-type">Test Report</div>
+            <div class="evidence-title">测试报告</div>
+            <div class="evidence-preview">✅</div>
+            <div class="evidence-label">查看测试结果</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 改进建议 -->
+      <div class="feedback-section">
+        <h2 class="section-title">改进建议</h2>
+        <div class="suggestions-list">
+          <div class="suggestion-item">
+            <div class="suggestion-text">
+              <strong>输入验证：</strong>在 addTask 方法中添加输入校验逻辑，过滤空白字符，限制任务标题长度，防止 XSS 攻击
+            </div>
+          </div>
+
+          <div class="suggestion-item">
+            <div class="suggestion-text">
+              <strong>错误处理：</strong>对 localStorage 操作使用 try-catch，添加错误提示，考虑使用 IndexedDB 作为降级方案
+            </div>
+          </div>
+
+          <div class="suggestion-item">
+            <div class="suggestion-text">
+              <strong>代码规范：</strong>统一使用有意义的变量名，遵循驼峰命名，添加必要的代码注释，使用 ESLint 规范代码风格
+            </div>
+          </div>
+
+          <div class="suggestion-item">
+            <div class="suggestion-text">
+              <strong>测试覆盖：</strong>补充单元测试，覆盖核心逻辑如任务增删改、状态切换、过滤排序等功能
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 背景鼠标交互
+    const paperBg = document.getElementById('paperBg');
+    let mouseX = 50, mouseY = 50, targetX = 50, targetY = 50;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth) * 100;
+      targetY = (e.clientY / window.innerHeight) * 100;
+      const offsetX = (e.clientX / window.innerWidth - 0.5) * 60;
+      const offsetY = (e.clientY / window.innerHeight - 0.5) * 60;
+      paperBg.style.backgroundPosition = `
+        ${offsetX * 1.2}px ${offsetY * 1.2}px,
+        ${-offsetX * 1.2}px ${-offsetY * 1.2}px,
+        ${offsetX * 0.3}px ${offsetY * 0.3}px,
+        ${-offsetX * 0.3}px ${-offsetY * 0.3}px,
+        0 0, 0 0, 0 0
+      `;
+    });
+
+    function updateBackground() {
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
+      paperBg.style.setProperty('--mouse-x', `${mouseX}%`);
+      paperBg.style.setProperty('--mouse-y', `${mouseY}%`);
+      requestAnimationFrame(updateBackground);
+    }
+    updateBackground();
+
+    // 评分数字动画
+    setTimeout(() => {
+      const scoreValue = document.querySelector('.score-value');
+      const target = parseInt(scoreValue.textContent);
+      let current = 0;
+      const increment = target / 40;
+
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          scoreValue.textContent = target;
+          clearInterval(timer);
+        } else {
+          scoreValue.textContent = Math.floor(current);
+        }
+      }, 30);
+    }, 300);
+
+    // 维度分数动画
+    setTimeout(() => {
+      const dimensionScores = document.querySelectorAll('.dimension-score');
+      dimensionScores.forEach((score, index) => {
+        setTimeout(() => {
+          const target = parseInt(score.textContent);
+          let current = 0;
+          const increment = target / 30;
+
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              score.textContent = target;
+              clearInterval(timer);
+            } else {
+              score.textContent = Math.floor(current);
+            }
+          }, 25);
+        }, index * 100);
+      });
+    }, 500);
+  </script>
+</body>
+</html>

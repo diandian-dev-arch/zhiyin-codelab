@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #0a0a0a;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --white: #ffffff;
+      --accent: #0066ff;
+      --accent-light: #3385ff;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-weight: 400;
+    }
+
+    /* 精准的网格系统 */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 64px;
+    }
+
+    /* Header - 极致留白 */
+    header {
+      padding: 120px 0 160px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .header-content {
+      max-width: 720px;
+    }
+
+    .logo {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 48px;
+      padding: 8px 16px;
+      border: 1px solid var(--black);
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .logo:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    h1 {
+      font-size: 72px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 32px;
+      color: var(--black);
+    }
+
+    .hero-desc {
+      font-size: 24px;
+      line-height: 1.6;
+      color: var(--gray-600);
+      font-weight: 400;
+      margin-bottom: 48px;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      font-size: 14px;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* 工作流 - 线框图 */
+    .workflow-section {
+      padding: 160px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 48px;
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background: var(--gray-200);
+      border: 1px solid var(--gray-200);
+    }
+
+    .workflow-cell {
+      background: var(--white);
+      padding: 48px 32px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .workflow-cell:hover {
+      background: var(--gray-100);
+    }
+
+    .cell-number {
+      font-size: 48px;
+      font-weight: 300;
+      color: var(--gray-300);
+      margin-bottom: 24px;
+      line-height: 1;
+    }
+
+    .cell-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--black);
+    }
+
+    .cell-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--gray-600);
+    }
+
+    /* 功能列表 - 极简表格式 */
+    .features-section {
+      padding: 160px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .features-list {
+      border: 1px solid var(--gray-200);
+    }
+
+    .feature-item {
+      display: grid;
+      grid-template-columns: 80px 1fr 280px;
+      gap: 48px;
+      padding: 48px;
+      border-bottom: 1px solid var(--gray-200);
+      transition: all 0.2s ease;
+    }
+
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+
+    .feature-item:hover {
+      background: var(--gray-100);
+    }
+
+    .feature-number {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: 0.05em;
+    }
+
+    .feature-content h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--black);
+    }
+
+    .feature-content p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--gray-600);
+    }
+
+    .feature-tech {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-self: start;
+    }
+
+    .tech-tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-600);
+      padding: 8px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .tech-tag:hover {
+      border-color: var(--black);
+      color: var(--black);
+    }
+
+    /* 统计数据 */
+    .stats-section {
+      padding: 160px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--gray-200);
+      border: 1px solid var(--gray-200);
+    }
+
+    .stat-item {
+      background: var(--white);
+      padding: 64px 48px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .stat-item:hover .stat-value {
+      color: var(--white);
+    }
+
+    .stat-item:hover .stat-label {
+      color: var(--gray-300);
+    }
+
+    .stat-value {
+      font-size: 56px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      color: var(--black);
+      transition: all 0.3s ease;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 160px 0;
+    }
+
+    .cta-content {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .cta-title {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 32px;
+      color: var(--black);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 16px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--black);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--black);
+      border: 1px solid var(--gray-300);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--black);
+    }
+
+    /* Footer */
+    footer {
+      padding: 64px 0;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: var(--gray-500);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .footer-link {
+      font-size: 13px;
+      color: var(--gray-600);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--black);
+    }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .container {
+        padding: 0 48px;
+      }
+
+      h1 {
+        font-size: 56px;
+      }
+
+      .workflow-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .feature-item {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 32px;
+      }
+
+      header {
+        padding: 80px 0 100px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .hero-desc {
+        font-size: 18px;
+      }
+
+      .workflow-section,
+      .features-section,
+      .stats-section {
+        padding: 100px 0;
+      }
+
+      .workflow-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .footer-content {
+        flex-direction: column;
+        gap: 24px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-content">
+        <div class="logo">知因 CodeLab</div>
+        <h1>Agent 驱动的<br/>智能验收平台</h1>
+        <p class="hero-desc">证据驱动、人机协作、透明可信。为教学实训设计的代码质量验收系统。</p>
+        <div class="hero-meta">
+          <div class="meta-item">
+            <div class="meta-dot"></div>
+            <span>LangGraph Agent</span>
+          </div>
+          <div class="meta-item">
+            <div class="meta-dot"></div>
+            <span>Docker 隔离</span>
+          </div>
+          <div class="meta-item">
+            <div class="meta-dot"></div>
+            <span>PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 工作流 -->
+    <section class="workflow-section">
+      <div class="section-label">工作流程</div>
+      <div class="workflow-grid">
+        <div class="workflow-cell">
+          <div class="cell-number">01</div>
+          <h3 class="cell-title">提交</h3>
+          <p class="cell-desc">学生上传代码包，系统接收并排队处理</p>
+        </div>
+        <div class="workflow-cell">
+          <div class="cell-number">02</div>
+          <h3 class="cell-title">执行</h3>
+          <p class="cell-desc">隔离环境中自动化检查，生成多维度证据</p>
+        </div>
+        <div class="workflow-cell">
+          <div class="cell-number">03</div>
+          <h3 class="cell-title">分析</h3>
+          <p class="cell-desc">Agent 推理分析，生成候选反馈报告</p>
+        </div>
+        <div class="workflow-cell">
+          <div class="cell-number">04</div>
+          <h3 class="cell-title">复核</h3>
+          <p class="cell-desc">教师审核确认，一键发布最终报告</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 核心能力 -->
+    <section class="features-section">
+      <div class="section-label">核心能力</div>
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-number">01</div>
+          <div class="feature-content">
+            <h3>智能推理引擎</h3>
+            <p>基于 LangGraph 的 Agent 架构，支持多轮推理、状态持久化和动态工具调用。持久化检查点确保长时间分析任务的可靠性。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">LangGraph</div>
+            <div class="tech-tag">Checkpoints</div>
+            <div class="tech-tag">Tools</div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-number">02</div>
+          <div class="feature-content">
+            <h3>隔离执行环境</h3>
+            <p>Docker 容器沙箱 + 独立 Chromium 实例，真实浏览器截图证据。完整的资源回收机制防止容器泄漏，保障平台安全。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">Docker</div>
+            <div class="tech-tag">Playwright</div>
+            <div class="tech-tag">Reaper</div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-number">03</div>
+          <div class="feature-content">
+            <h3>证据驱动反馈</h3>
+            <p>构建日志、浏览器截图、DOM 结构、行为测试结果。多维度证据链条，让每一条反馈都有据可查，学生信服教师省心。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">Build Logs</div>
+            <div class="tech-tag">Screenshots</div>
+            <div class="tech-tag">Tests</div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-number">04</div>
+          <div class="feature-content">
+            <h3>高效复核工作流</h3>
+            <p>教师仅需审核 AI 候选，逐项确认或修改后一键发布。历史提交对比功能快速定位新旧变化，大幅提升复核效率。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">Review UI</div>
+            <div class="tech-tag">Diff</div>
+            <div class="tech-tag">Publish</div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-number">05</div>
+          <div class="feature-content">
+            <h3>固定模板实训</h3>
+            <p>针对 Vue 看板项目的专项训练。依赖锁定、行为接口固定，避免题库泄露问题，专注实现质量而非解题技巧。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">Vue 3</div>
+            <div class="tech-tag">Locked Deps</div>
+            <div class="tech-tag">Fixed API</div>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-number">06</div>
+          <div class="feature-content">
+            <h3>持久化与恢复</h3>
+            <p>PostgreSQL 存储、任务队列持久化、检查点恢复机制。系统重启不丢失工作进度，可靠性优先于性能。</p>
+          </div>
+          <div class="feature-tech">
+            <div class="tech-tag">PostgreSQL</div>
+            <div class="tech-tag">Queue</div>
+            <div class="tech-tag">Recovery</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 统计数据 -->
+    <section class="stats-section">
+      <div class="section-label">已验证能力</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">8</div>
+          <div class="stat-label">测试样本</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">5</div>
+          <div class="stat-label">核心要求</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">执行成功率</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="cta-content">
+        <h2 class="cta-title">开启智能验收新时代</h2>
+        <div class="cta-buttons">
+          <a href="http://127.0.0.1:5174/" class="btn btn-primary">
+            进入工作台
+            <span>→</span>
+          </a>
+          <a href="../README.md" class="btn btn-secondary">
+            查看文档
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-text">© 2026 知因 CodeLab. Agent-Powered Intelligence.</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">文档</a>
+          <a href="#" class="footer-link">API</a>
+          <a href="#" class="footer-link">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

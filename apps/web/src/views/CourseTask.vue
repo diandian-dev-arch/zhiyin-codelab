@@ -159,10 +159,10 @@ async function load() {
   if (!teacher.value) {
     const [i, c, r, conn, identity] = await Promise.all([
       apiV2(`/course-tasks/${id}/imports`),
-      apiV2(`/course-tasks/${id}/self-checks`),
-      apiV2("/course-model-recipient"),
-      apiV2("/repository-connections"),
-      apiV2("/repository-identities"),
+      session.teacherTrial ? Promise.resolve({ items: [] }) : apiV2(`/course-tasks/${id}/self-checks`),
+      session.teacherTrial ? Promise.resolve({ recipient: null }) : apiV2("/course-model-recipient"),
+      session.teacherTrial ? Promise.resolve({ items: [] }) : apiV2("/repository-connections"),
+      session.teacherTrial ? Promise.resolve({ items: [] }) : apiV2("/repository-identities"),
     ]);
     if (!alive) return;
     imports.value = i.items;
@@ -405,14 +405,14 @@ onUnmounted(() => {
             <p>{{ data.task.config.description }}</p>
           </div>
           <div class="course-stamp">
-            截止 {{ fmt(data.task.config.dueAt) }}<br />{{
+            截止 {{ fmt(data.task.config.dueAt) }}<template v-if="!session.teacherTrial"><br />{{
               data.task.config.allowCode
                 ? "允许主动请求辅助代码"
                 : "辅助代码已关闭"
-            }}
+            }}</template>
           </div>
         </header>
-        <CourseTaskBrief :task="data.task.config" />
+        <CourseTaskBrief :task="data.task.config" :local-only="session.teacherTrial" />
         <template v-if="!teacher"
           ><section class="course-panel course-form">
             <h2>准备本次成果</h2>
@@ -555,7 +555,7 @@ onUnmounted(() => {
               {{ busy ? "处理中…" : "准备固定快照" }}
             </button>
           </section>
-          <details class="course-panel">
+          <details v-if="!session.teacherTrial" class="course-panel">
             <summary>仓库读取授权（与模型外发授权分开）</summary>
             <form class="course-form" @submit.prevent="saveConnection">
               <label
@@ -699,6 +699,7 @@ onUnmounted(() => {
             >
               确认正式提交
             </button>
+            <template v-if="!session.teacherTrial">
             <hr />
             <h3>先做私人自查（可选）</h3>
             <p>
@@ -723,8 +724,9 @@ onUnmounted(() => {
                 >前往模型设置</RouterLink
               >
             </p>
+            </template>
           </section>
-          <section v-if="checks.length" class="course-panel">
+          <section v-if="!session.teacherTrial && checks.length" class="course-panel">
             <h2>仅你可见的自查</h2>
             <button
               v-for="c in checks"
@@ -739,7 +741,7 @@ onUnmounted(() => {
               {{ fmt(c.created_at) }} · {{ c.snapshot_id.slice(0, 8) }}
             </button>
           </section>
-          <section v-if="check" class="course-panel">
+          <section v-if="!session.teacherTrial && check" class="course-panel">
             <h2>私人自查 · 快照 {{ check.check.snapshot_id.slice(0, 8) }}</h2>
             <article v-for="m in check.messages" :key="m.id">
               <h3>L{{ m.level }} · {{ statuses[m.status] }}</h3>
@@ -864,7 +866,7 @@ onUnmounted(() => {
                     edit.dueAt =
                       ($event.target as HTMLInputElement).value || null
                   " /></label
-              ><CourseTaskOptions v-model="edit" /><label class="course-check"
+              ><CourseTaskOptions v-model="edit" :local-only="session.teacherTrial" /><label v-if="!session.teacherTrial" class="course-check"
                 ><input
                   v-model="edit.allowCode"
                   type="checkbox"

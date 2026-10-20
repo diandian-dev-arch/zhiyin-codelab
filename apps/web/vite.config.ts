@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { fileURLToPath } from 'node:url';
+const webRoot = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   plugins: [vue(), {
     name: 'existing-workspace-entry',
@@ -22,6 +24,11 @@ export default defineConfig({
     },
   }],
   server: {
+    fs: {
+      strict: true,
+      allow: [webRoot, fileURLToPath(new URL('../../packages/contracts', import.meta.url)), fileURLToPath(new URL('../../node_modules', import.meta.url))],
+      deny: ['.env', '.env.*', '*.{crt,pem,key,p12,pfx}', '**/.git/**', '**/.data/**'],
+    },
     port: Number(process.env.WEB_PORT ?? 5174),
     strictPort: false,
     proxy: { "/api": process.env.API_PROXY_TARGET ?? "http://127.0.0.1:3100" },

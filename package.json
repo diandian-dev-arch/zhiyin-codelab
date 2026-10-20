@@ -7,8 +7,10 @@
     "node": ">=22.14"
   },
   "scripts": {
+    "start": "node --import tsx --env-file-if-exists=.env.pocketbay scripts/pocketbay-start.ts",
     "licenses:collect": "node scripts/audit-dependency-licenses.mjs",
     "dev:workspace:supervised": "tsx scripts/launch-workspace.ts",
+    "dev:teacher-trial": "tsx scripts/launch-workspace.ts --teacher-trial",
     "workspace:runtime": "tsx scripts/launch-workspace.ts --check",
     "retention:check": "tsx scripts/check-retention.ts",
     "retention:hold": "tsx scripts/retention-hold.ts",

@@ -70,7 +70,7 @@ async function load() {
   data.value = result;
   const [task, model] = await Promise.all([
     apiV2(`/course-tasks/${result.submission.task_id}`),
-    teacher.value
+    teacher.value && !session.teacherTrial
       ? apiV2("/course-model-recipient")
       : Promise.resolve({ recipient: null }),
   ]);
@@ -276,7 +276,7 @@ onUnmounted(() => {
             </details>
           </div>
         </details>
-        <section class="course-panel">
+        <section v-if="!session.teacherTrial" class="course-panel">
           <h2>正式 AI 辅助评阅</h2>
           <p v-if="!teacher">
             教师只能看到正式成果，不会读取你的私人自查。候选报告在教师采用并发布后可见。
@@ -428,7 +428,7 @@ onUnmounted(() => {
                 <option value="achieved">已达成</option>
                 <option value="needs_revision">需要修改</option>
               </select></label
-            ><label
+            ><label v-if="!session.teacherTrial"
               >采用的本次正式 AI 报告<select v-model="evaluation.analysisId">
                 <option :value="null">仅人工评价</option>
                 <option

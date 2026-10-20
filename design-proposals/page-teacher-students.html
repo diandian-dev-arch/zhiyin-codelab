@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生管理 | 知因 CodeLab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #fdfbf7;
+      --bg-card: #fffcf5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-tertiary: #6a6a6a;
+      --accent-gold: #daa520;
+      --accent-blue: #4682b4;
+      --accent-green: #4caf50;
+      --fold-orange: #ffe0b2;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* 背景 */
+    .paper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.025) 49%, rgba(0,0,0,0.025) 51%, transparent 52%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.006) 2px, rgba(0,0,0,0.006) 3px),
+        radial-gradient(circle 500px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 215, 100, 0.08) 0%, rgba(255, 235, 150, 0.04) 30%, transparent 60%),
+        radial-gradient(ellipse 1000px 800px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(255, 250, 230, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 50%, #faf7f1 100%);
+      background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      z-index: 0;
+    }
+
+    /* 导航栏 */
+    nav {
+      position: relative;
+      z-index: 10;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 8px 0;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-gold);
+      transition: width 0.3s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--text-primary);
+    }
+
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-blue), #5a92c4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    /* 主内容 */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* 搜索和筛选 */
+    .filter-bar {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(70, 130, 180, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: var(--text-tertiary);
+    }
+
+    .filter-select {
+      padding: 12px 16px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filter-select:hover {
+      border-color: var(--accent-blue);
+    }
+
+    /* 学生表格 */
+    .students-table-container {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* 折角 */
+    .students-table-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 72px 72px 0;
+      border-color: transparent var(--fold-orange) transparent transparent;
+      filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.15));
+      z-index: 2;
+    }
+
+    .students-table-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, transparent 50%, rgba(255, 152, 0, 0.12) 50%);
+      z-index: 1;
+    }
+
+    .students-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .students-table thead {
+      background: rgba(0,0,0,0.03);
+      border-bottom: 2px solid rgba(0,0,0,0.08);
+    }
+
+    .students-table th {
+      padding: 16px 20px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .students-table td {
+      padding: 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .students-table tbody tr {
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .students-table tbody tr:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .student-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-green), #66bb6a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .student-details {
+      flex: 1;
+    }
+
+    .student-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .student-id {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      border-radius: 4px;
+      transition: width 0.5s ease-out;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-active {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--accent-green);
+    }
+
+    .status-inactive {
+      background: rgba(0,0,0,0.06);
+      color: var(--text-tertiary);
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      padding: 8px;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+
+    /* 分页 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .page-btn {
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .page-btn:hover {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    .page-btn.active {
+      background: var(--accent-blue);
+      color: white;
+      border-color: var(--accent-blue);
+    }
+
+    /* 响应式 */
+    @media (max-width: 1200px) {
+      .students-table {
+        font-size: 13px;
+      }
+
+      .students-table th,
+      .students-table td {
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .filter-row {
+        flex-direction: column;
+      }
+
+      .students-table-container {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-bg" id="paperBg"></div>
+
+  <!-- 导航栏 -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="logo">
+          <div class="logo-icon">知</div>
+          <span class="logo-text">知因 CodeLab</span>
+        </a>
+        <div class="nav-links">
+          <a href="/teacher/tasks" class="nav-link">我的课程</a>
+          <a href="/teacher/students" class="nav-link active">学生管理</a>
+          <a href="/teacher/analytics" class="nav-link">数据分析</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <div class="user-info">
+          <div class="user-avatar">王</div>
+          <span class="user-name">王老师</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">学生管理</h1>
+        <p class="page-subtitle">管理所有课程的学生信息</p>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn">
+          <span>+</span>
+          <span>添加学生</span>
+        </button>
+        <button class="action-btn">
+          <span>↓</span>
+          <span>导出数据</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="搜索学生姓名、学号...">
+        </div>
+        <select class="filter-select">
+          <option>所有课程</option>
+          <option>前端基础 - Vue3 实战</option>
+          <option>JavaScript 高级编程</option>
+          <option>React 组件开发</option>
+        </select>
+        <select class="filter-select">
+          <option>所有状态</option>
+          <option>活跃</option>
+          <option>不活跃</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 学生表格 -->
+    <div class="students-table-container">
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>学生</th>
+            <th>课程数</th>
+            <th>完成进度</th>
+            <th>提交总数</th>
+            <th>通过率</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="student-info">
+                <div class="student-avatar">张</div>
+                <div class="student-details">
+                  <div class="student-name">张同学</div>
+                  <div class="student-id">2021001</div>
+                </div>
+              </div>
+            </td>
+            <td>5</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 85%"></div>
+                </div>
+                <div class="progress-text">85%</div>
+              </div>
+            </td>
+            <td>42</td>
+            <td>90.5%</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="icon-btn" title="查看详情">👁️</button>
+                <button class="icon-btn" title="发送消息">✉️</button>
+                <button class="icon-btn" title="编辑">✎</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="student-info">
+                <div class="student-avatar">李</div>
+                <div class="student-details">
+                  <div class="student-name">李同学</div>
+                  <div class="student-id">2021002</div>
+                </div>
+              </div>
+            </td>
+            <td>5</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 72%"></div>
+                </div>
+                <div class="progress-text">72%</div>
+              </div>
+            </td>
+            <td>38</td>
+            <td>86.8%</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="icon-btn" title="查看详情">👁️</button>
+                <button class="icon-btn" title="发送消息">✉️</button>
+                <button class="icon-btn" title="编辑">✎</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="student-info">
+                <div class="student-avatar">王</div>
+                <div class="student-details">
+                  <div class="student-name">王同学</div>
+                  <div class="student-id">2021003</div>
+                </div>
+              </div>
+            </td>
+            <td>4</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 65%"></div>
+                </div>
+                <div class="progress-text">65%</div>
+              </div>
+            </td>
+            <td>28</td>
+            <td>82.1%</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="icon-btn" title="查看详情">👁️</button>
+                <button class="icon-btn" title="发送消息">✉️</button>
+                <button class="icon-btn" title="编辑">✎</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="student-info">
+                <div class="student-avatar">刘</div>
+                <div class="student-details">
+                  <div class="student-name">刘同学</div>
+                  <div class="student-id">2021004</div>
+                </div>
+              </div>
+            </td>
+            <td>3</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 45%"></div>
+                </div>
+                <div class="progress-text">45%</div>
+              </div>
+            </td>
+            <td>18</td>
+            <td>77.8%</td>
+            <td><span class="status-badge status-inactive">不活跃</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="icon-btn" title="查看详情">👁️</button>
+                <button class="icon-btn" title="发送消息">✉️</button>
+                <button class="icon-btn" title="编辑">✎</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="student-info">
+                <div class="student-avatar">陈</div>
+                <div class="student-details">
+                  <div class="student-name">陈同学</div>
+                  <div class="student-id">2021005</div>
+                </div>
+              </div>
+            </td>
+            <td>5</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 92%"></div>
+                </div>
+                <div class="progress-text">92%</div>
+              </div>
+            </td>
+            <td>48</td>
+            <td>93.8%</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="icon-btn" title="查看详情">👁️</button>
+                <button class="icon-btn" title="发送消息">✉️</button>
+                <button class="icon-btn" title="编辑">✎</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <button class="page-btn">上一页</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">下一页</button>
+    </div>
+  </div>
+
+  <script>
+    // 背景鼠标交互
+    const paperBg = document.getElementById('paperBg');
+    let mouseX = 50, mouseY = 50, targetX = 50, targetY = 50;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth) * 100;
+      targetY = (e.clientY / window.innerHeight) * 100;
+      const offsetX = (e.clientX / window.innerWidth - 0.5) * 60;
+      const offsetY = (e.clientY / window.innerHeight - 0.5) * 60;
+      paperBg.style.backgroundPosition = `
+        ${offsetX * 1.2}px ${offsetY * 1.2}px,
+        ${-offsetX * 1.2}px ${-offsetY * 1.2}px,
+        ${offsetX * 0.3}px ${offsetY * 0.3}px,
+        ${-offsetX * 0.3}px ${-offsetY * 0.3}px,
+        0 0, 0 0, 0 0
+      `;
+    });
+
+    function updateBackground() {
+      mouseX += (targetX - mouseX) * 0.15;
+      mouseY += (targetY - mouseY) * 0.15;
+      paperBg.style.setProperty('--mouse-x', `${mouseX}%`);
+      paperBg.style.setProperty('--mouse-y', `${mouseY}%`);
+      requestAnimationFrame(updateBackground);
+    }
+    updateBackground();
+
+    // 进度条动画
+    setTimeout(() => {
+      document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 100);
+      });
+    }, 300);
+
+    // 搜索功能
+    const searchInput = document.querySelector('.search-input');
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.students-table tbody tr').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

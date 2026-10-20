@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一杯咖啡的一天 - 14秒循环动画</title>
+<style>
+/*
+时间线分段表：
+0.0-3.0s  (0.000-0.214) 清晨 - 太阳升起、杯子描边
+3.0-7.0s  (0.214-0.500) 上午 - 液面注满、蒸汽升腾
+7.0-11.0s (0.500-0.786) 傍晚 - 太阳沉落、液面下降
+11.0-14.0s(0.786-1.000) 深夜 - 星点闪烁、循环复位
+
+缓动清单：
+1. easeOutCubic    - 太阳升起（自然减速）
+2. easeInOutQuart  - 杯子描边（流畅起止）
+3. elasticOut      - 液面注满后的回弹（真实液体感）
+4. easeInCubic     - 太阳下沉（自然加速）
+5. backOut         - 星点出现（弹性吸引注意力）
+
+元素层次：
+- 环境层：背景色、太阳、光晕、星点
+- 主体层：杯子轮廓、液面
+- 细节层：蒸汽、水渍（overlap + follow-through）
+*/
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 1rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+}
+
+.stage-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+#stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: #444;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #555;
+}
+
+.btn:focus {
+  outline: 2px solid #0af;
+  outline-offset: 2px;
+}
+
+.btn.active {
+  background: #0af;
+}
+
+.progress-container {
+  flex: 1;
+  min-width: 200px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #444;
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0af, #f0a);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.05s linear;
+}
+
+.time-display {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  color: #aaa;
+  min-width: 80px;
+}
+
+.description {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-warning {
+    display: block;
+    background: #442;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+}
+
+.motion-warning {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .control-row {
+    font-size: 0.85rem;
+  }
+  .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="motion-warning">
+    <p>检测到您启用了"减少动态效果"。<button class="btn" id="force-play">仍然播放</button></p>
+  </div>
+
+  <div class="stage-wrapper">
+    <svg id="stage" viewBox="0 0 1600 900" aria-label="一杯咖啡的一天动画：展示从清晨到深夜的时间流逝">
+      <defs>
+        <linearGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffeb99" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#ffeb99" stop-opacity="0"/>
+        </linearGradient>
+
+        <clipPath id="cupClip">
+          <path d="M 600,450 L 650,750 L 950,750 L 1000,450 Z"/>
+        </clipPath>
+      </defs>
+
+      <!-- 背景 -->
+      <rect id="sky" width="1600" height="900" fill="#1a1a2e"/>
+
+      <!-- 太阳与光晕 -->
+      <g id="sunGroup">
+        <circle id="sunGlow" cx="800" cy="900" r="200" fill="url(#sunGlow)" opacity="0"/>
+        <circle id="sun" cx="800" cy="900" r="80" fill="#ffd700" opacity="0"/>
+      </g>
+
+      <!-- 星点 -->
+      <g id="stars" opacity="0">
+        <circle cx="300" cy="150" r="3" fill="#fff"/>
+        <circle cx="450" cy="220" r="2.5" fill="#fff"/>
+        <circle cx="1100" cy="180" r="3" fill="#fff"/>
+        <circle cx="1250" cy="250" r="2" fill="#fff"/>
+        <circle cx="200" cy="300" r="2.5" fill="#fff"/>
+        <circle cx="1350" cy="320" r="3" fill="#fff"/>
+      </g>
+
+      <!-- 杯子 -->
+      <g id="cupGroup">
+        <path id="cup" d="M 600,450 L 650,750 L 950,750 L 1000,450 Z"
+              fill="none"
+              stroke="#d4a574"
+              stroke-width="6"
+              stroke-dasharray="1800"
+              stroke-dashoffset="1800"/>
+
+        <!-- 液面 -->
+        <rect id="liquid" x="650" y="750" width="300" height="0"
+              fill="#6b4423"
+              clip-path="url(#cupClip)"
+              opacity="0"/>
+
+        <!-- 水渍 -->
+        <ellipse id="stain" cx="800" cy="460" rx="190" ry="15"
+                 fill="#8b6f47"
+                 opacity="0"/>
+      </g>
+
+      <!-- 蒸汽 -->
+      <g id="steam" opacity="0">
+        <path id="steam1" d="M 720,430 Q 710,380 720,330"
+              fill="none" stroke="#fff" stroke-width="3"
+              stroke-linecap="round" opacity="0"/>
+        <path id="steam2" d="M 800,420 Q 810,370 800,320"
+              fill="none" stroke="#fff" stroke-width="3"
+              stroke-linecap="round" opacity="0"/>
+        <path id="steam3" d="M 880,430 Q 890,380 880,330"
+              fill="none" stroke="#fff" stroke-width="3"
+              stroke-linecap="round" opacity="0"/>
+      </g>
+
+      <!-- 最终圆点 -->
+      <circle id="dot" cx="800" cy="450" r="0" fill="#d4a574" opacity="0"/>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <button class="btn" id="playPause" aria-label="播放暂停">▶ 播放</button>
+      <button class="btn" id="stepBack" aria-label="后退一帧">◀</button>
+      <button class="btn" id="stepForward" aria-label="前进一帧">▶</button>
+      <button class="btn" id="speed025" data-speed="0.25">0.25×</button>
+      <button class="btn" id="speed05" data-speed="0.5">0.5×</button>
+      <button class="btn active" id="speed1" data-speed="1">1×</button>
+      <button class="btn" id="speed2" data-speed="2">2×</button>
+      <span class="time-display" id="timeDisplay">0.0 / 14.0s</span>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar" role="slider" aria-label="动画进度" tabindex="0">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="description">
+    <strong>一杯咖啡的一天</strong> —
+    从清晨第一缕阳光唤醒杯子，到液体缓缓注满带来的晨间仪式感，
+    再到傍晚光线沉寂、液面渐空的沉思，
+    最终夜幕降临星点闪烁，一天的循环重新开始。
+    <br>按空格播放/暂停，← → 键逐帧控制。
+  </div>
+</div>
+
+<script>
+// ==================== 缓动函数 ====================
+const easings = {
+  // 太阳升起 - 自然减速落地
+  easeOutCubic: t => 1 - Math.pow(1 - t, 3),
+
+  // 杯子描边 - 流畅起止
+  easeInOutQuart: t => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2,
+
+  // 液面注满后回弹 - 真实液体感
+  elasticOut: t => {
+    const c4 = (2 * Math.PI) / 3;
+    return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  },
+
+  // 太阳下沉 - 自然加速
+  easeInCubic: t => t * t * t,
+
+  // 星点出现 - 弹性吸引注意力
+  backOut: t => {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  },
+
+  linear: t => t
+};
+
+// ==================== OKLCH 色彩插值 ====================
+function oklchToRgb(l, c, h) {
+  // 简化版 OKLCH -> RGB 转换
+  const a = c * Math.cos(h * Math.PI / 180);
+  const b = c * Math.sin(h * Math.PI / 180);
+
+  let L = l + 0.3963377774 * a + 0.2158037573 * b;
+  let M = l - 0.1055613458 * a - 0.0638541728 * b;
+  let S = l - 0.0894841775 * a - 1.2914855480 * b;
+
+  L = Math.pow(L, 3);
+  M = Math.pow(M, 3);
+  S = Math.pow(S, 3);
+
+  let r = +4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S;
+  let g = -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S;
+  let b_ = -0.0041960863 * L - 0.7034186147 * M + 1.7076147010 * S;
+
+  r = Math.max(0, Math.min(1, r)) * 255;
+  g = Math.max(0, Math.min(1, g)) * 255;
+  b_ = Math.max(0, Math.min(1, b_)) * 255;
+
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b_)})`;
+}
+
+function lerpOKLCH(l1, c1, h1, l2, c2, h2, t) {
+  const l = l1 + (l2 - l1) * t;
+  const c = c1 + (c2 - c1) * t;
+  let h = h1 + (h2 - h1) * t;
+  return oklchToRgb(l, c, h);
+}
+
+// ==================== 动画引擎 ====================
+const DURATION = 14000; // 14秒
+let startTime = null;
+let isPlaying = false;
+let speed = 1;
+let currentProgress = 0;
+let rafId = null;
+
+const elements = {
+  sky: document.getElementById('sky'),
+  sun: document.getElementById('sun'),
+  sunGlow: document.getElementById('sunGlow'),
+  sunGroup: document.getElementById('sunGroup'),
+  stars: document.getElementById('stars'),
+  cup: document.getElementById('cup'),
+  cupGroup: document.getElementById('cupGroup'),
+  liquid: document.getElementById('liquid'),
+  stain: document.getElementById('stain'),
+  steam: document.getElementById('steam'),
+  steam1: document.getElementById('steam1'),
+  steam2: document.getElementById('steam2'),
+  steam3: document.getElementById('steam3'),
+  dot: document.getElementById('dot')
+};
+
+// 辅助函数：范围内插值
+function mapRange(value, inMin, inMax, outMin, outMax, easing = easings.linear) {
+  if (value <= inMin) return outMin;
+  if (value >= inMax) return outMax;
+  const t = (value - inMin) / (inMax - inMin);
+  const eased = easing(t);
+  return outMin + (outMax - outMin) * eased;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+// ==================== 渲染函数 ====================
+function render(progress) {
+  currentProgress = progress;
+
+  // 阶段划分
+  const dawn = progress <= 0.214;       // 0-3s
+  const morning = progress > 0.214 && progress <= 0.5;   // 3-7s
+  const evening = progress > 0.5 && progress <= 0.786;   // 7-11s
+  const night = progress > 0.786;       // 11-14s
+
+  // ========== 背景色（连续插值）==========
+  if (progress <= 0.214) {
+    // 清晨：深蓝 -> 暖黄
+    const color = lerpOKLCH(0.2, 0.05, 260, 0.75, 0.15, 80, progress / 0.214);
+    elements.sky.setAttribute('fill', color);
+  } else if (progress <= 0.5) {
+    // 上午：暖黄保持
+    elements.sky.setAttribute('fill', lerpOKLCH(0.75, 0.15, 80, 0.75, 0.15, 80, 0));
+  } else if (progress <= 0.786) {
+    // 傍晚：暖黄 -> 深靛
+    const t = (progress - 0.5) / (0.786 - 0.5);
+    const color = lerpOKLCH(0.75, 0.15, 80, 0.25, 0.08, 260, t);
+    elements.sky.setAttribute('fill', color);
+  } else {
+    // 深夜：深靛保持
+    elements.sky.setAttribute('fill', lerpOKLCH(0.25, 0.08, 260, 0.25, 0.08, 260, 0));
+  }
+
+  // ========== 0-3s: 清晨 ==========
+  if (progress <= 0.214) {
+    const t = progress / 0.214;
+
+    // 太阳升起（easeOutCubic）
+    const sunY = mapRange(t, 0, 1, 900, 450, easings.easeOutCubic);
+    elements.sun.setAttribute('cy', sunY);
+    elements.sunGlow.setAttribute('cy', sunY);
+
+    // 太阳与光晕渐显
+    const sunOpacity = easings.easeOutCubic(t);
+    elements.sun.setAttribute('opacity', sunOpacity);
+    elements.sunGlow.setAttribute('opacity', sunOpacity * 0.6);
+
+    // 杯子描边（easeInOutQuart）- 延迟0.5s启动
+    const cupT = clamp((t - 0.3) / 0.7, 0, 1);
+    const dashOffset = mapRange(cupT, 0, 1, 1800, 0, easings.easeInOutQuart);
+    elements.cup.setAttribute('stroke-dashoffset', dashOffset);
+
+  } else {
+    // 清晨结束状态
+    elements.sun.setAttribute('cy', 450);
+    elements.sunGlow.setAttribute('cy', 450);
+    elements.sun.setAttribute('opacity', 1);
+    elements.sunGlow.setAttribute('opacity', 0.6);
+    elements.cup.setAttribute('stroke-dashoffset', 0);
+  }
+
+  // ========== 3-7s: 上午 ==========
+  if (progress > 0.214 && progress <= 0.5) {
+    const t = (progress - 0.214) / (0.5 - 0.214);
+
+    // 液面上升（elasticOut - 有回弹）
+    const liquidHeight = mapRange(t, 0, 1, 0, 280, easings.elasticOut);
+    elements.liquid.setAttribute('y', 750 - liquidHeight);
+    elements.liquid.setAttribute('height', liquidHeight);
+    elements.liquid.setAttribute('opacity', Math.min(t * 2, 1));
+
+    // 蒸汽依次出现（stagger + overlap）
+    // 蒸汽1: 延迟0s
+    const steam1T = clamp(t / 0.5, 0, 1);
+    elements.steam1.setAttribute('opacity', steam1T * (1 - steam1T * 0.8));
+    const steam1Y = -steam1T * 100;
+    elements.steam1.setAttribute('transform', `translate(0, ${steam1Y}) rotate(${Math.sin(t * 8) * 3})`);
+
+    // 蒸汽2: 延迟0.3
+    const steam2T = clamp((t - 0.3) / 0.5, 0, 1);
+    elements.steam2.setAttribute('opacity', steam2T * (1 - steam2T * 0.8));
+    const steam2Y = -steam2T * 100;
+    elements.steam2.setAttribute('transform', `translate(0, ${steam2Y}) rotate(${Math.sin(t * 8 + 1) * 3})`);
+
+    // 蒸汽3: 延迟0.5
+    const steam3T = clamp((t - 0.5) / 0.5, 0, 1);
+    elements.steam3.setAttribute('opacity', steam3T * (1 - steam3T * 0.8));
+    const steam3Y = -steam3T * 100;
+    elements.steam3.setAttribute('transform', `translate(0, ${steam3Y}) rotate(${Math.sin(t * 8 + 2) * 3})`);
+
+  } else if (progress > 0.5) {
+    // 上午结束 - 液面满
+    elements.liquid.setAttribute('y', 470);
+    elements.liquid.setAttribute('height', 280);
+    elements.liquid.setAttribute('opacity', 1);
+  }
+
+  // ========== 7-11s: 傍晚 ==========
+  if (progress > 0.5 && progress <= 0.786) {
+    const t = (progress - 0.5) / (0.786 - 0.5);
+
+    // 太阳下沉（easeInCubic）
+    const sunY = mapRange(t, 0, 1, 450, 900, easings.easeInCubic);
+    elements.sun.setAttribute('cy', sunY);
+    elements.sunGlow.setAttribute('cy', sunY);
+
+    // 太阳渐隐
+    const sunOpacity = 1 - easings.easeInCubic(t);
+    elements.sun.setAttribute('opacity', sunOpacity);
+    elements.sunGlow.setAttribute('opacity', sunOpacity * 0.6);
+
+    // 液面下降（带惯性回摆 - follow-through）
+    const liquidT = easings.easeInOutQuart(t);
+    const wobble = Math.sin(t * 12) * 5 * (1 - t); // 衰减振荡
+    const liquidHeight = 280 - liquidT * 280 + wobble;
+    elements.liquid.setAttribute('height', Math.max(0, liquidHeight));
+    elements.liquid.setAttribute('y', 750 - liquidHeight);
+
+    // 水渍渐显
+    const stainOpacity = mapRange(t, 0.3, 0.8, 0, 0.4, easings.linear);
+    elements.stain.setAttribute('opacity', stainOpacity);
+
+    // 蒸汽消散
+    elements.steam.setAttribute('opacity', 1 - t);
+
+  } else if (progress > 0.786) {
+    // 傍晚结束
+    elements.sun.setAttribute('opacity', 0);
+    elements.sunGlow.setAttribute('opacity', 0);
+    elements.liquid.setAttribute('height', 0);
+    elements.steam.setAttribute('opacity', 0);
+  }
+
+  // ========== 11-14s: 深夜 ==========
+  if (progress > 0.786) {
+    const t = (progress - 0.786) / (1 - 0.786);
+
+    // 星点依次亮起（stagger + backOut）
+    const starOpacity = easings.backOut(clamp(t * 1.5, 0, 1));
+    elements.stars.setAttribute('opacity', starOpacity);
+
+    // 杯子缩为圆点
+    const scale = mapRange(t, 0.3, 0.9, 1, 0, easings.easeInCubic);
+    const cupOpacity = mapRange(t, 0.5, 1, 1, 0, easings.linear);
+    elements.cupGroup.setAttribute('transform', `translate(800, 600) scale(${scale}) translate(-800, -600)`);
+    elements.cupGroup.setAttribute('opacity', cupOpacity);
+
+    // 圆点出现
+    const dotT = clamp((t - 0.7) / 0.3, 0, 1);
+    elements.dot.setAttribute('r', dotT * 8);
+    elements.dot.setAttribute('opacity', dotT);
+
+    // 水渍淡出
+    elements.stain.setAttribute('opacity', 0.4 * (1 - t));
+
+  } else {
+    // 非深夜 - 重置深夜元素
+    elements.stars.setAttribute('opacity', 0);
+    elements.cupGroup.setAttribute('transform', '');
+    elements.cupGroup.setAttribute('opacity', 1);
+    elements.dot.setAttribute('r', 0);
+    elements.dot.setAttribute('opacity', 0);
+  }
+
+  // 更新UI
+  updateUI();
+}
+
+// ==================== 动画循环 ====================
+function tick(timestamp) {
+  if (!startTime) startTime = timestamp;
+  const elapsed = (timestamp - startTime) * speed;
+  const progress = (elapsed % DURATION) / DURATION;
+
+  render(progress);
+
+  if (isPlaying) {
+    rafId = requestAnimationFrame(tick);
+  }
+}
+
+function play() {
+  if (!isPlaying) {
+    isPlaying = true;
+    startTime = performance.now() - (currentProgress * DURATION / speed);
+    rafId = requestAnimationFrame(tick);
+    document.getElementById('playPause').textContent = '⏸ 暂停';
+  }
+}
+
+function pause() {
+  if (isPlaying) {
+    isPlaying = false;
+    cancelAnimationFrame(rafId);
+    document.getElementById('playPause').textContent = '▶ 播放';
+  }
+}
+
+function togglePlay() {
+  if (isPlaying) pause();
+  else play();
+}
+
+function setSpeed(newSpeed) {
+  const wasPlaying = isPlaying;
+  if (wasPlaying) pause();
+  speed = newSpeed;
+  document.querySelectorAll('[data-speed]').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.dataset.speed) === speed);
+  });
+  if (wasPlaying) play();
+}
+
+function step(delta) {
+  pause();
+  currentProgress = (currentProgress + delta / DURATION + 1) % 1;
+  render(currentProgress);
+}
+
+function seekTo(progress) {
+  const wasPlaying = isPlaying;
+  if (wasPlaying) pause();
+  render(progress);
+  if (wasPlaying) play();
+}
+
+function updateUI() {
+  const time = currentProgress * 14;
+  document.getElementById('timeDisplay').textContent = `${time.toFixed(1)} / 14.0s`;
+  document.getElementById('progressFill').style.width = `${currentProgress * 100}%`;
+}
+
+// ==================== 事件监听 ====================
+document.getElementById('playPause').addEventListener('click', togglePlay);
+document.getElementById('stepBack').addEventListener('click', () => step(-100));
+document.getElementById('stepForward').addEventListener('click', () => step(100));
+
+document.querySelectorAll('[data-speed]').forEach(btn => {
+  btn.addEventListener('click', () => setSpeed(parseFloat(btn.dataset.speed)));
+});
+
+const progressBar = document.getElementById('progressBar');
+progressBar.addEventListener('click', (e) => {
+  const rect = progressBar.getBoundingClientRect();
+  const progress = (e.clientX - rect.left) / rect.width;
+  seekTo(progress);
+});
+
+let isDragging = false;
+progressBar.addEventListener('mousedown', () => isDragging = true);
+document.addEventListener('mouseup', () => isDragging = false);
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    const rect = progressBar.getBoundingClientRect();
+    const progress = clamp((e.clientX - rect.left) / rect.width, 0, 1);
+    seekTo(progress);
+  }
+});
+
+// 键盘控制
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    togglePlay();
+  } else if (e.code === 'ArrowLeft') {
+    e.preventDefault();
+    step(-100);
+  } else if (e.code === 'ArrowRight') {
+    e.preventDefault();
+    step(100);
+  }
+});
+
+progressBar.addEventListener('keydown', (e) => {
+  if (e.code === 'ArrowLeft') {
+    e.preventDefault();
+    seekTo(Math.max(0, currentProgress - 0.05));
+  } else if (e.code === 'ArrowRight') {
+    e.preventDefault();
+    seekTo(Math.min(1, currentProgress + 0.05));
+  }
+});
+
+// 可见性管理（性能优化）
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && isPlaying) {
+    pause();
+  }
+});
+
+// prefers-reduced-motion 支持
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (prefersReducedMotion) {
+  render(0.35); // 显示上午关键帧
+  document.querySelector('.motion-warning').style.display = 'block';
+  document.getElementById('force-play').addEventListener('click', () => {
+    document.querySelector('.motion-warning').style.display = 'none';
+    play();
+  });
+} else {
+  // 默认自动播放
+  render(0);
+  setTimeout(play, 500);
+}
+</script>
+</body>
+</html>
